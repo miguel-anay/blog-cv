@@ -1,0 +1,926 @@
+/* ============================================================
+   Fonts — Google Fonts CDN
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter+Tight:wght@400;500;600;700;800&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+
+@import "tailwindcss";
+
+/* ============================================================
+   Theme tokens
+   ------------------------------------------------------------
+   3 themes × 2 modes = 6 combinations.
+   Theme is set on <html data-theme="min|term|ide">.
+   Mode is set on <html data-mode="dark|light"> (default: dark).
+   Accent: <html data-accent="green|amber|cyan|magenta">.
+   ============================================================ */
+
+:root {
+  /* Font stacks */
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --font-sans: 'Inter Tight', system-ui, -apple-system, sans-serif;
+  --font-serif: 'Newsreader', Georgia, serif;
+
+  /* Layout */
+  --max-w: 1180px;
+  --pad-x: 56px;
+
+  /* Defaults (dark · green · min) — overridden by [data-*] below */
+  --bg: #0d0f14;
+  --bg-raised: #131720;
+  --bg-sunken: #080a0f;
+  --bg-overlay: #181c25;
+  --border: #1c2129;
+  --border-strong: #262c36;
+  --border-dim: #13171d;
+  --text: #e8ecf1;
+  --text-strong: #ffffff;
+  --text-muted: #8b95a3;
+  --text-dim: #5a626f;
+  --text-faint: #3a4150;
+  --link: #79c0ff;
+  --chrome-bg: #06070a;
+  --chrome-text: #7e8794;
+
+  --accent: #7cf08c;
+  --accent-soft: rgba(124, 240, 140, 0.12);
+  --accent-on: #0a0b0d;
+}
+
+/* ── Light mode tokens ───────────────────────────────────── */
+[data-mode="light"] {
+  --bg: #fafaf6;
+  --bg-raised: #ffffff;
+  --bg-sunken: #f0efe9;
+  --bg-overlay: #ebeae3;
+  --border: #e2e0d6;
+  --border-strong: #cbc8bb;
+  --border-dim: #eeece4;
+  --text: #0e0f10;
+  --text-strong: #000000;
+  --text-muted: #6a6a6d;
+  --text-dim: #9a9a9d;
+  --text-faint: #c0c0c2;
+  --link: #0969da;
+  --chrome-bg: #ededde;
+  --chrome-text: #5d5d60;
+}
+
+/* ── TERM theme — deep black + phosphor green ────────────── */
+[data-theme="term"] {
+  --bg: #141414;
+  --bg-raised: #1c1c1c;
+  --bg-sunken: #0f0f0f;
+  --bg-overlay: #222222;
+  --border: #2d2d2d;
+  --border-strong: #404040;
+  --border-dim: #1e1e1e;
+  --text: #cccccc;
+  --text-strong: #f0f0f0;
+  --text-muted: #888888;
+  --text-dim: #555555;
+  --text-faint: #333333;
+  --link: #33ff57;
+  --chrome-bg: #242424;
+  --chrome-text: #777777;
+  --accent: #33ff57;
+  --accent-soft: rgba(51, 255, 87, 0.1);
+  --accent-on: #000000;
+}
+
+[data-theme="term"] body {
+  font-family: var(--font-mono);
+}
+
+/* term + light — Atom One Light con identidad terminal */
+[data-theme="term"][data-mode="light"] {
+  --bg: #f5f5f0;
+  --bg-raised: #ebebea;
+  --bg-sunken: #e0e0db;
+  --bg-overlay: #d8d8d3;
+  --border: #c0c0bb;
+  --border-strong: #a0a09b;
+  --border-dim: #dcdcd7;
+  --text: #282828;
+  --text-strong: #000000;
+  --text-muted: #666666;
+  --text-dim: #999999;
+  --text-faint: #bbbbbb;
+  --link: #1a8a30;
+  --chrome-bg: #e0e0db;
+  --chrome-text: #666666;
+  --accent: #1a9e30;
+  --accent-soft: rgba(26, 158, 48, 0.12);
+  --accent-on: #ffffff;
+}
+
+/* ── IDE theme — VS Code Dark+ ───────────────────────────── */
+[data-theme="ide"] {
+  --bg: #1e1e1e;
+  --bg-raised: #252526;
+  --bg-sunken: #181818;
+  --bg-overlay: #2d2d2d;
+  --border: #3c3c3c;
+  --border-strong: #555555;
+  --border-dim: #2a2a2a;
+  --text: #d4d4d4;
+  --text-strong: #ffffff;
+  --text-muted: #858585;
+  --text-dim: #6a6a6a;
+  --text-faint: #404040;
+  --link: #4fc1ff;
+  --chrome-bg: #3c3c3c;
+  --chrome-text: #cccccc;
+  --accent: #569cd6;
+  --accent-soft: rgba(86, 156, 214, 0.15);
+  --accent-on: #ffffff;
+}
+
+[data-theme="ide"] body {
+  padding-left: 220px;
+  padding-bottom: 24px;
+}
+
+/* ide + light — VS Code Light+ */
+[data-theme="ide"][data-mode="light"] {
+  --bg: #ffffff;
+  --bg-raised: #f3f3f3;
+  --bg-sunken: #ebebeb;
+  --bg-overlay: #e5e5e5;
+  --border: #c8c8c8;
+  --border-strong: #aaaaaa;
+  --border-dim: #e0e0e0;
+  --text: #383838;
+  --text-strong: #000000;
+  --text-muted: #707070;
+  --text-dim: #999999;
+  --text-faint: #cccccc;
+  --link: #0065a9;
+  --chrome-bg: #dddddd;
+  --chrome-text: #717171;
+  --accent: #0065a9;
+  --accent-soft: rgba(0, 101, 169, 0.12);
+  --accent-on: #ffffff;
+}
+
+/* ── Accent variants ─────────────────────────────────────── */
+[data-accent="green"] {
+  --accent: #7cf08c;
+  --accent-soft: rgba(124, 240, 140, 0.12);
+}
+[data-accent="amber"] {
+  --accent: #ffb454;
+  --accent-soft: rgba(255, 180, 84, 0.14);
+}
+[data-accent="cyan"] {
+  --accent: #79c0ff;
+  --accent-soft: rgba(121, 192, 255, 0.14);
+}
+[data-accent="magenta"] {
+  --accent: #f178b6;
+  --accent-soft: rgba(241, 120, 182, 0.14);
+}
+
+[data-mode="light"] {
+  --accent-on: #0a0b0d;
+}
+
+/* ============================================================
+   TermChrome — macOS terminal titlebar
+   ============================================================ */
+
+.term-chrome {
+  display: none;
+}
+
+[data-theme="term"] .term-chrome {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  background: var(--chrome-bg);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 16px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.term-chrome__left {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.term-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.term-dot--close { background: #ff5f57; }
+.term-dot--min   { background: #febc2e; }
+.term-dot--max   { background: #28c840; }
+
+.term-chrome__title {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--chrome-text);
+  text-align: center;
+}
+
+.term-chrome__right {
+  display: flex;
+  gap: 2px;
+}
+
+.term-chrome__tab {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--chrome-text);
+  padding: 2px 14px;
+  border-radius: 3px;
+}
+
+.term-chrome__tab.is-active {
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* ============================================================
+   IdeShell — sidebar + status bar
+   ============================================================ */
+
+.ide-sidebar {
+  display: none;
+}
+
+.ide-statusbar {
+  display: none;
+}
+
+[data-theme="ide"] .ide-sidebar {
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 24px;
+  width: 220px;
+  background: var(--bg-raised);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  z-index: 90;
+}
+
+[data-theme="ide"] .ide-statusbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 24px;
+  background: var(--accent);
+  padding: 0 12px;
+  z-index: 91;
+}
+
+.ide-sidebar__section {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  padding: 16px 12px 8px;
+}
+
+.ide-tree {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.ide-tree__dir {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  padding: 4px 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  letter-spacing: 0.04em;
+}
+
+.ide-tree__caret {
+  font-size: 10px;
+}
+
+.ide-tree__file {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-muted);
+  padding: 4px 12px 4px 28px;
+  text-decoration: none;
+  transition: background 0.1s ease;
+}
+
+.ide-tree__file:hover {
+  background: var(--bg-overlay);
+  color: var(--text);
+}
+
+.ide-tree__file.is-active {
+  background: var(--bg-overlay);
+  color: var(--text-strong);
+}
+
+.ide-tree__icon {
+  font-style: normal;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+}
+
+.ide-status__branch,
+.ide-status__file,
+.ide-status__sep,
+.ide-status__info {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--accent-on);
+  opacity: 0.9;
+}
+
+.ide-status__sep {
+  opacity: 0.4;
+}
+
+.ide-status__spacer {
+  flex: 1;
+}
+
+/* ============================================================
+   Base
+   ============================================================ */
+
+html {
+  min-height: 100vh;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.18s ease, color 0.18s ease;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-on);
+}
+
+a {
+  color: var(--text);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--accent);
+}
+
+code,
+kbd,
+samp,
+pre {
+  font-family: var(--font-mono);
+}
+
+hr {
+  border: 0;
+  border-top: 1px dashed var(--border);
+  margin: 48px 0;
+}
+
+/* ============================================================
+   Container
+   ============================================================ */
+
+.container-page {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding-inline: var(--pad-x);
+}
+
+/* ============================================================
+   Header
+   ============================================================ */
+
+.site-header {
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.site-header__inner {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 20px var(--pad-x);
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 48px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+}
+
+.brand__prompt {
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.brand__name {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-strong);
+}
+
+.brand__cursor {
+  display: inline-block;
+  width: 8px;
+  height: 14px;
+  background: var(--accent);
+  margin-left: 4px;
+  animation: blink 1s steps(2, end) infinite;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.site-nav {
+  display: flex;
+  gap: 28px;
+  justify-content: center;
+}
+
+.site-nav a {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.site-nav a.is-active {
+  color: var(--text-strong);
+  font-weight: 500;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  justify-content: flex-end;
+}
+
+.header-sep {
+  width: 1px;
+  height: 16px;
+  background: var(--border);
+}
+
+.kbd {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  padding: 3px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+/* ============================================================
+   Theme switcher
+   ============================================================ */
+
+.theme-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+}
+
+.theme-switcher__label {
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 0.04em;
+}
+
+.theme-switcher__group {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg-raised);
+  padding: 2px;
+  gap: 2px;
+}
+
+.theme-switcher__opt {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 3px;
+  color: var(--text-muted);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  font-weight: 400;
+}
+
+.theme-switcher__opt:hover {
+  color: var(--text);
+}
+
+.theme-switcher__opt[aria-pressed="true"] {
+  color: var(--accent-on);
+  background: var(--accent);
+  font-weight: 600;
+}
+
+/* Mode toggle (sun/moon button) */
+.mode-toggle {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  line-height: 1;
+}
+
+.mode-toggle:hover {
+  color: var(--accent);
+}
+
+/* ============================================================
+   Footer
+   ============================================================ */
+
+.site-footer {
+  background: var(--bg-sunken);
+  margin-top: 80px;
+}
+
+.site-footer__inner {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 64px var(--pad-x) 40px;
+}
+
+.site-footer__cols {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 40px;
+  padding-bottom: 40px;
+  border-bottom: 1px solid var(--border);
+}
+
+.site-footer__col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.site-footer__col-h {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
+}
+
+.site-footer__link {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text);
+}
+
+.site-footer__text {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.site-footer__bottom {
+  padding-top: 24px;
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+/* ============================================================
+   Blog card (used in home + listings)
+   ============================================================ */
+
+.blog-card {
+  display: grid;
+  grid-template-columns: 80px 1fr 40px;
+  gap: 32px;
+  padding: 28px 0;
+  border-top: 1px solid var(--border-dim);
+  align-items: start;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.12s ease;
+}
+
+.blog-card:hover {
+  background: var(--bg-sunken);
+  margin-inline: calc(var(--pad-x) * -1);
+  padding-inline: var(--pad-x);
+}
+
+.blog-card__num {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--accent);
+  font-weight: 500;
+  padding-top: 4px;
+}
+
+.blog-card__meta {
+  display: flex;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.blog-card__cat {
+  color: var(--accent);
+}
+
+.blog-card__meta-sep {
+  color: var(--text-faint);
+}
+
+.blog-card__title {
+  font-family: var(--font-sans);
+  font-size: clamp(18px, 4vw, 26px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-strong);
+  margin: 0 0 10px;
+  line-height: 1.2;
+}
+
+.blog-card__desc {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.blog-card__arrow {
+  font-family: var(--font-mono);
+  font-size: 20px;
+  color: var(--text-dim);
+  padding-top: 16px;
+}
+
+/* ============================================================
+   Category cell (unified sober design)
+   ============================================================ */
+
+.cat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+@media (max-width: 900px) {
+  .cat-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.cat-cell {
+  background: var(--bg-raised);
+  padding: 20px 22px;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: background 0.12s ease;
+}
+
+.cat-cell:hover {
+  background: var(--bg-overlay);
+  color: var(--text);
+}
+
+.cat-cell__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.cat-cell__name {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  color: var(--text-strong);
+  font-weight: 500;
+}
+
+.cat-cell__count {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.cat-cell__bar {
+  display: block;
+  height: 3px;
+  background: var(--border-dim);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.cat-cell__bar-fill {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+}
+
+/* ============================================================
+   Section heads
+   ============================================================ */
+
+.section-head {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 24px;
+  align-items: baseline;
+  padding-bottom: 24px;
+  margin-bottom: 40px;
+  border-bottom: 1px solid var(--border);
+}
+
+.section-head__num {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+}
+
+.section-head__title {
+  font-family: var(--font-sans);
+  font-size: clamp(18px, 4vw, 26px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-strong);
+  margin: 0;
+}
+
+.section-head__hint {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.section-head__link {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--link);
+}
+
+/* ============================================================
+   Buttons
+   ============================================================ */
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--accent);
+  color: var(--accent-on);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 12px 18px;
+  border-radius: 4px;
+  letter-spacing: 0.01em;
+}
+
+.btn-primary:hover {
+  filter: brightness(1.08);
+  color: var(--accent-on);
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--text);
+  padding: 12px 18px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+.btn-ghost:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ============================================================
+   Generic section wrapper
+   ============================================================ */
+
+.section {
+  padding: 80px var(--pad-x);
+  border-bottom: 1px dashed var(--border);
+  max-width: var(--max-w);
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ============================================================
+   Eyebrow / status dot
+   ============================================================ */
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+  display: inline-block;
+}
+
+/* ============================================================
+   Mobile responsive
+   ============================================================ */
+
+@media (max-width: 768px) {
+  :root {
+    --pad-x: 24px;
+  }
+
+  .site-header__inner {
+    grid-template-columns: 1fr auto;
+    gap: 16px;
+  }
+
+  .site-nav {
+    display: none;
+  }
+
+  .site-footer__cols {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* IDE: ocultar sidebar + statusbar, quitar offset del body */
+  [data-theme="ide"] .ide-sidebar   { display: none; }
+  [data-theme="ide"] .ide-statusbar { display: none; }
+  [data-theme="ide"] body           { padding-left: 0; padding-bottom: 0; }
+
+  /* TERM: simplificar titlebar — ocultar tab de la derecha */
+  [data-theme="term"] .term-chrome  { grid-template-columns: auto 1fr; }
+  .term-chrome__right               { display: none; }
+}

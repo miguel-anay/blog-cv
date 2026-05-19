@@ -1,0 +1,234 @@
+{
+  "personal": {
+    "nombre": "Ing.Anay Gomez,Miguel Angel",
+    "sitio": "Miguel-anay.nom.pe",
+    "descripcion": "Full Stack Developer, DevOps e Ingeniero en IA con especialización en desarrollo web e inteligencia artificial. CEO de Yiwu Import Corporation, implementando tecnologías disruptivas para Pymes. Más de 12 años de experiencia en empresas como Encora y Prosegur, participando en proyectos de alto impacto para el sector financiero y corporativo. Especialista en NEXTJS, C#.NET, Python, LangChain, AWS, Azure, Docker, Kubernetes, enfocado en construir soluciones seguras, escalables y orientadas al usuario. Me apasiona trabajar en equipo, liderar iniciativas tecnológicas y optimizar procesos con sistemas web inteligentes.",
+    "empresasDestacadas": ["Encora", "Prosegur"],
+    "tecnologiasDestacadas": "NEXTJS, C#.NET, Python, LangChain, AWS, Azure, Docker, Kubernetes",
+    "linkedin": "https://www.linkedin.com/in/miguel-anay/",
+    "anio": "2025"
+  },
+
+  "proyectos": [
+    {
+      "titulo": "Agencia Virtual",
+      "empresa": "Profuturo AFP",
+      "descripcion": "Plataforma para la gestión de trámites y registros de afiliados.",
+      "url": "https://enlinea.profuturo.com.pe/agenciavirtual/#/",
+      "imagen": "/cv/agencia_virtual.png",
+      "tecnologias": [
+        { "nombre": "React", "icono": "/cv/assets/reactjs.png", "clases": "w-6 h-6" },
+        { "nombre": "NodeJS", "icono": "/cv/assets/nodejs.png", "clases": "w-8 h-8" },
+        { "nombre": "Docker", "icono": "/cv/assets/docker.png", "clases": "w-8 h-8" }
+      ]
+    },
+    {
+      "titulo": "Clave Web.",
+      "empresa": "Profuturo AFP.",
+      "descripcion": "Sistema para la recuperación y actualización de credenciales.",
+      "url": "https://claveweb.profuturo.com.pe/#/",
+      "imagen": "/cv/claveweb.png",
+      "tecnologias": [
+        { "nombre": "React", "icono": "/cv/assets/reactjs.png", "clases": "w-6 h-6" },
+        { "nombre": "NodeJS", "icono": "/cv/assets/nodejs.png", "clases": "w-8 h-8" },
+        { "nombre": "Docker", "icono": "/cv/assets/docker.png", "clases": "w-8 h-8" },
+        { "nombre": "AWS", "icono": "/cv/assets/aws.png", "clases": "w-8 h-8" }
+      ]
+    },
+    {
+      "titulo": "Disfruta Profuturo.",
+      "empresa": "Profuturo AFP.",
+      "descripcion": "Portal de promociones y cupones para afiliados.",
+      "url": "https://www.disfrutaprofuturo.com.pe/",
+      "imagen": "/cv/disfruta.png",
+      "tecnologias": [
+        { "nombre": "Vue", "icono": "/cv/assets/vue.png", "clases": "w-6 h-6" },
+        { "nombre": "Python", "icono": "/cv/assets/python.png", "clases": "w-8 h-8" }
+      ]
+    },
+    {
+      "titulo": "FacutuFacil",
+      "empresa": "Yiwu import corporation",
+      "descripcion": "Landing Web y sistema de facturacion electronica, Emprendimiento propio.",
+      "url": "https://factufacil.pe/",
+      "imagen": "/cv/factufacil.png",
+      "tecnologias": [
+        { "nombre": "Vue", "icono": "/cv/assets/vue.png", "clases": "w-6 h-6" },
+        { "nombre": "PHP", "icono": "/cv/assets/php.png", "clases": "w-6 h-6" },
+        { "nombre": "Composer", "icono": "/cv/assets/composer.png", "clases": "w-6 h-6" },
+        { "nombre": "MariaDB", "icono": "/cv/assets/mariadb.png", "clases": "w-6 h-6" }
+      ]
+    }
+  ],
+
+  "experiencia": [
+    {
+      "periodo": "Abril 2025 - Actual",
+      "cargo": "CEO and Full Stack Developer",
+      "empresa": "Yiwu Import Corporation",
+      "certificado": null,
+      "logo": "/cv/LogoFactu.png",
+      "tecnologias": "React.js, Nextjs, Vue, Docker, Angular",
+      "proyectos": [
+        {
+          "nombre": "FactuFacil",
+          "descripcion": "Web de facturación electrónica, que funciona como un sistema Headless para integrarse fácilmente con otros softwares como YAPE-CHECK, AGENTES IA. La plataforma incluye todos los módulos esenciales, como Compras, Ventas y Contabilidad, y ofrece conexión directa con SUNAT, facilitando la gestión administrativa y contable de manera eficiente y segura."
+        },
+        {
+          "nombre": "YAPE-CHECK",
+          "descripcion": "APK encargada de la verificación de pagos realizados a través de YAPE, permitiendo a los comerciantes validar transacciones de manera rápida y segura."
+        },
+        {
+          "nombre": "YUPI.PE y Agentes",
+          "descripcion": "Yupi.pe y Agentes es una plataforma web dedicada a compras conjuntas a importadoras que venden al por mayor. Su objetivo es permitir que pymes y personas naturales puedan acceder a precios de compra por caja, facilitando la adquisición de productos al por mayor de manera simple y accesible."
+        }
+      ]
+    },
+    {
+      "periodo": "Noviembre 2020 - Abril 2025",
+      "cargo": "Software Engineer III",
+      "empresa": "Encora Company",
+      "certificado": "/cv/TRABAJO/ENCORA.pdf",
+      "logo": "/cv/enncora.png",
+      "tecnologias": "React.js, Nextjs, Vue, Docker, Angular",
+      "proyectos": [
+        {
+          "nombre": "Agencia Virtual",
+          "descripcion": "Contribuí al desarrollo de una plataforma de autoservicio para afiliados, optimizando la gestión de trámites como actualizaciones de datos y solicitudes de jubilación. El sistema redujo significativamente la carga operativa del personal de atención al cliente, incrementando la eficiencia y disponibilidad de los servicios en línea."
+        },
+        {
+          "nombre": "Clave Web",
+          "descripcion": "Participé en la implementación de un sistema seguro y automatizado para la recuperación y actualización de credenciales de acceso. Esta solución mejoró la experiencia del usuario final y fortaleció la seguridad digital de la plataforma, reduciendo incidencias de soporte relacionadas con contraseñas en más de un 40%."
+        },
+        {
+          "nombre": "Disfruta Profuturo",
+          "descripcion": "Desarrollé el frontend de un portal de beneficios exclusivo para afiliados, enfocado en promociones y cupones. El proyecto incrementó el engagement de los usuarios con la marca y aportó valor diferencial a la propuesta de fidelización de Profuturo."
+        }
+      ]
+    },
+    {
+      "periodo": "Abril 2018 - Marzo 2020",
+      "cargo": "Analista de procesos",
+      "empresa": "Prosegur",
+      "certificado": "/cv/TRABAJO/prosegur_certificado.pdf",
+      "logo": "/cv/prosegur.png",
+      "tecnologias": "React.js, PHP Laravel, MySQL, SQL Server, Android Studio",
+      "proyectos": [
+        {
+          "nombre": "Web Audit",
+          "descripcion": "Desarrollé una plataforma web para la auditoría de abastecimiento de cajeros automáticos (ATM) basada en análisis de video. La solución permitió mejorar la trazabilidad de las operaciones y asegurar el cumplimiento de buenas prácticas, lo que redujo los incidentes operativos y fortaleció los procesos de control interno."
+        },
+        {
+          "nombre": "Web PER (Programa de Evaluación de Riesgos)",
+          "descripcion": "Contribuí en la creación de un sistema de monitoreo en tiempo real de rutas y vehículos, mediante integración con GPS, mapas interactivos y alertas automáticas por desvíos o paradas. Este sistema optimizó la supervisión logística y redujo los riesgos asociados al transporte de valores."
+        },
+        {
+          "nombre": "App de Supervisiones",
+          "descripcion": "Implementé una aplicación móvil en Android para el personal de campo, que permitió capturar evidencias fotográficas en tiempo real sobre el cumplimiento de protocolos durante rutas operativas. Esto fortaleció la supervisión descentralizada y mejoró la calidad del reporte operativo."
+        }
+      ]
+    },
+    {
+      "periodo": "Abril 2014 - Marzo 2018",
+      "cargo": "Desarrollador web y FULL STACK .NET",
+      "empresa": "Medios Industriales",
+      "certificado": "/cv/TRABAJO/Medios_industriales.pdf",
+      "logo": "/cv/prosegur.png",
+      "tecnologias": "React.js, PHP Laravel, MySQL, SQL Server, Android Studio",
+      "proyectos": [
+        {
+          "nombre": "Control de Tiempos Operativos (CTO)",
+          "descripcion": "Desarrollé un sistema interno para el sinceramiento y control preciso de las jornadas laborales del personal operativo. Esta solución permitió identificar ineficiencias, optimizar la asignación de recursos y mejorar la productividad general de la empresa al asegurar el cumplimiento de los horarios establecidos."
+        },
+        {
+          "nombre": "Balizas",
+          "descripcion": "Implementé una plataforma de monitoreo en tiempo real de unidades blindadas mediante GPS, con alertas inteligentes ante desvíos, detenciones no programadas o anomalías. Esto mejoró significativamente la seguridad en ruta y permitió una respuesta operativa más rápida y eficaz ante eventos críticos."
+        }
+      ]
+    }
+  ],
+
+  "educacion": {
+    "universidades": [
+      {
+        "nombre": "Universidad Nacional de Ingeniería",
+        "titulo": "Ingeniero Industrial (2004 – 2012) CIP:301084"
+      },
+      {
+        "nombre": "Universidad Privada del Norte",
+        "titulo": "Diplomado de Gerencia de TI con Mención en Disrupción Tecnológica (01/2025 - 09/2025)"
+      }
+    ],
+    "especializaciones": [
+      {
+        "categoria": "Software Developer FullStack",
+        "cursos": [
+          {
+            "nombre": "Arquitectura Hexagonal C#.net – Technical Track",
+            "institucion": "Technical Track",
+            "fecha": "Octubre 2025 • 8.5 horas",
+            "certificado": "/cv/ESTUDIO/Hexagonal_C.pdf"
+          },
+          {
+            "nombre": "Visual Basic.Net",
+            "institucion": "Institución de Formación Técnica",
+            "fecha": "Septiembre 2011 • 48 horas",
+            "certificado": "/cv/ESTUDIO/visual_basic_NET.pdf"
+          }
+        ]
+      },
+      {
+        "categoria": "Data Engineer",
+        "cursos": [
+          {
+            "nombre": "Advanced Data Engineer",
+            "institucion": "DMC Instituto - Diplomado",
+            "fecha": "Septiembre 2025 - Actual • 144 horas",
+            "certificado": null
+          },
+          {
+            "nombre": "Administración de SQL Server",
+            "institucion": "Sistemas UNI - Módulo de Base de Datos",
+            "fecha": "Junio 2015 • 96 horas",
+            "certificado": "/cv/ESTUDIO/data_base_administrator.pdf"
+          },
+          {
+            "nombre": "Experto en Business Intelligence",
+            "institucion": "Sistemas UNI - Módulo de Base de Datos",
+            "fecha": "Febrero 2016 • 48 horas",
+            "certificado": "/cv/ESTUDIO/business_intelligence.pdf"
+          }
+        ]
+      },
+      {
+        "categoria": "Data Science",
+        "cursos": [
+          {
+            "nombre": "Python Data Science",
+            "institucion": "DSRP Certification Program",
+            "fecha": "Octubre 2025 • 20 horas",
+            "certificado": "/cv/ESTUDIO/Certificate_Python_Data_Scientist.pdf"
+          },
+          {
+            "nombre": "Gen AI Training Path",
+            "institucion": "Coursera Technical Track - AI Certification",
+            "fecha": "Marzo 2025 • 60 horas",
+            "certificado": "https://www.credly.com/badges/c4c59c1f-de34-47e4-b2c1-7ca90ee3403b/linked_in?t=stx5in",
+            "externo": true
+          }
+        ]
+      },
+      {
+        "categoria": "Ingeniero DevOps",
+        "cursos": [
+          {
+            "nombre": "Azure Fundamentals AZ-900",
+            "institucion": "Udemy-Microsoft Azure Certification",
+            "fecha": "Noviembre 2024 • 9 horas",
+            "certificado": "/cv/ESTUDIO/Azure.pdf"
+          }
+        ]
+      }
+    ]
+  }
+}

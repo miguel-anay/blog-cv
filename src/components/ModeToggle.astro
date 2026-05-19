@@ -1,0 +1,42 @@
+---
+---
+
+<button
+  type="button"
+  class="mode-toggle"
+  data-mode-toggle
+  aria-label="Cambiar modo claro / oscuro"
+  title="modo claro / oscuro"
+>
+  <span data-mode-icon>☾</span>
+</button>
+
+<script>
+  (function () {
+    const STORAGE_KEY = 'blog-mode';
+    const DEFAULT = 'dark';
+
+    function getCurrent() {
+      return document.documentElement.getAttribute('data-mode') || DEFAULT;
+    }
+
+    function applyMode(mode: string) {
+      if (mode !== 'dark' && mode !== 'light') mode = DEFAULT;
+      document.documentElement.setAttribute('data-mode', mode);
+      try { localStorage.setItem(STORAGE_KEY, mode); } catch {}
+      document.querySelectorAll<HTMLElement>('[data-mode-icon]').forEach((el) => {
+        el.textContent = mode === 'dark' ? '☾' : '☀';
+      });
+      document.dispatchEvent(new CustomEvent('modechange', { detail: { mode } }));
+    }
+
+    applyMode(getCurrent());
+
+    document.querySelectorAll<HTMLButtonElement>('[data-mode-toggle]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const next = getCurrent() === 'dark' ? 'light' : 'dark';
+        applyMode(next);
+      });
+    });
+  })();
+</script>

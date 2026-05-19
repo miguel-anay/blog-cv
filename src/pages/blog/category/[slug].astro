@@ -1,0 +1,193 @@
+---
+import BaseHead from "../../../components/seo/BaseHead.astro";
+import Header from "../../../components/layout/Header.astro";
+import Footer from "../../../components/layout/Footer.astro";
+import BlogCard from "../components/BlogCard.astro";
+import { getArticles, getCategories } from "../../../lib/api";
+
+const { slug } = Astro.params;
+if (!slug) return Astro.redirect('/blog/categories');
+
+const [allCategories, articlesRes] = await Promise.all([
+  getCategories(),
+  getArticles({ category: slug, pageSize: 100 }),
+]);
+
+const category = allCategories.find((c) => c.slug === slug);
+if (!category) return new Response(null, { status: 404, statusText: 'Not Found' });
+
+const posts = articlesRes.data.sort(
+  (a, b) =>
+    new Date(b.publishedAt ?? b.createdAt).getTime() -
+    new Date(a.publishedAt ?? a.createdAt).getTime()
+);
+
+const dates = posts
+  .map((p) => new Date(p.publishedAt ?? p.createdAt))
+  .sort((a, b) => a.getTime() - b.getTime());
+const first = dates[0] ? dates[0].toISOString().slice(0, 10) : '—';
+const last = dates[dates.length - 1] ? dates[dates.length - 1].toISOString().slice(0, 10) : '—';
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <BaseHead
+      title={`${category.name} — Blog Miguel Anay`}
+      description={category.description || `${posts.length} escritos sobre ${category.name}.`}
+    />
+  </head>
+  <body>
+    <Header />
+
+    <main>
+      <section class="cat-hero">
+        <div class="cat-hero__inner">
+          <nav class="page-crumb">
+            <a href="/">./</a>
+            <span class="page-crumb__sep">/</span>
+            <a href="/blog">blog</a>
+            <span class="page-crumb__sep">/</span>
+            <a href="/blog/categories">category</a>
+            <span class="page-crumb__sep">/</span>
+            <span class="page-crumb__active">{category.slug}</span>
+          </nav>
+
+          <h1 class="cat-title">
+            <span class="cat-title__hash">#</span> {category.slug}
+          </h1>
+          {category.description && <p class="cat-desc">{category.description}</p>}
+
+          <div class="cat-stats">
+            <div class="stat">
+              <span class="stat__k">escritos</span>
+              <span class="stat__v">{posts.length}</span>
+            </div>
+            <div class="stat">
+              <span class="stat__k">primero</span>
+              <span class="stat__v">{first}</span>
+            </div>
+            <div class="stat">
+              <span class="stat__k">último</span>
+              <span class="stat__v">{last}</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="posts">
+        <div class="posts-inner">
+          <div class="posts-head">
+            <span class="posts-count">Todos los escritos en <strong>{category.slug}</strong></span>
+          </div>
+
+          {posts.length > 0 ? (
+            <ol class="post-list">
+              {posts.map((post, i) => (
+                <BlogCard
+                  title={post.title}
+                  description={post.description ?? ''}
+                  pubDate={new Date(post.publishedAt ?? post.createdAt)}
+                  slug={post.slug}
+                  index={i + 1}
+                  readMin={post.readMin ?? 1}
+                  categories={post.categories}
+                />
+              ))}
+            </ol>
+          ) : (
+            <p class="cat-empty">
+              <span class="cat-empty__comment">{`// ls --empty`}</span><br />
+              Aún no hay escritos en esta categoría.
+            </p>
+          )}
+        </div>
+      </section>
+    </main>
+
+    <Footer />
+
+    <style>
+      .cat-hero { border-bottom: 1px dashed var(--border); background: var(--bg-sunken); }
+      .cat-hero__inner { max-width: var(--max-w); margin: 0 auto; padding: 64px var(--pad-x); }
+
+      .page-crumb {
+        display: flex;
+        gap: 8px;
+        font-family: var(--font-mono);
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-bottom: 32px;
+        flex-wrap: wrap;
+      }
+      .page-crumb a { color: var(--text-muted); }
+      .page-crumb__sep { color: var(--text-faint); }
+      .page-crumb__active { color: var(--accent); }
+
+      .cat-title {
+        font-family: var(--font-sans);
+        font-size: clamp(48px, 7vw, 72px);
+        font-weight: 800;
+        letter-spacing: -0.04em;
+        color: var(--text-strong);
+        margin: 0;
+      }
+      .cat-title__hash { color: var(--text-dim); font-weight: 400; }
+      .cat-desc {
+        font-family: var(--font-sans);
+        font-size: 18px;
+        line-height: 1.55;
+        color: var(--text-muted);
+        max-width: 680px;
+        margin: 24px 0 0;
+      }
+
+      .cat-stats {
+        margin-top: 40px;
+        padding-top: 24px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        gap: 64px;
+        flex-wrap: wrap;
+      }
+      .stat { display: flex; flex-direction: column; gap: 6px; }
+      .stat__k {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--text-dim);
+        letter-spacing: 0.04em;
+      }
+      .stat__v {
+        font-family: var(--font-mono);
+        font-size: 20px;
+        color: var(--text-strong);
+        font-weight: 600;
+      }
+
+      .posts-inner { max-width: var(--max-w); margin: 0 auto; padding: 56px var(--pad-x) 80px; }
+      .posts-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 16px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--border);
+      }
+      .posts-count {
+        font-family: var(--font-mono);
+        font-size: 13px;
+        color: var(--text);
+      }
+      .posts-count strong { color: var(--accent); font-weight: 500; }
+      .post-list { list-style: none; padding: 0; margin: 0; }
+
+      .cat-empty {
+        font-family: var(--font-mono);
+        color: var(--text-muted);
+        padding: 48px 0;
+        font-size: 14px;
+      }
+      .cat-empty__comment { color: var(--text-dim); }
+    </style>
+  </body>
+</html>

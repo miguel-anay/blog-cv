@@ -1,0 +1,934 @@
+---
+// Renders article body blocks - used only in blog feature
+import type { TextNode } from "../../../lib/api-types";
+
+export interface Props {
+  blocks?: any[];
+}
+
+const { blocks = [] } = Astro.props;
+
+const processedBlocks = blocks;
+
+// Helper function to render text nodes with formatting (similar to DynamicContent.astro)
+function renderTextNode(node: TextNode) {
+  let text = node.text;
+  let className = "";
+
+  if (node.bold) className += "font-bold ";
+  if (node.italic) className += "italic ";
+  if (node.underline) className += "underline ";
+  if (node.strikethrough) className += "line-through ";
+  if (node.code) className += "inline-code ";
+
+  return { text, className: className.trim() };
+}
+
+// Helper function to check if a node is a link
+function isLinkNode(node: any): boolean {
+  return node.type === "link" && node.url && node.children;
+}
+---
+
+<!-- Image Modal -->
+<div id="imageModal" class="image-modal" aria-hidden="true">
+  <div class="image-modal-overlay"></div>
+  <div class="image-modal-content">
+    <button class="image-modal-close" aria-label="Cerrar modal">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        width="24"
+        height="24">
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+    <img id="modalImage" src="" alt="" class="image-modal-img" />
+    <div id="modalCaption" class="image-modal-caption"></div>
+  </div>
+</div>
+
+<div class="rich-content">
+  {
+    processedBlocks.map((block) => {
+      // Handle paragraph blocks (type: 'paragraph')
+      if (block.type === "paragraph") {
+        return (
+          <p class="paragraph-block">
+            {block.children?.map((child: any) => {
+              // Check if the child is a link node
+              if (isLinkNode(child)) {
+                return (
+                  <a
+                    href={child.url}
+                    class="inline-link"
+                    target="_blank"
+                    rel="noopener noreferrer">
+                    {child.children?.map((textNode: TextNode) => {
+                      const { text, className } = renderTextNode(textNode);
+                      return className ? (
+                        <span class={className}>{text}</span>
+                      ) : (
+                        text
+                      );
+                    })}
+                  </a>
+                );
+              }
+              // Otherwise, render as regular text node
+              const { text, className } = renderTextNode(child);
+              return className ? <span class={className}>{text}</span> : text;
+            })}
+          </p>
+        );
+      }
+
+      // Handle list blocks (type: 'list')
+      if (block.type === "list") {
+        const ListTag = block.format === "ordered" ? "ol" : "ul";
+        return (
+          <ListTag
+            class={`list-block ${block.format === "ordered" ? "ordered" : "unordered"}`}>
+            {block.children?.map((item: any) => (
+              <li>
+                {item.children?.map((textNode: TextNode) => {
+                  const { text, className } = renderTextNode(textNode);
+                  return className ? (
+                    <span class={className}>{text}</span>
+                  ) : (
+                    text
+                  );
+                })}
+              </li>
+            ))}
+          </ListTag>
+        );
+      }
+
+      // Handle code blocks (type: 'code')
+      if (block.type === "code") {
+        const language = block.language?.toLowerCase() || "code";
+        const isTypeScript = language === "typescript" || language === "ts";
+        const codeContent = block.code || block.children?.[0]?.text || "";
+
+        return (
+          <div class={`code-block ${isTypeScript ? "typescript-block" : ""}`}>
+            <div class="code-block-header">
+              <span class="code-block-language">
+                {isTypeScript ? "TypeScript" : block.language || "Code"}
+              </span>
+              <svg
+                class="code-block-icon"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
+                />
+              </svg>
+            </div>
+            <div class="code-block-body">
+              <pre>
+                <code class={`language-${language}`}>{codeContent}</code>
+              </pre>
+            </div>
+          </div>
+        );
+      }
+
+      // Handle image blocks (type: 'image')
+      if (block.type === "image") {
+        const imageUrl = block.image?.url || block.url;
+        const imageAlt =
+          block.image?.alternativeText || block.alternativeText || "";
+        const imageCaption = block.image?.caption || block.caption;
+
+        return (
+          <figure class="image-block">
+            <img
+              src={imageUrl}
+              alt={imageAlt}
+              loading="lazy"
+              class="image-block-img"
+              data-modal-trigger
+            />
+            {imageCaption && <figcaption>{imageCaption}</figcaption>}
+          </figure>
+        );
+      }
+
+      // Handle heading blocks (type: 'heading')
+      if (block.type === "heading") {
+        const HeadingTag = `h${block.level}` as any;
+        return (
+          <HeadingTag class="heading-block">
+            {block.children?.map((textNode: TextNode) => {
+              const { text, className } = renderTextNode(textNode);
+              return className ? <span class={className}>{text}</span> : text;
+            })}
+          </HeadingTag>
+        );
+      }
+
+      // Handle link blocks (type: 'link')
+      if (block.type === "link") {
+        return (
+          <a
+            href={block.url}
+            class="link-block"
+            target="_blank"
+            rel="noopener noreferrer">
+            {block.children?.map((textNode: TextNode) => {
+              const { text, className } = renderTextNode(textNode);
+              return className ? <span class={className}>{text}</span> : text;
+            })}
+          </a>
+        );
+      }
+
+      // Handle Strapi components (shared.*)
+      switch (block.__component) {
+        case "shared.rich-text":
+          return <div class="rich-text-block" set:html={block.body} />;
+
+        case "shared.quote":
+          return (
+            <blockquote class="quote-block">
+              <p>{block.body}</p>
+              {block.title && <cite>— {block.title}</cite>}
+            </blockquote>
+          );
+
+        case "shared.media":
+          return (
+            <figure class="media-block">
+              <img
+                src={block.file?.url}
+                alt={block.file?.alternativeText || ""}
+                loading="lazy"
+              />
+              {block.file?.caption && (
+                <figcaption>{block.file.caption}</figcaption>
+              )}
+            </figure>
+          );
+
+        case "shared.slider":
+          return (
+            <div class="slider-block">
+              {block.files?.map((file: any) => (
+                <img
+                  src={file.url}
+                  alt={file.alternativeText || ""}
+                  loading="lazy"
+                />
+              ))}
+            </div>
+          );
+
+        case "shared.code":
+          const language = block.language?.toLowerCase() || "code";
+          const isTypeScript = language === "typescript" || language === "ts";
+
+          return (
+            <div class={`code-block ${isTypeScript ? "typescript-block" : ""}`}>
+              <div class="code-block-header">
+                <span class="code-block-language">
+                  {isTypeScript ? "TypeScript" : block.language || "Code"}
+                </span>
+                <svg
+                  class="code-block-icon"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
+                  />
+                </svg>
+              </div>
+              <div class="code-block-body">
+                <pre>
+                  <code class={`language-${language}`}>{block.code}</code>
+                </pre>
+              </div>
+            </div>
+          );
+
+        default:
+          return null;
+      }
+    })
+  }
+</div>
+
+<style>
+  .rich-content {
+    line-height: 1.7;
+    color: rgb(var(--text));
+  }
+
+  /* Text formatting utilities */
+  .font-bold {
+    font-weight: 700;
+  }
+
+  .italic {
+    font-style: italic;
+  }
+
+  .underline {
+    text-decoration: underline;
+  }
+
+  .line-through {
+    text-decoration: line-through;
+  }
+
+  .inline-code {
+    background-color: rgb(229, 231, 235);
+    color: rgb(220, 38, 38);
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+      monospace;
+    font-size: 0.875em;
+  }
+
+  :global(.dark) .inline-code {
+    background-color: rgb(55, 65, 81);
+    color: rgb(252, 165, 165);
+  }
+
+  /* Paragraph blocks */
+  .paragraph-block {
+    margin: 1.25rem 0;
+    font-size: 1rem;
+    line-height: 1.75;
+    color: rgb(var(--text));
+  }
+
+  /* Link blocks */
+  .link-block {
+    color: var(--accent);
+    text-decoration: underline;
+    transition: opacity 0.2s ease;
+  }
+
+  .link-block:hover {
+    opacity: 0.8;
+  }
+
+  /* Inline links (links within paragraphs) */
+  .inline-link {
+    color: var(--accent);
+    text-decoration: underline;
+    transition: all 0.2s ease;
+    font-weight: 500;
+  }
+
+  .inline-link:hover {
+    opacity: 0.8;
+    text-decoration-thickness: 2px;
+  }
+
+  /* Heading blocks - Override Tailwind reset */
+  .heading-block {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    line-height: 1.3;
+    color: rgb(var(--text));
+    font-weight: 700;
+  }
+
+  /* Specific heading sizes to override Tailwind's font-size: inherit */
+  h1.heading-block {
+    font-size: 2.25rem; /* 36px */
+    font-weight: 800;
+  }
+
+  h2.heading-block {
+    font-size: 1.875rem; /* 30px */
+    font-weight: 700;
+  }
+
+  h3.heading-block {
+    font-size: 1.5rem; /* 24px */
+    font-weight: 700;
+  }
+
+  h4.heading-block {
+    font-size: 1.25rem; /* 20px */
+    font-weight: 600;
+  }
+
+  h5.heading-block {
+    font-size: 1.125rem; /* 18px */
+    font-weight: 600;
+  }
+
+  h6.heading-block {
+    font-size: 1rem; /* 16px */
+    font-weight: 600;
+  }
+
+  /* List blocks */
+  .list-block {
+    margin: 1.5rem 0;
+    padding-left: 2rem;
+    color: rgb(var(--text));
+  }
+
+  .list-block.ordered {
+    list-style-type: decimal;
+  }
+
+  .list-block.unordered {
+    list-style-type: disc;
+  }
+
+  .list-block li {
+    margin: 0.75rem 0;
+    font-size: 1.125rem;
+    line-height: 1.75;
+  }
+
+  /* Image blocks */
+  .image-block {
+    margin: 2rem 0;
+    text-align: center;
+  }
+
+  .image-block-img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition:
+      transform 0.3s ease,
+      box-shadow 0.3s ease;
+  }
+
+  .image-block-img:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .image-block figcaption {
+    margin-top: 0.75rem;
+    font-size: 0.875rem;
+    color: rgb(107, 114, 128);
+    font-style: italic;
+  }
+
+  :global(.dark) .image-block figcaption {
+    color: rgb(156, 163, 175);
+  }
+
+  /* Image Modal */
+  .image-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  .image-modal[aria-hidden="false"] {
+    display: flex;
+  }
+
+  .image-modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.3s ease;
+  }
+
+  .image-modal-content {
+    position: relative;
+    z-index: 10000;
+    max-width: 95%;
+    max-height: 95%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: zoomIn 0.3s ease;
+  }
+
+  .image-modal-close {
+    position: absolute;
+    top: -3rem;
+    right: 0;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: white;
+    transition: all 0.2s ease;
+    padding: 0;
+  }
+
+  .image-modal-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: rotate(90deg);
+  }
+
+  .image-modal-img {
+    max-width: 100%;
+    max-height: 85vh;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    object-fit: contain;
+  }
+
+  .image-modal-caption {
+    margin-top: 1rem;
+    padding: 0.75rem 1.5rem;
+    background: rgba(255, 255, 255, 0.95);
+    color: rgb(31, 41, 55);
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-style: italic;
+    max-width: 600px;
+    text-align: center;
+    display: none;
+  }
+
+  :global(.dark) .image-modal-caption {
+    background: rgba(31, 41, 55, 0.95);
+    color: rgb(229, 231, 235);
+  }
+
+  .image-modal-caption:not(:empty) {
+    display: block;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes zoomIn {
+    from {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .rich-text-block {
+    margin: 1.5rem 0;
+  }
+
+  .rich-text-block :global(h1),
+  .rich-text-block :global(h2),
+  .rich-text-block :global(h3) {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    line-height: 1.3;
+    color: rgb(var(--text));
+  }
+
+  .rich-text-block :global(p) {
+    margin: 1rem 0;
+    color: rgb(var(--text));
+  }
+
+  .rich-text-block :global(ul),
+  .rich-text-block :global(ol) {
+    margin: 1rem 0;
+    padding-left: 2rem;
+    color: rgb(var(--text));
+  }
+
+  .rich-text-block :global(li) {
+    margin: 0.5rem 0;
+  }
+
+  .rich-text-block :global(a) {
+    color: var(--accent);
+    text-decoration: underline;
+  }
+
+  .rich-text-block :global(code) {
+    background: rgb(229, 231, 235);
+    padding: 0.2em 0.4em;
+    border-radius: 4px;
+    font-size: 0.9em;
+  }
+
+  :global(.dark) .rich-text-block :global(code) {
+    background: rgb(55, 65, 81);
+  }
+
+  .rich-text-block :global(pre) {
+    background: rgb(243, 244, 246);
+    padding: 1rem;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 1.5rem 0;
+  }
+
+  :global(.dark) .rich-text-block :global(pre) {
+    background: rgb(31, 41, 55);
+  }
+
+  .quote-block {
+    margin: 2rem 0;
+    padding: 1.5rem 2rem;
+    border-left: 4px solid var(--accent);
+    background: rgb(243, 244, 246);
+    font-style: italic;
+    font-size: 1.25rem;
+    color: rgb(var(--text));
+  }
+
+  :global(.dark) .quote-block {
+    background: rgb(31, 41, 55);
+  }
+
+  .quote-block p {
+    margin: 0 0 0.5rem 0;
+  }
+
+  .quote-block cite {
+    font-size: 1rem;
+    color: rgb(var(--gray-dark));
+    font-style: normal;
+  }
+
+  .media-block {
+    margin: 2rem 0;
+    text-align: center;
+  }
+
+  .media-block img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+  }
+
+  .media-block figcaption {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: rgb(var(--gray));
+    font-style: italic;
+  }
+
+  .slider-block {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+
+  .slider-block img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+
+  /* Code Block Styling */
+  .code-block {
+    margin: 2rem 0;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgb(229, 231, 235);
+    background: rgb(249, 250, 251);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+
+  :global(.dark) .code-block {
+    border-color: rgb(55, 65, 81);
+    background: rgb(17, 24, 39);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Special styling for TypeScript code blocks */
+  .code-block.typescript-block {
+    border-color: #3178c6;
+    background: linear-gradient(135deg, #f0f5ff 0%, #e6f0ff 100%);
+  }
+
+  :global(.dark) .code-block.typescript-block {
+    border-color: #3178c6;
+    background: linear-gradient(135deg, #0a1929 0%, #1a2332 100%);
+  }
+
+  .code-block-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    background: rgb(243, 244, 246);
+    border-bottom: 1px solid rgb(229, 231, 235);
+  }
+
+  :global(.dark) .code-block-header {
+    background: rgb(31, 41, 55);
+    border-bottom-color: rgb(55, 65, 81);
+  }
+
+  .typescript-block .code-block-header {
+    background: linear-gradient(90deg, #3178c6 0%, #235a97 100%);
+    border-bottom-color: #235a97;
+  }
+
+  :global(.dark) .typescript-block .code-block-header {
+    background: linear-gradient(90deg, #3178c6 0%, #1e4976 100%);
+    border-bottom-color: #1e4976;
+  }
+
+  .code-block-language {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+      monospace;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: rgb(75, 85, 99);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  :global(.dark) .code-block-language {
+    color: rgb(209, 213, 219);
+  }
+
+  .typescript-block .code-block-language {
+    color: white;
+  }
+
+  .code-block-icon {
+    width: 20px;
+    height: 20px;
+    color: rgb(107, 114, 128);
+  }
+
+  :global(.dark) .code-block-icon {
+    color: rgb(156, 163, 175);
+  }
+
+  .typescript-block .code-block-icon {
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .code-block-body {
+    padding: 1.5rem;
+    overflow-x: auto;
+    overflow-y: auto;
+    max-height: 600px;
+  }
+
+  .code-block-body pre {
+    margin: 0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+      "Liberation Mono", "Courier New", monospace;
+    font-size: 0.875rem;
+    line-height: 1.7;
+    background: transparent;
+    padding: 0;
+    white-space: pre;
+    word-wrap: normal;
+    tab-size: 2;
+  }
+
+  .code-block-body code {
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
+    color: rgb(17, 24, 39);
+    font-size: inherit;
+    display: block;
+    white-space: pre;
+    word-spacing: normal;
+    word-break: normal;
+    word-wrap: normal;
+    tab-size: 2;
+    hyphens: none;
+  }
+
+  :global(.dark) .code-block-body code {
+    color: rgb(229, 231, 235);
+  }
+
+  .typescript-block .code-block-body code {
+    color: #1e3a8a;
+  }
+
+  :global(.dark) .typescript-block .code-block-body code {
+    color: #93c5fd;
+  }
+
+  /* Scrollbar styling for code blocks */
+  .code-block-body::-webkit-scrollbar {
+    height: 10px;
+    width: 10px;
+  }
+
+  .code-block-body::-webkit-scrollbar-track {
+    background: rgb(243, 244, 246);
+    border-radius: 5px;
+  }
+
+  :global(.dark) .code-block-body::-webkit-scrollbar-track {
+    background: rgb(31, 41, 55);
+  }
+
+  .code-block-body::-webkit-scrollbar-thumb {
+    background: rgb(209, 213, 219);
+    border-radius: 5px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+
+  :global(.dark) .code-block-body::-webkit-scrollbar-thumb {
+    background: rgb(75, 85, 99);
+    background-clip: padding-box;
+  }
+
+  .code-block-body::-webkit-scrollbar-thumb:hover {
+    background: rgb(156, 163, 175);
+    background-clip: padding-box;
+  }
+
+  :global(.dark) .code-block-body::-webkit-scrollbar-thumb:hover {
+    background: rgb(107, 114, 128);
+    background-clip: padding-box;
+  }
+
+  /* Scrollbar corner */
+  .code-block-body::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  @media (max-width: 720px) {
+    .quote-block {
+      padding: 1rem;
+      font-size: 1.1rem;
+    }
+
+    .slider-block {
+      grid-template-columns: 1fr;
+    }
+
+    .code-block-header {
+      padding: 0.5rem 0.75rem;
+    }
+
+    .code-block-body {
+      padding: 1rem;
+      max-height: 400px;
+    }
+
+    .code-block-body pre {
+      font-size: 0.8rem;
+      line-height: 1.6;
+    }
+
+    .image-modal-close {
+      top: -2.5rem;
+      width: 36px;
+      height: 36px;
+    }
+
+    .image-modal-img {
+      max-height: 80vh;
+    }
+
+    .image-modal-caption {
+      font-size: 0.8rem;
+      padding: 0.5rem 1rem;
+      max-width: 90%;
+    }
+  }
+</style>
+
+<script>
+  // Image Modal Functionality
+  document.addEventListener("DOMContentLoaded", () => {
+    const modal = document.getElementById("imageModal");
+    const modalImage = document.getElementById("modalImage");
+    const modalCaption = document.getElementById("modalCaption");
+    const closeButton = modal?.querySelector(".image-modal-close");
+    const overlay = modal?.querySelector(".image-modal-overlay");
+
+    // Open modal when clicking on images with data-modal-trigger
+    document.querySelectorAll("[data-modal-trigger]").forEach((img) => {
+      img.addEventListener("click", () => {
+        if (modal && modalImage && modalCaption) {
+          const src = img.getAttribute("src") || "";
+          const alt = img.getAttribute("alt") || "";
+          const caption =
+            img.parentElement?.querySelector("figcaption")?.textContent || "";
+
+          modalImage.setAttribute("src", src);
+          modalImage.setAttribute("alt", alt);
+          modalCaption.textContent = caption;
+
+          modal.setAttribute("aria-hidden", "false");
+          document.body.style.overflow = "hidden";
+        }
+      });
+    });
+
+    // Close modal function
+    const closeModal = () => {
+      if (modal) {
+        modal.setAttribute("aria-hidden", "true");
+        document.body.style.overflow = "";
+      }
+    };
+
+    // Close modal on button click
+    closeButton?.addEventListener("click", closeModal);
+
+    // Close modal on overlay click
+    overlay?.addEventListener("click", closeModal);
+
+    // Close modal on Escape key
+    document.addEventListener("keydown", (e) => {
+      if (
+        e.key === "Escape" &&
+        modal?.getAttribute("aria-hidden") === "false"
+      ) {
+        closeModal();
+      }
+    });
+  });
+</script>

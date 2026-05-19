@@ -1,0 +1,27 @@
+---
+change: lambda-api
+status: proposed
+artifact_store: hybrid
+phases_complete:
+  - explore
+  - propose
+phases_pending:
+  - spec
+  - design
+  - tasks
+  - apply
+  - verify
+  - archive
+stack:
+  framework: hono
+  lambda_adapter: "@hono/aws-lambda"
+  orm: drizzle-orm
+  db_driver: "@libsql/client"
+  db: turso
+  architecture: clean-architecture
+  frontend_hosting: s3+cloudfront
+  media_storage: s3
+  deployment: single-lambda
+delivery_strategy: single-pr/size:exception
+engram_project: blog
+engram_topic: sdd/lambda-api/proposal

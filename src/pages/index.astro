@@ -1,0 +1,431 @@
+---
+import BaseHead from "../components/seo/BaseHead.astro";
+import Header from "../components/layout/Header.astro";
+import Footer from "../components/layout/Footer.astro";
+import BlogCard from "./blog/components/BlogCard.astro";
+import CategoryCard from "../components/CategoryCard.astro";
+import { getArticles, getCategories, getCategoryCounts, getSiteConfig } from "../lib/api";
+import { SITE_TITLE, SITE_DESCRIPTION } from "../lib/constants";
+
+const [articlesRes, categories, counts, siteConfig] = await Promise.all([
+  getArticles({ page: 1, pageSize: 20 }),
+  getCategories(),
+  getCategoryCounts(),
+  getSiteConfig(),
+]);
+
+const allArticles = articlesRes.data;
+const total = articlesRes.meta.total;
+const featured = allArticles[0];
+const recent = allArticles.slice(1, 5);
+
+const pageTitle = siteConfig?.siteTitle || SITE_TITLE;
+const pageDescription = siteConfig?.siteDescription || SITE_DESCRIPTION;
+
+const categoriesWithCount = categories.map((category) => ({
+  ...category,
+  articleCount: counts[category.slug] ?? 0,
+}));
+
+const maxCount = Math.max(1, ...categoriesWithCount.map((c) => c.articleCount));
+const lastUpdated = allArticles[0]?.publishedAt
+  ? new Date(allArticles[0].publishedAt).toLocaleDateString("es-PE", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    })
+  : "—";
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <BaseHead title={pageTitle} description={pageDescription} />
+  </head>
+  <body>
+    <Header />
+
+    <main>
+      <!-- ── Hero ──────────────────────────────────────────── -->
+      <section class="hero">
+        <div class="hero__inner">
+          <div class="eyebrow">
+            <span class="status-dot" aria-hidden="true"></span>
+            <span>publicando · entrada {total}</span>
+            <span class="hero__meta-sep">·</span>
+            <span>actualizado {lastUpdated}</span>
+          </div>
+
+          <h1 class="hero__title">
+            Notas sobre <span class="accent">código</span>,<br />
+            infra y la forma de<br />
+            construir <span class="accent">cosas</span>.
+          </h1>
+
+          <p class="hero__lede">
+            Diario público de un ingeniero. Escribo sobre infraestructura,
+            patrones que uso en producción y los errores que cometo
+            desplegando proyectos reales. Sin tutoriales. Sin clickbait.
+          </p>
+
+          <div class="hero__cta">
+            <a href={`/blog/${featured?.slug ?? ""}/`} class="btn-primary">
+              <span aria-hidden="true">›</span> leer el último
+            </a>
+            <a href="/rss.xml" class="btn-ghost">$ subscribe --rss</a>
+          </div>
+
+          <div class="hero__stats">
+            <div class="stat">
+              <span class="stat__k">escritos</span>
+              <span class="stat__v">{total}</span>
+            </div>
+            <div class="stat">
+              <span class="stat__k">categorías</span>
+              <span class="stat__v">{categories.length}</span>
+            </div>
+            <div class="stat">
+              <span class="stat__k">última publicación</span>
+              <span class="stat__v">{lastUpdated}</span>
+            </div>
+            <div class="stat">
+              <span class="stat__k">stack</span>
+              <span class="stat__v">astro · turso · vercel</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Featured ──────────────────────────────────────── -->
+      {featured && (
+        <section class="section">
+          <div class="section-head">
+            <div class="section-head__left">
+              <span class="section-head__num">§ 01</span>
+              <h2 class="section-head__title">destacado</h2>
+            </div>
+            <span class="section-head__hint"># cat ./posts/_featured.md</span>
+            <span></span>
+          </div>
+
+          <a href={`/blog/${featured.slug}/`} class="featured">
+            <div class="featured__l">
+              <div class="article-frontmatter">
+                <span class="article-frontmatter__delim">---</span>
+                <div class="article-frontmatter__line">
+                  <span class="article-frontmatter__key">category</span>
+                  <span class="article-frontmatter__colon">:</span>
+                  <span class="article-frontmatter__val">{featured.categories?.[0]?.slug || "—"}</span>
+                </div>
+                <div class="article-frontmatter__line">
+                  <span class="article-frontmatter__key">published</span>
+                  <span class="article-frontmatter__colon">:</span>
+                  <span class="article-frontmatter__val">
+                    {new Date(featured.publishedAt ?? '').toLocaleDateString("es-PE", { year: "numeric", month: "2-digit", day: "2-digit" })}
+                  </span>
+                </div>
+                <span class="article-frontmatter__delim">---</span>
+              </div>
+              <h2 class="featured__title">{featured.title}</h2>
+              <p class="featured__desc">{featured.description}</p>
+              <div class="featured__more">
+                <span aria-hidden="true">›</span>
+                <span>continuar leyendo</span>
+              </div>
+            </div>
+            {featured.coverUrl && (
+              <div class="featured__r">
+                <img src={featured.coverUrl} alt={featured.coverAlt ?? featured.title} loading="lazy" />
+              </div>
+            )}
+          </a>
+        </section>
+      )}
+
+      <!-- ── Recientes ─────────────────────────────────────── -->
+      <section class="section">
+        <div class="section-head">
+          <div class="section-head__left">
+            <span class="section-head__num">§ 02</span>
+            <h2 class="section-head__title">escritos recientes</h2>
+          </div>
+          <span class="section-head__hint"># ls -lt posts/</span>
+          <a href="/blog" class="section-head__link">ver archivo →</a>
+        </div>
+
+        <ol class="post-list">
+          {recent.map((post: any, i: number) => (
+            <BlogCard
+              title={post.title}
+              description={post.description}
+              pubDate={new Date(post.publishedAt)}
+              slug={post.slug || post.documentId}
+              index={i + 2}
+              readMin={5}
+              categories={post.categories}
+            />
+          ))}
+        </ol>
+      </section>
+
+      <!-- ── Categorías ────────────────────────────────────── -->
+      {categoriesWithCount.length > 0 && (
+        <section class="section">
+          <div class="section-head">
+            <div class="section-head__left">
+              <span class="section-head__num">§ 03</span>
+              <h2 class="section-head__title">por tema</h2>
+            </div>
+            <span class="section-head__hint"># tree categories/</span>
+            <a href="/blog/categories" class="section-head__link">todas →</a>
+          </div>
+          <div class="cat-grid">
+            {categoriesWithCount.slice(0, 8).map((category: any) => (
+              <CategoryCard
+                name={category.name}
+                slug={category.slug}
+                articleCount={category.articleCount}
+                maxCount={maxCount}
+              />
+            ))}
+          </div>
+        </section>
+      )}
+
+      <!-- ── Newsletter CTA ────────────────────────────────── -->
+      <section class="cta-newsletter">
+        <div class="cta-newsletter__inner">
+          <div class="cta-newsletter__l">
+            <div class="cta-newsletter__kicker">{`// newsletter mensual`}</div>
+            <h2 class="cta-newsletter__title">
+              Una carta al mes —<br />
+              de mi <span class="accent">terminal</span> al tuyo.
+            </h2>
+            <p class="cta-newsletter__desc">
+              Lo que aprendí, lo que rompí, y lo que voy a intentar el mes
+              siguiente. Sin spam. Cancelas con un clic.
+            </p>
+          </div>
+          <form class="cta-newsletter__r" action="/newsletter/subscribe" method="post">
+            <div class="cta-newsletter__prompt">$ subscribe</div>
+            <div class="cta-newsletter__form">
+              <input
+                type="email"
+                name="email"
+                placeholder="tu@correo.com"
+                required
+                class="cta-newsletter__input"
+              />
+              <button type="submit" class="cta-newsletter__btn" aria-label="Suscribirse">→</button>
+            </div>
+            <div class="cta-newsletter__fine">$ sin tracking · cancelas con un clic</div>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <Footer />
+
+    <style>
+      .hero {
+        padding: 96px var(--pad-x);
+        border-bottom: 1px dashed var(--border);
+      }
+      .hero__inner {
+        max-width: var(--max-w);
+        margin: 0 auto;
+      }
+      .hero__meta-sep { color: var(--text-faint); margin: 0 4px; }
+      .hero__title {
+        font-family: var(--font-sans);
+        font-size: clamp(48px, 7vw, 82px);
+        font-weight: 800;
+        line-height: 1.02;
+        letter-spacing: -0.04em;
+        color: var(--text-strong);
+        margin: 40px 0 0;
+        max-width: 980px;
+      }
+      .accent { color: var(--accent); }
+      .hero__lede {
+        font-family: var(--font-sans);
+        font-size: 19px;
+        line-height: 1.55;
+        color: var(--text-muted);
+        max-width: 640px;
+        margin: 36px 0 0;
+      }
+      .hero__cta {
+        margin-top: 40px;
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .hero__stats {
+        margin-top: 80px;
+        padding-top: 36px;
+        border-top: 1px solid var(--border);
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 32px;
+        max-width: 900px;
+      }
+      @media (max-width: 768px) {
+        .hero__stats { grid-template-columns: repeat(2, 1fr); }
+      }
+      .stat { display: flex; flex-direction: column; gap: 8px; }
+      .stat__k {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--text-dim);
+        letter-spacing: 0.06em;
+      }
+      .stat__v {
+        font-family: var(--font-mono);
+        font-size: 24px;
+        color: var(--text-strong);
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+
+      .section-head__left {
+        display: flex;
+        align-items: baseline;
+        gap: 16px;
+      }
+
+      .post-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .featured {
+        display: grid;
+        grid-template-columns: 1fr 1.05fr;
+        gap: 48px;
+        text-decoration: none;
+        color: inherit;
+        align-items: start;
+      }
+      @media (max-width: 900px) {
+        .featured { grid-template-columns: 1fr; }
+      }
+      .featured__l { padding-top: 8px; }
+      .featured__title {
+        font-family: var(--font-sans);
+        font-size: 40px;
+        font-weight: 700;
+        line-height: 1.1;
+        letter-spacing: -0.025em;
+        color: var(--text-strong);
+        margin: 0 0 20px;
+      }
+      .featured__desc {
+        font-family: var(--font-sans);
+        font-size: 17px;
+        line-height: 1.6;
+        color: var(--text-muted);
+        margin: 0 0 32px;
+        max-width: 540px;
+      }
+      .featured__more {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-family: var(--font-mono);
+        font-size: 14px;
+        color: var(--accent);
+        border-bottom: 1px solid var(--accent);
+        padding-bottom: 3px;
+      }
+      .featured__r img {
+        width: 100%;
+        height: auto;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+      }
+
+      .cta-newsletter {
+        background: var(--bg-sunken);
+        border-bottom: 1px dashed var(--border);
+      }
+      .cta-newsletter__inner {
+        max-width: var(--max-w);
+        margin: 0 auto;
+        padding: 72px var(--pad-x);
+        display: grid;
+        grid-template-columns: 1.1fr 1fr;
+        gap: 64px;
+        align-items: center;
+      }
+      @media (max-width: 900px) {
+        .cta-newsletter__inner { grid-template-columns: 1fr; }
+      }
+      .cta-newsletter__kicker {
+        font-family: var(--font-mono);
+        font-size: 12px;
+        color: var(--text-dim);
+        margin-bottom: 16px;
+      }
+      .cta-newsletter__title {
+        font-family: var(--font-sans);
+        font-size: clamp(32px, 4vw, 44px);
+        font-weight: 800;
+        line-height: 1.05;
+        letter-spacing: -0.03em;
+        color: var(--text-strong);
+        margin: 0 0 20px;
+      }
+      .cta-newsletter__desc {
+        font-family: var(--font-sans);
+        font-size: 16px;
+        line-height: 1.6;
+        color: var(--text-muted);
+        margin: 0;
+        max-width: 460px;
+      }
+      .cta-newsletter__prompt {
+        font-family: var(--font-mono);
+        font-size: 13px;
+        color: var(--accent);
+        margin-bottom: 12px;
+      }
+      .cta-newsletter__form {
+        display: flex;
+        background: var(--bg-raised);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+      .cta-newsletter__input {
+        flex: 1;
+        padding: 14px 18px;
+        font-family: var(--font-mono);
+        font-size: 14px;
+        color: var(--text);
+        background: transparent;
+        border: 0;
+        outline: 0;
+      }
+      .cta-newsletter__input::placeholder { color: var(--text-dim); }
+      .cta-newsletter__btn {
+        background: var(--accent);
+        color: var(--accent-on);
+        border: 0;
+        padding: 0 22px;
+        font-family: var(--font-mono);
+        font-size: 18px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+      .cta-newsletter__fine {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--text-dim);
+        margin-top: 12px;
+      }
+    </style>
+  </body>
+</html>

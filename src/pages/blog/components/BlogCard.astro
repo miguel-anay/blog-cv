@@ -1,0 +1,47 @@
+---
+export interface Props {
+  title: string;
+  description: string;
+  pubDate: Date;
+  slug: string;
+  index?: number;
+  postId?: string;
+  readMin?: number;
+  categories?: Array<{ name: string; slug: string }>;
+}
+
+const {
+  title,
+  description,
+  pubDate,
+  slug,
+  index,
+  postId,
+  readMin = 5,
+  categories,
+} = Astro.props;
+
+const num = postId ?? (index != null ? `0x${index.toString(16).padStart(2, "0")}` : "");
+
+const dateFmt = pubDate
+  ? pubDate.toLocaleDateString("es-PE", { year: "numeric", month: "2-digit", day: "2-digit" })
+  : "";
+
+const cat = categories && categories.length > 0 ? categories[0] : null;
+---
+
+<a href={`/blog/${slug}/`} class="blog-card">
+  <div class="blog-card__num">{num}</div>
+  <div class="blog-card__body">
+    <div class="blog-card__meta">
+      {cat && <span class="blog-card__cat">{cat.name}</span>}
+      {cat && <span class="blog-card__meta-sep">·</span>}
+      <time datetime={pubDate?.toISOString()}>{dateFmt}</time>
+      <span class="blog-card__meta-sep">·</span>
+      <span>{readMin} min</span>
+    </div>
+    <h3 class="blog-card__title">{title}</h3>
+    <p class="blog-card__desc">{description}</p>
+  </div>
+  <div class="blog-card__arrow" aria-hidden="true">›</div>
+</a>

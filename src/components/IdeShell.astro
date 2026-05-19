@@ -1,0 +1,50 @@
+---
+// IdeShell — VS Code-like sidebar + status bar.
+// Always in the DOM; visible only when data-theme="ide" via CSS.
+const currentPath = Astro.url.pathname;
+
+const isActive = (href: string) => {
+  if (href === "/") return currentPath === "/";
+  return currentPath.startsWith(href);
+};
+
+const nav = [
+  { href: "/",      label: "index.astro" },
+  { href: "/blog",  label: "blog/" },
+  { href: "/about", label: "about.astro" },
+  { href: "/cv",    label: "cv.astro" },
+];
+
+const activeFile = nav.find((n) => isActive(n.href))?.label ?? "...";
+---
+
+<aside class="ide-sidebar" aria-label="Explorador de archivos" aria-hidden="true">
+  <div class="ide-sidebar__section">EXPLORER</div>
+  <ul class="ide-tree" role="list">
+    <li class="ide-tree__dir">
+      <span class="ide-tree__caret">▾</span>
+      <span>PAGES</span>
+    </li>
+    {nav.map((item) => (
+      <li>
+        <a
+          href={item.href}
+          class:list={["ide-tree__file", isActive(item.href) && "is-active"]}
+          tabindex="-1"
+        >
+          <span class="ide-tree__icon">A</span>
+          {item.label}
+        </a>
+      </li>
+    ))}
+  </ul>
+</aside>
+
+<div class="ide-statusbar" aria-hidden="true">
+  <span class="ide-status__branch">⎇ main</span>
+  <span class="ide-status__sep">·</span>
+  <span class="ide-status__file">{activeFile}</span>
+  <span class="ide-status__spacer"></span>
+  <span class="ide-status__info">Astro 5</span>
+  <span class="ide-status__info">TypeScript</span>
+</div>

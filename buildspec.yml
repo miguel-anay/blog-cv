@@ -1,0 +1,33 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 22
+    commands:
+      - npm install -g pnpm
+      - pnpm install --frozen-lockfile
+
+  build:
+    commands:
+      # Build blog-api Lambda zip
+      - bash infra/build-lambda.sh
+      - aws lambda update-function-code --function-name $LAMBDA_FUNCTION --zip-file fileb://blog-api/dist/handler.zip
+
+      # Build Astro SSR
+      - pnpm build
+
+      # Build SSR Lambda zip and deploy
+      - bash infra/build-ssr.sh
+      - aws lambda update-function-code --function-name $SSR_LAMBDA_FUNCTION --zip-file fileb://dist/ssr.zip
+
+      # Deploy static assets (dist/client/) to S3
+      - aws s3 sync dist/client/ s3://$FRONTEND_BUCKET --delete
+
+      # Invalidate CloudFront
+      - aws cloudfront create-invalidation --distribution-id $CF_DISTRIBUTION_ID --paths "/*"
+
+artifacts:
+  files:
+    - "**/*"
+  base-directory: dist/client

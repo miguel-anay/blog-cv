@@ -1,0 +1,17 @@
+# robots.txt for Google Search
+User-agent: *
+Allow: /
+
+# Disallow admin or private areas (if any in the future)
+# Disallow: /admin/
+# Disallow: /private/
+
+# Google-specific crawlers
+User-agent: Googlebot
+Allow: /
+
+User-agent: Googlebot-Image
+Allow: /
+
+# Sitemap location
+Sitemap: https://blog.miguel-anay.nom.pe/sitemap-index.xml

@@ -1,0 +1,49 @@
+---
+interface Props {
+  showLabel?: boolean;
+  compact?: boolean;
+}
+
+const { showLabel = true, compact = false } = Astro.props;
+---
+
+<div class="theme-switcher" data-compact={compact ? "1" : "0"}>
+  {showLabel && <span class="theme-switcher__label">tema:</span>}
+  <div class="theme-switcher__group" role="radiogroup" aria-label="Selector de tema">
+    <button type="button" class="theme-switcher__opt" data-theme-set="term" aria-pressed="false">term</button>
+    <button type="button" class="theme-switcher__opt" data-theme-set="ide"  aria-pressed="false">ide</button>
+    <button type="button" class="theme-switcher__opt" data-theme-set="min"  aria-pressed="true">min</button>
+  </div>
+</div>
+
+<script>
+  (function () {
+    const STORAGE_KEY = 'blog-theme';
+    const DEFAULT = 'min';
+    const VALID = ['term', 'ide', 'min'];
+
+    function getCurrent() {
+      return document.documentElement.getAttribute('data-theme') || DEFAULT;
+    }
+
+    function applyTheme(theme: string) {
+      if (!VALID.includes(theme)) theme = DEFAULT;
+      document.documentElement.setAttribute('data-theme', theme);
+      try { localStorage.setItem(STORAGE_KEY, theme); } catch {}
+      document.querySelectorAll<HTMLButtonElement>('[data-theme-set]').forEach((btn) => {
+        const v = btn.getAttribute('data-theme-set');
+        btn.setAttribute('aria-pressed', v === theme ? 'true' : 'false');
+      });
+      document.dispatchEvent(new CustomEvent('themechange', { detail: { theme } }));
+    }
+
+    applyTheme(getCurrent());
+
+    document.querySelectorAll<HTMLButtonElement>('[data-theme-set]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const v = btn.getAttribute('data-theme-set') || DEFAULT;
+        applyTheme(v);
+      });
+    });
+  })();
+</script>

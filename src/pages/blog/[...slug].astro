@@ -1,0 +1,41 @@
+---
+import BlogPost from "../../layouts/BlogPost.astro";
+import RichTextRenderer from "./components/RichTextRenderer.astro";
+import { getArticleBySlug } from "../../lib/api";
+
+const { slug } = Astro.params;
+if (!slug) return Astro.redirect('/blog');
+
+const article = await getArticleBySlug(slug);
+if (!article) return new Response(null, { status: 404, statusText: 'Not Found' });
+
+const postData = {
+  title: article.title,
+  description: article.description ?? '',
+  pubDate: new Date(article.publishedAt ?? article.createdAt),
+  updatedDate: new Date(article.updatedAt),
+  heroImage: article.coverUrl ?? undefined,
+  categories: article.categories ?? [],
+  readMin: article.readMin ?? 1,
+};
+---
+
+<BlogPost {...postData}>
+  {
+    article.body && article.body.length > 0 ? (
+      <RichTextRenderer blocks={article.body} />
+    ) : (
+      <div class="description">
+        <p>{article.description}</p>
+      </div>
+    )
+  }
+</BlogPost>
+
+<style>
+  .description {
+    font-size: 1.125rem;
+    line-height: 1.7;
+    color: rgb(var(--text));
+  }
+</style>

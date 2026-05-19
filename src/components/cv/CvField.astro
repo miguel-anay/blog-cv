@@ -1,0 +1,13 @@
+---
+interface Props {
+  k: string;
+  v: string;
+  accent?: boolean;
+}
+const { k, v, accent = false } = Astro.props;
+---
+
+<div class="cv-field">
+  <span class="cv-field__k">{k}</span>
+  <span class={accent ? "cv-field__v cv-field__v--accent" : "cv-field__v"}>{v}</span>
+</div>

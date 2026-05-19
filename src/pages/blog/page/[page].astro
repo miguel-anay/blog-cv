@@ -1,0 +1,138 @@
+---
+import BaseHead from "../../../components/seo/BaseHead.astro";
+import Header from "../../../components/layout/Header.astro";
+import Footer from "../../../components/layout/Footer.astro";
+import BlogCard from "../components/BlogCard.astro";
+import { getArticles } from "../../../lib/api";
+
+const { page } = Astro.params;
+if (!page) return Astro.redirect('/blog');
+const pageNum = parseInt(page, 10);
+if (isNaN(pageNum) || pageNum < 2) return Astro.redirect('/blog');
+const { data: articles, meta } = await getArticles({ page: pageNum, pageSize: 10 });
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <BaseHead
+      title={`Blog — página ${pageNum} — Miguel Anay`}
+      description={`Escritos sobre código, infra y la forma de construir cosas. Página ${pageNum}.`}
+    />
+  </head>
+  <body>
+    <Header />
+
+    <main>
+      <section class="page-head">
+        <div class="page-head__inner">
+          <h1 class="page-title">
+            Blog — <span class="accent">página {pageNum}</span>
+          </h1>
+        </div>
+      </section>
+
+      <section class="posts">
+        <div class="posts-inner">
+          <div class="posts-head">
+            <span class="posts-count">
+              página {meta.page} de {meta.pageCount} · {meta.total} escritos
+            </span>
+          </div>
+
+          <ol class="post-list">
+            {articles.map((post, i) => (
+              <BlogCard
+                title={post.title}
+                description={post.description ?? ''}
+                pubDate={new Date(post.publishedAt ?? post.createdAt)}
+                slug={post.slug}
+                index={(pageNum - 1) * 10 + i + 1}
+                readMin={post.readMin ?? 1}
+                categories={post.categories}
+              />
+            ))}
+          </ol>
+
+          <nav class="pager" aria-label="Paginación">
+            <span class="pager__info">página {meta.page} de {meta.pageCount}</span>
+            <div class="pager__nav">
+              {pageNum > 1 && (
+                <a href={pageNum === 2 ? "/blog" : `/blog/page/${pageNum - 1}`} class="pager__item">
+                  ← prev
+                </a>
+              )}
+              <span class="pager__active">{pageNum}</span>
+              {pageNum < meta.pageCount && (
+                <a href={`/blog/page/${pageNum + 1}`} class="pager__item">next →</a>
+              )}
+            </div>
+          </nav>
+        </div>
+      </section>
+    </main>
+
+    <Footer />
+
+    <style>
+      .page-head { border-bottom: 1px dashed var(--border); }
+      .page-head__inner { max-width: var(--max-w); margin: 0 auto; padding: 72px var(--pad-x) 64px; }
+      .page-title {
+        font-family: var(--font-sans);
+        font-size: clamp(36px, 5vw, 56px);
+        font-weight: 800;
+        line-height: 1.05;
+        letter-spacing: -0.035em;
+        color: var(--text-strong);
+        margin: 0;
+      }
+      .accent { color: var(--accent); }
+
+      .posts-inner { max-width: var(--max-w); margin: 0 auto; padding: 48px var(--pad-x) 80px; }
+      .posts-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--border);
+      }
+      .posts-count { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); }
+      .post-list { list-style: none; padding: 0; margin: 0; }
+
+      .pager {
+        margin-top: 48px;
+        padding-top: 24px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+      .pager__info { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); }
+      .pager__nav {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-family: var(--font-mono);
+        font-size: 13px;
+      }
+      .pager__active {
+        color: var(--accent-on);
+        background: var(--accent);
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-weight: 600;
+      }
+      .pager__item {
+        color: var(--text);
+        padding: 6px 12px;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        text-decoration: none;
+      }
+      .pager__item:hover { border-color: var(--accent); color: var(--accent); }
+    </style>
+  </body>
+</html>

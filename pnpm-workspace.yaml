@@ -1,0 +1,7 @@
+packages:
+  - "."
+  - "blog-api"
+
+allowBuilds:
+  esbuild: true
+  sharp: true

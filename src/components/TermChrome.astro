@@ -1,0 +1,26 @@
+---
+// TermChrome — macOS-style terminal titlebar.
+// Always in the DOM; visible only when data-theme="term" via CSS.
+const currentPath = Astro.url.pathname;
+
+const tabLabel = (() => {
+  if (currentPath === "/") return "~/blog";
+  if (currentPath.startsWith("/blog/category")) return "~/blog/category";
+  if (currentPath.startsWith("/blog")) return "~/blog";
+  if (currentPath.startsWith("/about")) return "~/about";
+  if (currentPath.startsWith("/cv")) return "~/cv";
+  return "~/...";
+})();
+---
+
+<div class="term-chrome" aria-hidden="true">
+  <div class="term-chrome__left">
+    <span class="term-dot term-dot--close"></span>
+    <span class="term-dot term-dot--min"></span>
+    <span class="term-dot term-dot--max"></span>
+  </div>
+  <span class="term-chrome__title">miguel-anay — zsh</span>
+  <div class="term-chrome__right">
+    <span class="term-chrome__tab is-active">{tabLabel}</span>
+  </div>
+</div>

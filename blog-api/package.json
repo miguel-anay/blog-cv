@@ -1,0 +1,28 @@
+{
+  "name": "blog-api",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch --env-file=.env src/interfaces/http/server.ts",
+    "build": "node esbuild.config.mjs",
+    "migrate": "npx tsx scripts/migrate-from-strapi.ts",
+    "seed": "npx tsx scripts/seed-dev.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate"
+  },
+  "dependencies": {
+    "hono": "^4.7.0",
+    "@hono/node-server": "^1.14.0",
+    "@libsql/client": "^0.14.0",
+    "drizzle-orm": "^0.44.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.0",
+    "drizzle-kit": "^0.30.0",
+    "esbuild": "^0.25.0",
+    "tsx": "^4.19.0",
+    "@types/node": "^22.0.0",
+    "@types/aws-lambda": "^8.10.0"
+  }
+}

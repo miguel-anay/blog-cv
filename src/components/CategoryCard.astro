@@ -1,0 +1,22 @@
+---
+export interface Props {
+  name: string;
+  slug: string;
+  description?: string;
+  articleCount?: number;
+  maxCount?: number;
+}
+
+const { name, slug, articleCount = 0, maxCount = 20 } = Astro.props;
+const pct = Math.max(8, Math.min(100, (articleCount / Math.max(1, maxCount)) * 100));
+---
+
+<a href={`/blog/category/${slug}`} class="cat-cell">
+  <div class="cat-cell__top">
+    <span class="cat-cell__name">{name}/</span>
+    <span class="cat-cell__count">{articleCount}</span>
+  </div>
+  <span class="cat-cell__bar" aria-hidden="true">
+    <span class="cat-cell__bar-fill" style={`width: ${pct}%`}></span>
+  </span>
+</a>

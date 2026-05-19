@@ -1,0 +1,85 @@
+---
+// Component for rendering article body blocks
+// Placed in components/ because it could be used across multiple pages
+import type { ArticleBlock, TextNode } from '../lib/api-types';
+
+interface Props {
+  blocks?: ArticleBlock[];
+}
+
+const { blocks = [] } = Astro.props;
+
+// Helper function to render text nodes with formatting
+function renderTextNode(node: TextNode) {
+  let text = node.text;
+  let className = '';
+
+  if (node.bold) className += 'font-bold ';
+  if (node.italic) className += 'italic ';
+  if (node.underline) className += 'underline ';
+  if (node.code) className += 'dynamic-content-code ';
+
+  return { text, className: className.trim() };
+}
+---
+
+<div class="dynamic-content">
+{blocks.map((block) => {
+  // Render paragraph blocks
+  if (block.type === 'paragraph') {
+    return (
+      <p>
+        {block.children.map((textNode) => {
+          const { text, className } = renderTextNode(textNode);
+          return className ? <span class={className}>{text}</span> : text;
+        })}
+      </p>
+    );
+  }
+
+  // Render list blocks
+  if (block.type === 'list') {
+    const ListTag = block.format === 'ordered' ? 'ol' : 'ul';
+
+    return (
+      <ListTag>
+        {block.children.map((item) => (
+          <li>
+            {item.children.map((textNode) => {
+              const { text, className } = renderTextNode(textNode);
+              return className ? <span class={className}>{text}</span> : text;
+            })}
+          </li>
+        ))}
+      </ListTag>
+    );
+  }
+
+  // Render heading blocks
+  if (block.type === 'heading') {
+    const HeadingTag = `h${block.level}` as any;
+
+    return (
+      <HeadingTag>
+        {block.children.map((textNode) => {
+          const { text, className } = renderTextNode(textNode);
+          return className ? <span class={className}>{text}</span> : text;
+        })}
+      </HeadingTag>
+    );
+  }
+
+  return null;
+})}
+</div>
+
+<style>
+  .dynamic-content-code {
+    background-color: rgb(var(--dynamic-code-bg));
+    color: rgb(var(--text));
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-family: monospace;
+    font-size: 0.875rem;
+  }
+</style>

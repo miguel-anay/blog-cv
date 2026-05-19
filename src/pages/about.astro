@@ -1,0 +1,300 @@
+---
+import BaseHead from "../components/seo/BaseHead.astro";
+import Header from "../components/layout/Header.astro";
+import Footer from "../components/layout/Footer.astro";
+
+const stack = [
+  ["lenguajes", "TypeScript · Python · Bash · SQL"],
+  ["frontend", "Astro · React · Tailwind · MDX"],
+  ["backend", "Node · Hono · SQLite · Drizzle"],
+  ["infra", "AWS Lambda · Turso · Vercel"],
+  ["ci/cd", "Azure DevOps · GitHub Actions · Vercel CD"],
+  ["editor", "Zed · Neovim ocasional · zsh + starship"],
+  ["herramientas", "1Password · Linear · Raycast · Arc"],
+];
+
+const now = [
+  { k: "trabajando en", v: "blog personal — SSR con Astro, Turso y Vercel" },
+  { k: "leyendo",       v: "Designing Data-Intensive Applications (relectura)" },
+  { k: "aprendiendo",   v: "rust básico — solo por curiosidad, sin presión" },
+  { k: "escribiendo",   v: "una serie sobre deploy patterns en AWS" },
+  { k: "evitando",      v: "frameworks nuevos por al menos seis meses" },
+];
+
+const lastUpdate = "2026-05-10";
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <BaseHead
+      title="Sobre mí — Miguel Anay"
+      description="Ingeniero de software, importador, y mantenedor de pipelines. Lima, Perú."
+    />
+  </head>
+  <body>
+    <Header />
+
+    <main>
+      <section class="about-hero">
+        <div class="about-hero__inner">
+          <div class="about-hero__l">
+            <div class="eyebrow">
+              <span class="status-dot" aria-hidden="true"></span>
+              <span>./about.md · whoami</span>
+            </div>
+            <h1 class="about-title">
+              Soy <span class="accent">Miguel</span>.<br />
+              Construyo cosas,<br />
+              importo cosas, y a<br />
+              veces escribo sobre<br />
+              ambas.
+            </h1>
+            <p class="about-lede">
+              Ingeniero de software basado en Lima. CEO de Yiwu Import Corporation.
+              Trabajo con Astro, AWS y Turso para clientes — y para mí. Este blog
+              es donde dejo las notas que no caben en un commit message.
+            </p>
+            <div class="about-cta">
+              <a href="/cv" class="btn-primary">$ open ./cv →</a>
+              <a href="mailto:hola@miguel-anay.nom.pe" class="btn-ghost">hola@miguel-anay.nom.pe</a>
+            </div>
+          </div>
+          <div class="about-hero__r">
+            <div class="about-photo" aria-label="Foto de perfil (drop placeholder)">
+              <span>~/avatar.jpg</span>
+              <span class="about-photo__cap">4:5 · 800×1000</span>
+            </div>
+            <div class="about-meta">
+              <span>Lima · -12.04° -77.04°</span>
+              <span>GMT-5</span>
+              <span>macOS 15.4 · zsh</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <div class="section-head__left">
+            <span class="section-head__num">§ 01</span>
+            <h2 class="section-head__title">bio breve</h2>
+          </div>
+          <span></span><span></span>
+        </div>
+        <div class="bio-grid">
+          <p>
+            Empecé a programar en 2011 con PHP y un libro pirata. Quince años
+            después sigo aprendiendo, ahora con TypeScript y muchos menos errores
+            en producción. He trabajado en backend, infra y ahora mayormente
+            full-stack para proyectos propios y de clientes.
+          </p>
+          <p>
+            En paralelo dirijo Yiwu Import Corporation — una operación de
+            importación desde China que me obliga a pensar en logística, márgenes
+            y SKUs cuando no estoy peleándome con CloudFront. La combinación rara,
+            lo sé.
+          </p>
+          <p>
+            Vivo en Lima con mi familia. Cuando no estoy frente a una pantalla,
+            ando en bici por los acantilados de Miraflores o cocinando algo que
+            requiere demasiados ingredientes.
+          </p>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <div class="section-head__left">
+            <span class="section-head__num">§ 02</span>
+            <h2 class="section-head__title">now · qué estoy haciendo</h2>
+          </div>
+          <span class="section-head__hint">{`actualizado ${lastUpdate}`}</span>
+          <span></span>
+        </div>
+        <div class="now-grid">
+          {now.map((item) => (
+            <div class="now-item">
+              <span class="now-k">{item.k}</span>
+              <span class="now-v">{item.v}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <div class="section-head__left">
+            <span class="section-head__num">§ 03</span>
+            <h2 class="section-head__title">stack que uso en serio</h2>
+          </div>
+          <span class="section-head__hint"># cat ~/.zshrc | grep alias</span>
+          <span></span>
+        </div>
+        <div class="stack-table">
+          {stack.map(([k, v]) => (
+            <div class="stack-row">
+              <span class="stack-k">{k}</span>
+              <span class="stack-v">{v}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <div class="section-head__left">
+            <span class="section-head__num">§ 04</span>
+            <h2 class="section-head__title">sobre la escritura</h2>
+          </div>
+          <span></span><span></span>
+        </div>
+        <div class="writing">
+          <p>
+            Escribo este blog porque me obliga a entender lo que hago. Si no
+            puedo explicar algo en 2,000 palabras, probablemente no lo entiendo
+            bien. No espero que nadie lo lea — pero si vos llegaste hasta acá,
+            gracias.
+          </p>
+          <p>
+            Publico cuando tengo algo útil que decir. Algunos meses son tres
+            posts, otros son cero. No me gusta forzar contenido por keeping up.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <Footer />
+
+    <style>
+      .about-hero { border-bottom: 1px dashed var(--border); }
+      .about-hero__inner {
+        max-width: var(--max-w);
+        margin: 0 auto;
+        padding: 72px var(--pad-x);
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: 64px;
+        align-items: center;
+      }
+      @media (max-width: 900px) {
+        .about-hero__inner { grid-template-columns: 1fr; }
+      }
+      .about-title {
+        font-family: var(--font-sans);
+        font-size: clamp(40px, 6vw, 68px);
+        font-weight: 800;
+        line-height: 1.03;
+        letter-spacing: -0.04em;
+        color: var(--text-strong);
+        margin: 28px 0 0;
+      }
+      .accent { color: var(--accent); }
+      .about-lede {
+        font-family: var(--font-sans);
+        font-size: 19px;
+        line-height: 1.55;
+        color: var(--text-muted);
+        margin: 32px 0 0;
+        max-width: 540px;
+      }
+      .about-cta {
+        margin-top: 32px;
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .about-photo {
+        aspect-ratio: 4/5;
+        background: var(--bg-sunken);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background-image: repeating-linear-gradient(135deg, var(--border-dim) 0 1px, transparent 1px 16px);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 16px;
+        max-width: 380px;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--text-dim);
+      }
+      .about-photo__cap { text-align: right; color: var(--text-muted); }
+      .about-meta {
+        margin-top: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        max-width: 380px;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--text-muted);
+      }
+
+      .section-head__left { display: flex; align-items: baseline; gap: 16px; }
+
+      .bio-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 32px;
+      }
+      @media (max-width: 900px) {
+        .bio-grid { grid-template-columns: 1fr; }
+      }
+      .bio-grid p {
+        font-family: var(--font-serif);
+        font-size: 17px;
+        line-height: 1.65;
+        color: var(--text);
+        margin: 0;
+      }
+
+      .now-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0;
+      }
+      @media (max-width: 700px) {
+        .now-grid { grid-template-columns: 1fr; }
+      }
+      .now-item {
+        display: grid;
+        grid-template-columns: 150px 1fr;
+        gap: 16px;
+        padding: 16px 0;
+        border-top: 1px solid var(--border-dim);
+      }
+      .now-k { font-family: var(--font-mono); font-size: 12px; color: var(--accent); }
+      .now-v { font-family: var(--font-sans); font-size: 15px; color: var(--text); line-height: 1.5; }
+
+      .stack-table {
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        overflow: hidden;
+      }
+      .stack-row {
+        display: grid;
+        grid-template-columns: 180px 1fr;
+        gap: 24px;
+        padding: 14px 22px;
+        background: var(--bg-raised);
+        border-bottom: 1px solid var(--border-dim);
+        font-family: var(--font-mono);
+        font-size: 13px;
+      }
+      .stack-row:last-child { border-bottom: 0; }
+      .stack-k { color: var(--accent); }
+      .stack-v { color: var(--text); }
+
+      .writing p {
+        font-family: var(--font-serif);
+        font-size: 18px;
+        line-height: 1.65;
+        color: var(--text);
+        margin: 0 0 20px;
+        max-width: 720px;
+      }
+    </style>
+  </body>
+</html>

@@ -1,0 +1,49 @@
+---
+import { SITE_TITLE } from "../../lib/constants";
+import ThemeSwitcher from "../ThemeSwitcher.astro";
+import ModeToggle from "../ModeToggle.astro";
+import TermChrome from "../TermChrome.astro";
+import IdeShell from "../IdeShell.astro";
+
+const currentPath = Astro.url.pathname;
+const isActive = (href: string) => {
+  if (href === "/") return currentPath === "/";
+  return currentPath.startsWith(href);
+};
+
+const nav = [
+  { href: "/",      label: "./" },
+  { href: "/blog",  label: "./blog" },
+  { href: "/about", label: "./about" },
+  { href: "/cv",    label: "./cv" },
+];
+---
+
+<TermChrome />
+<IdeShell />
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a href="/" class="brand" aria-label={`${SITE_TITLE} — inicio`}>
+      <span class="brand__prompt">$</span>
+      <span class="brand__name">miguel-anay</span>
+      <span class="brand__cursor" aria-hidden="true"></span>
+    </a>
+
+    <nav class="site-nav" aria-label="Navegación principal">
+      {nav.map((item) => (
+        <a href={item.href} class={isActive(item.href) ? "is-active" : ""}>
+          {item.label}
+        </a>
+      ))}
+    </nav>
+
+    <div class="header-controls">
+      <ThemeSwitcher showLabel={true} />
+      <span class="header-sep" aria-hidden="true"></span>
+      <span class="kbd" title="Atajo (próximamente)">⌘K</span>
+      <span class="header-sep" aria-hidden="true"></span>
+      <ModeToggle />
+    </div>
+  </div>
+</header>

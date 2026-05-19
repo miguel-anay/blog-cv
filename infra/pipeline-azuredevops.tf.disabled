@@ -1,0 +1,14 @@
+# ══════════════════════════════════════════════════════════════════════════════
+# FASE 3: Azure DevOps
+# Para habilitar: renombrar a pipeline-azuredevops.tf
+# ══════════════════════════════════════════════════════════════════════════════
+#
+# Azure DevOps no tiene provider Terraform nativo en HashiCorp.
+# El deploy se configura directamente en Azure DevOps Pipelines (azure-pipelines.yml)
+# usando las mismas credenciales AWS que GitHub Actions.
+#
+# Lo que va acá si querés IaC para Azure:
+#   - Service connection AWS credentials (via azuredevops provider)
+#   - Variable groups con los secrets
+#
+# Por ahora el pipeline se define en azure-pipelines.yml en la raíz del repo.

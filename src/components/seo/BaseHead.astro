@@ -1,0 +1,72 @@
+---
+import "../../styles/global.css";
+import { SITE_TITLE, SITE_DESCRIPTION } from "../../lib/constants";
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+}
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const {
+  title = SITE_TITLE,
+  description = SITE_DESCRIPTION,
+  image = "/og-default.png",
+} = Astro.props;
+---
+
+<!-- Global Metadata -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<meta name="generator" content={Astro.generator} />
+
+<!-- Canonical URL -->
+<link rel="canonical" href={canonicalURL} />
+
+<!-- Primary Meta Tags -->
+<title>{title}</title>
+<meta name="title" content={title} />
+<meta name="description" content={description} />
+
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:url" content={Astro.url} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:image" content={new URL(image, Astro.url)} />
+
+<!-- Twitter -->
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:url" content={Astro.url} />
+<meta property="twitter:title" content={title} />
+<meta property="twitter:description" content={description} />
+<meta property="twitter:image" content={new URL(image, Astro.url)} />
+
+<!-- RSS -->
+<link rel="alternate" type="application/rss+xml" title={SITE_TITLE} href={new URL("rss.xml", Astro.site)} />
+
+<!--
+  No-flash theme bootstrap.
+  Runs synchronously before <body> paints. Reads prefs from localStorage,
+  defaults to (dark · green · min), and sets data-* attrs on <html> so
+  CSS variables resolve correctly on first paint.
+-->
+<script is:inline>
+  (function () {
+    try {
+      const theme = localStorage.getItem('blog-theme') || 'min';
+      const mode = localStorage.getItem('blog-mode') || 'dark';
+      const accent = localStorage.getItem('blog-accent') || 'green';
+      const root = document.documentElement;
+      root.setAttribute('data-theme', ['term', 'ide', 'min'].includes(theme) ? theme : 'min');
+      root.setAttribute('data-mode', mode === 'light' ? 'light' : 'dark');
+      root.setAttribute('data-accent', ['green', 'amber', 'cyan', 'magenta'].includes(accent) ? accent : 'green');
+    } catch (e) {
+      document.documentElement.setAttribute('data-theme', 'min');
+      document.documentElement.setAttribute('data-mode', 'dark');
+      document.documentElement.setAttribute('data-accent', 'green');
+    }
+  })();
+</script>

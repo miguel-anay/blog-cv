@@ -1,0 +1,278 @@
+---
+import BaseHead from "../../components/seo/BaseHead.astro";
+import Header from "../../components/layout/Header.astro";
+import Footer from "../../components/layout/Footer.astro";
+import BlogCard from "./components/BlogCard.astro";
+import { getArticles, getCategories, getCategoryCounts } from "../../lib/api";
+
+const PAGE_SIZE = 10;
+const page = 1;
+
+const [articlesRes, categories, counts] = await Promise.all([
+  getArticles({ page, pageSize: PAGE_SIZE }),
+  getCategories(),
+  getCategoryCounts(),
+]);
+
+const articles = articlesRes.data;
+const total = articlesRes.meta.total;
+const totalPages = articlesRes.meta.pageCount;
+const visible = articles;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <BaseHead
+      title="Blog — Miguel Anay"
+      description={`${total} escritos sobre código, infra y la forma de construir cosas.`}
+    />
+  </head>
+  <body>
+    <Header />
+
+    <main>
+      <section class="page-head">
+        <div class="page-head__inner">
+          <nav class="page-crumb">
+            <span class="page-crumb__prompt">$</span>
+            <span class="page-crumb__cmd">cd</span>
+            <span>./blog</span>
+            <span class="page-crumb__cursor" aria-hidden="true"></span>
+          </nav>
+          <h1 class="page-title">
+            {total} escritos.<br />
+            Filtrá por <span class="accent">tema</span> o búscalos por palabra.
+          </h1>
+          <form class="search-row" role="search">
+            <label class="search" aria-label="Buscar">
+              <span class="search__prompt">/</span>
+              <input
+                type="search"
+                name="q"
+                placeholder="buscar título, contenido, tag..."
+                class="search__input"
+              />
+              <span class="kbd">⌘K</span>
+            </label>
+          </form>
+        </div>
+      </section>
+
+      <section class="filter-section">
+        <div class="filter-inner">
+          <span class="filter-label"># filter --by category</span>
+          <div class="filter-chips">
+            <a href="/blog" class="chip chip--active">
+              <span>todos</span>
+              <span class="chip__count chip__count--active">{counts.todos}</span>
+            </a>
+            {categories.map((cat: any) => (
+              <a href={`/blog/category/${cat.slug}`} class="chip">
+                <span>{cat.slug}</span>
+                <span class="chip__count">{counts[cat.slug] ?? 0}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section class="posts">
+        <div class="posts-inner">
+          <div class="posts-head">
+            <span class="posts-count">{visible.length} de {total} escritos</span>
+          </div>
+
+          <ol class="post-list">
+            {visible.map((post: any, i: number) => (
+              <BlogCard
+                title={post.title}
+                description={post.description}
+                pubDate={new Date(post.publishedAt)}
+                slug={post.slug}
+                index={i + 1}
+                readMin={post.readMin ?? 1}
+                categories={post.categories}
+              />
+            ))}
+          </ol>
+
+          {totalPages > 1 && (
+            <nav class="pager" aria-label="Paginación">
+              <span class="pager__info">página {page} de {totalPages}</span>
+              <div class="pager__nav">
+                <span class="pager__disabled">← prev</span>
+                <span class="pager__active">1</span>
+                {totalPages > 1 && <a href="/blog/page/2" class="pager__item">2</a>}
+                {totalPages > 2 && <a href="/blog/page/3" class="pager__item">3</a>}
+                {totalPages > 3 && <a href="/blog/page/2" class="pager__next">next →</a>}
+              </div>
+            </nav>
+          )}
+        </div>
+      </section>
+    </main>
+
+    <Footer />
+
+    <style>
+      .page-head { border-bottom: 1px dashed var(--border); }
+      .page-head__inner { max-width: var(--max-w); margin: 0 auto; padding: 72px var(--pad-x) 64px; }
+      .page-crumb {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: var(--font-mono);
+        font-size: 13px;
+        color: var(--text);
+        margin-bottom: 28px;
+      }
+      .page-crumb__prompt { color: var(--accent); }
+      .page-crumb__cmd { color: var(--text-muted); }
+      .page-crumb__cursor {
+        width: 8px;
+        height: 14px;
+        background: var(--accent);
+        display: inline-block;
+        margin-left: 4px;
+        animation: blink 1s steps(2, end) infinite;
+      }
+      @keyframes blink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }
+      .page-title {
+        font-family: var(--font-sans);
+        font-size: clamp(36px, 5vw, 56px);
+        font-weight: 800;
+        line-height: 1.05;
+        letter-spacing: -0.035em;
+        color: var(--text-strong);
+        margin: 0;
+        max-width: 920px;
+      }
+      .accent { color: var(--accent); }
+
+      .search-row { margin-top: 40px; }
+      .search {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        background: var(--bg-raised);
+        max-width: 540px;
+      }
+      .search__prompt { color: var(--accent); font-family: var(--font-mono); font-size: 14px; }
+      .search__input {
+        flex: 1;
+        font-family: var(--font-mono);
+        font-size: 14px;
+        color: var(--text);
+        background: transparent;
+        border: 0;
+        outline: 0;
+      }
+      .search__input::placeholder { color: var(--text-dim); }
+
+      .filter-section { border-bottom: 1px dashed var(--border); background: var(--bg-sunken); }
+      .filter-inner {
+        max-width: var(--max-w);
+        margin: 0 auto;
+        padding: 28px var(--pad-x);
+        display: flex;
+        align-items: center;
+        gap: 32px;
+        flex-wrap: wrap;
+      }
+      .filter-label {
+        font-family: var(--font-mono);
+        font-size: 12px;
+        color: var(--text-dim);
+        white-space: nowrap;
+      }
+      .filter-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+      .chip {
+        font-family: var(--font-mono);
+        font-size: 13px;
+        color: var(--text);
+        padding: 7px 14px;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        background: var(--bg-raised);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .chip:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .chip--active {
+        background: var(--accent);
+        color: var(--accent-on);
+        border-color: var(--accent);
+        font-weight: 600;
+      }
+      .chip__count {
+        font-size: 11px;
+        color: var(--text-muted);
+        background: var(--bg-overlay);
+        padding: 1px 6px;
+        border-radius: 8px;
+      }
+      .chip__count--active {
+        color: var(--accent-on);
+        background: rgba(0,0,0,0.18);
+      }
+
+      .posts-inner {
+        max-width: var(--max-w);
+        margin: 0 auto;
+        padding: 48px var(--pad-x) 80px;
+      }
+      .posts-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--border);
+      }
+      .posts-count { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); }
+      .post-list { list-style: none; padding: 0; margin: 0; }
+
+      .pager {
+        margin-top: 48px;
+        padding-top: 24px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+      .pager__info { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); }
+      .pager__nav {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-family: var(--font-mono);
+        font-size: 13px;
+      }
+      .pager__disabled { color: var(--text-faint); padding: 6px 10px; }
+      .pager__active {
+        color: var(--accent-on);
+        background: var(--accent);
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-weight: 600;
+      }
+      .pager__item {
+        color: var(--text);
+        padding: 6px 12px;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+      }
+      .pager__next { color: var(--accent); padding: 6px 10px; }
+    </style>
+  </body>
+</html>
