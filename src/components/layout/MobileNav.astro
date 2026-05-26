@@ -1,0 +1,239 @@
+---
+export interface Props {
+  nav: Array<{ href: string; label: string }>;
+  currentPath: string;
+}
+
+const { nav, currentPath } = Astro.props;
+
+const isActive = (href: string) => {
+  if (href === "/") return currentPath === "/";
+  return currentPath.startsWith(href);
+};
+---
+
+<div class="mobile-nav-wrap">
+  <button
+    type="button"
+    class="mobile-nav-toggle"
+    data-mobile-nav-toggle
+    aria-expanded="false"
+    aria-controls="mobile-nav-drawer"
+    aria-label="Abrir menú de navegación"
+  >
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+      <rect x="2" y="5" width="16" height="1.5" rx="0.75" fill="currentColor"/>
+      <rect x="2" y="9.25" width="16" height="1.5" rx="0.75" fill="currentColor"/>
+      <rect x="2" y="13.5" width="16" height="1.5" rx="0.75" fill="currentColor"/>
+    </svg>
+  </button>
+
+  <nav
+    id="mobile-nav-drawer"
+    class="mobile-nav-drawer"
+    data-mobile-nav
+    aria-label="Navegación móvil"
+    hidden
+  >
+    <div class="mobile-nav-drawer__inner">
+      {nav.map((item) => (
+        <a
+          href={item.href}
+          class={`mobile-nav-drawer__link${isActive(item.href) ? " is-active" : ""}`}
+        >
+          {item.label}
+        </a>
+      ))}
+    </div>
+  </nav>
+</div>
+
+<style>
+  .mobile-nav-wrap {
+    display: none;
+  }
+
+  @media (max-width: 767px) {
+    .mobile-nav-wrap {
+      display: block;
+    }
+  }
+
+  .mobile-nav-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0;
+    transition: color 0.12s, border-color 0.12s;
+  }
+
+  .mobile-nav-toggle:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  /* Drawer */
+  .mobile-nav-drawer {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: none;
+  }
+
+  .mobile-nav-drawer:not([hidden]) {
+    display: block;
+  }
+
+  .mobile-nav-drawer__inner {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(280px, 85vw);
+    background: var(--bg-raised);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 24px 20px;
+    gap: 4px;
+    transform: translateX(100%);
+    transition: transform 200ms ease;
+  }
+
+  .mobile-nav-drawer.is-open .mobile-nav-drawer__inner {
+    transform: translateX(0);
+  }
+
+  /* Backdrop */
+  .mobile-nav-drawer::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transition: opacity 200ms ease;
+  }
+
+  .mobile-nav-drawer.is-open::before {
+    opacity: 1;
+  }
+
+  .mobile-nav-drawer__link {
+    font-family: var(--font-mono);
+    font-size: 15px;
+    color: var(--text-muted);
+    padding: 12px 8px;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: color 0.12s, background 0.12s;
+  }
+
+  .mobile-nav-drawer__link:hover {
+    color: var(--text);
+    background: var(--bg-overlay);
+  }
+
+  .mobile-nav-drawer__link.is-active {
+    color: var(--text-strong);
+    font-weight: 600;
+  }
+</style>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>("[data-mobile-nav-toggle]");
+  const drawer = document.querySelector<HTMLElement>("[data-mobile-nav]");
+
+  if (toggle && drawer) {
+    const focusableSelectors =
+      'a[href], button:not([disabled]), input, textarea, select, details, [tabindex]:not([tabindex="-1"])';
+
+    function getFocusables(): HTMLElement[] {
+      return Array.from(drawer!.querySelectorAll<HTMLElement>(focusableSelectors)).filter(
+        (el) => !el.closest("[hidden]")
+      );
+    }
+
+    function openDrawer() {
+      drawer!.removeAttribute("hidden");
+      // Force reflow so CSS transition fires
+      drawer!.getBoundingClientRect();
+      drawer!.classList.add("is-open");
+      toggle!.setAttribute("aria-expanded", "true");
+      document.documentElement.style.overflow = "hidden";
+      const focusables = getFocusables();
+      if (focusables.length) focusables[0].focus();
+    }
+
+    function closeDrawer() {
+      drawer!.classList.remove("is-open");
+      toggle!.setAttribute("aria-expanded", "false");
+      document.documentElement.style.overflow = "";
+
+      // Wait for transition to finish before hiding
+      const inner = drawer!.querySelector<HTMLElement>(".mobile-nav-drawer__inner");
+      const onTransitionEnd = () => {
+        drawer!.setAttribute("hidden", "");
+        inner?.removeEventListener("transitionend", onTransitionEnd);
+      };
+      inner?.addEventListener("transitionend", onTransitionEnd);
+      toggle!.focus();
+    }
+
+    // Toggle on button click
+    toggle.addEventListener("click", () => {
+      if (toggle.getAttribute("aria-expanded") === "true") {
+        closeDrawer();
+      } else {
+        openDrawer();
+      }
+    });
+
+    // Backdrop click (click outside drawer inner)
+    drawer.addEventListener("click", (e) => {
+      const inner = drawer.querySelector(".mobile-nav-drawer__inner");
+      if (inner && !inner.contains(e.target as Node)) {
+        closeDrawer();
+      }
+    });
+
+    // ESC key
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && toggle.getAttribute("aria-expanded") === "true") {
+        closeDrawer();
+      }
+    });
+
+    // Focus trap: Tab / Shift+Tab cycle within drawer
+    drawer.addEventListener("keydown", (e) => {
+      if (e.key !== "Tab") return;
+      const focusables = getFocusables();
+      if (!focusables.length) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    });
+
+    // Close drawer when a nav link is clicked
+    drawer.querySelectorAll<HTMLAnchorElement>(".mobile-nav-drawer__link").forEach((link) => {
+      link.addEventListener("click", () => closeDrawer());
+    });
+  }
+</script>
