@@ -13,15 +13,33 @@ export default defineConfig({
   projects: [
     {
       name: 'mobile-sm',
-      use: { ...devices['iPhone SE'] },
+      use: {
+        browserName: 'chromium',
+        viewport: { width: 375, height: 667 },
+        deviceScaleFactor: 2,
+        isMobile: true,
+        hasTouch: true,
+      },
     },
     {
       name: 'mobile-md',
-      use: { ...devices['iPhone 12'] },
+      use: {
+        browserName: 'chromium',
+        viewport: { width: 414, height: 896 },
+        deviceScaleFactor: 2,
+        isMobile: true,
+        hasTouch: true,
+      },
     },
     {
       name: 'tablet',
-      use: { ...devices['iPad Mini'] },
+      use: {
+        browserName: 'chromium',
+        viewport: { width: 768, height: 1024 },
+        deviceScaleFactor: 2,
+        isMobile: true,
+        hasTouch: true,
+      },
     },
     {
       name: 'desktop',

@@ -6,7 +6,8 @@
   ],
   "exclude": [
     "dist",
-    "blog-api"
+    "blog-api",
+    "tests"
   ],
   "compilerOptions": {
     "strictNullChecks": true,
