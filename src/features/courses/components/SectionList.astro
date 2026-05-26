@@ -1,0 +1,189 @@
+---
+import { marked } from 'marked';
+import type { CourseSection } from '../../../lib/api-types';
+import ResourceItem from './ResourceItem.astro';
+
+export interface Props {
+  sections: CourseSection[];
+}
+
+const { sections } = Astro.props;
+
+marked.setOptions({ gfm: true, breaks: true });
+---
+
+<div class="sections">
+  {sections.map((section, i) => (
+    <div class="course-section" id={`section-${section.id}`}>
+      <div class="section__header">
+        <span class="section__num">{String(i + 1).padStart(2, '0')}</span>
+        <div class="section__meta">
+          <h2 class="section__title">{section.title}</h2>
+          {section.description && (
+            <p class="section__desc">{section.description}</p>
+          )}
+        </div>
+        {section.resources.length > 0 && (
+          <span class="section__count">
+            {section.resources.length} {section.resources.length === 1 ? 'recurso' : 'recursos'}
+          </span>
+        )}
+      </div>
+
+      {section.content && (
+        <div class="section__content prose" set:html={marked.parse(section.content)} />
+      )}
+
+      {section.resources.length > 0 && (
+        <div class="section__resources">
+          <span class="section__resources-label">
+            <span class="section__resources-prompt">$</span> recursos
+          </span>
+          <div class="section__resources-list">
+            {section.resources.map((resource) => (
+              <ResourceItem resource={resource} />
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  ))}
+</div>
+
+<style>
+  .sections { display: flex; flex-direction: column; gap: 0; }
+
+  .course-section {
+    padding: 48px 0;
+    border-bottom: 1px dashed var(--border);
+    scroll-margin-top: 100px;
+  }
+  .course-section:last-child { border-bottom: none; }
+
+  .section__header {
+    display: grid;
+    grid-template-columns: 40px 1fr auto;
+    align-items: start;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .section__num {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--accent);
+    padding-top: 5px;
+    font-weight: 600;
+  }
+
+  .section__meta { display: flex; flex-direction: column; gap: 6px; }
+
+  .section__title {
+    font-family: var(--font-sans);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-strong);
+    margin: 0;
+    line-height: 1.25;
+  }
+
+  .section__desc {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  .section__count {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    white-space: nowrap;
+    padding-top: 6px;
+  }
+
+  /* Markdown content */
+  .section__content {
+    padding-left: var(--pad-x);
+    margin-bottom: 36px;
+  }
+
+  .prose :global(h2),
+  .prose :global(h3) {
+    font-family: var(--font-sans);
+    font-weight: 700;
+    color: var(--text-strong);
+    margin: 1.5em 0 0.5em;
+  }
+  .prose :global(h2) { font-size: 18px; }
+  .prose :global(h3) { font-size: 15px; }
+
+  .prose :global(p) {
+    font-size: 14px;
+    line-height: 1.75;
+    color: var(--text-muted);
+    margin: 0 0 1em;
+  }
+
+  .prose :global(ul),
+  .prose :global(ol) {
+    font-size: 14px;
+    line-height: 1.75;
+    color: var(--text-muted);
+    padding-left: 1.25em;
+    margin: 0 0 1em;
+  }
+
+  .prose :global(code) {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    background: var(--bg-overlay);
+    color: var(--accent);
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+
+  .prose :global(pre) {
+    background: var(--bg-sunken);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 16px;
+    overflow-x: auto;
+    margin: 0 0 1em;
+  }
+  .prose :global(pre code) {
+    background: none;
+    color: var(--text);
+    padding: 0;
+    font-size: 13px;
+  }
+
+  .prose :global(blockquote) {
+    border-left: 3px solid var(--accent);
+    padding: 2px 0 2px 16px;
+    margin: 0 0 1em;
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+
+  .prose :global(strong) { color: var(--text-strong); font-weight: 600; }
+
+  .prose :global(a) { color: var(--accent); }
+  .prose :global(a:hover) { text-decoration: underline; }
+
+  /* Resources */
+  .section__resources { padding-left: var(--pad-x); }
+
+  .section__resources-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+  }
+  .section__resources-prompt { color: var(--accent); }
+
+  .section__resources-list { display: flex; flex-direction: column; gap: 10px; }
+</style>

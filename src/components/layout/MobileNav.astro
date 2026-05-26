@@ -175,15 +175,10 @@ const isActive = (href: string) => {
       drawer!.classList.remove("is-open");
       toggle!.setAttribute("aria-expanded", "false");
       document.documentElement.style.overflow = "";
-
-      // Wait for transition to finish before hiding
-      const inner = drawer!.querySelector<HTMLElement>(".mobile-nav-drawer__inner");
-      const onTransitionEnd = () => {
-        drawer!.setAttribute("hidden", "");
-        inner?.removeEventListener("transitionend", onTransitionEnd);
-      };
-      inner?.addEventListener("transitionend", onTransitionEnd);
       toggle!.focus();
+      setTimeout(() => {
+        drawer!.setAttribute("hidden", "");
+      }, 200);
     }
 
     // Toggle on button click
