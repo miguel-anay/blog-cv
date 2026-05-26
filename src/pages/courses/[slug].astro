@@ -1,0 +1,194 @@
+---
+import BaseHead from '../../components/seo/BaseHead.astro';
+import Header from '../../components/layout/Header.astro';
+import Footer from '../../components/layout/Footer.astro';
+import SectionList from '../../features/courses/components/SectionList.astro';
+import CourseNav from '../../features/courses/components/CourseNav.astro';
+import { getCourseBySlug } from '../../lib/api';
+
+const { slug } = Astro.params;
+if (!slug) return Astro.redirect('/courses');
+
+const course = await getCourseBySlug(slug);
+if (!course) return new Response(null, { status: 404, statusText: 'Not Found' });
+
+const totalResources = (course.sections ?? []).reduce(
+  (acc, s) => acc + s.resources.length,
+  0,
+);
+
+const levelLabel: Record<string, string> = {
+  beginner: 'principiante',
+  intermediate: 'intermedio',
+  advanced: 'avanzado',
+};
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <BaseHead title={`${course.title} — Cursos`} description={course.description} />
+  </head>
+  <body>
+    <Header />
+
+    <main>
+      <section class="course-head">
+        <div class="course-head__inner">
+          <nav class="breadcrumb">
+            <a href="/courses" class="breadcrumb__back">← cursos</a>
+          </nav>
+
+          <div class="course-meta">
+            <span class="course-level">{levelLabel[course.level] ?? course.level}</span>
+            <span class="course-sep">·</span>
+            <span>{course.sections?.length ?? 0} secciones</span>
+            <span class="course-sep">·</span>
+            <span>{totalResources} recursos</span>
+          </div>
+
+          <h1 class="course-title">{course.title}</h1>
+          <p class="course-description">{course.description}</p>
+
+          {course.coverUrl && (
+            <img
+              src={course.coverUrl}
+              alt={course.title}
+              class="course-cover"
+              loading="eager"
+            />
+          )}
+        </div>
+      </section>
+
+      <div class="course-body">
+        <div class="course-body__inner">
+          {(course.sections?.length ?? 0) > 0 && (
+            <aside class="course-sidebar">
+              <CourseNav sections={course.sections!} />
+            </aside>
+          )}
+
+          <article class="course-main">
+            {(course.sections?.length ?? 0) === 0 ? (
+              <div class="empty">
+                <span class="empty__prompt">#</span>
+                <span>este curso todavía no tiene secciones.</span>
+              </div>
+            ) : (
+              <SectionList sections={course.sections!} />
+            )}
+          </article>
+        </div>
+      </div>
+    </main>
+
+    <Footer />
+
+    <style>
+      .course-head {
+        border-bottom: 1px dashed var(--border);
+        background: var(--bg-sunken);
+      }
+      .course-head__inner {
+        max-width: var(--max-w);
+        margin: 0 auto;
+        padding: 56px var(--pad-x) 64px;
+      }
+
+      .breadcrumb { margin-bottom: 32px; }
+      .breadcrumb__back {
+        font-family: var(--font-mono);
+        font-size: 13px;
+        color: var(--text-muted);
+        text-decoration: none;
+      }
+      .breadcrumb__back:hover { color: var(--accent); }
+
+      .course-meta {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: var(--font-mono);
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-bottom: 20px;
+      }
+      .course-level { color: var(--accent); font-weight: 600; }
+      .course-sep { color: var(--text-faint); }
+
+      .course-title {
+        font-family: var(--font-sans);
+        font-size: clamp(32px, 4.5vw, 52px);
+        font-weight: 800;
+        line-height: 1.08;
+        letter-spacing: -0.03em;
+        color: var(--text-strong);
+        margin: 0 0 20px;
+        max-width: 860px;
+      }
+
+      .course-description {
+        font-size: 17px;
+        color: var(--text-muted);
+        line-height: 1.65;
+        margin: 0;
+        max-width: 680px;
+      }
+
+      .course-cover {
+        width: 100%;
+        max-width: 860px;
+        height: auto;
+        border-radius: 6px;
+        margin-top: 40px;
+        border: 1px solid var(--border);
+        object-fit: cover;
+      }
+
+      /* Two-column layout */
+      .course-body { width: 100%; }
+
+      .course-body__inner {
+        max-width: var(--max-w);
+        margin: 0 auto;
+        padding: 48px var(--pad-x) 96px;
+        display: grid;
+        grid-template-columns: 240px 1fr;
+        gap: 56px;
+        align-items: start;
+      }
+
+      .course-sidebar {
+        display: block;
+      }
+
+      .course-main { min-width: 0; }
+
+      .empty {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-family: var(--font-mono);
+        font-size: 14px;
+        color: var(--text-dim);
+        padding: 48px 0;
+      }
+      .empty__prompt { color: var(--accent); }
+
+      @media (max-width: 768px) {
+        .course-body__inner {
+          grid-template-columns: 1fr;
+          gap: 32px;
+          padding: 32px var(--pad-x) 64px;
+        }
+        .course-sidebar {
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          padding: 16px;
+          background: var(--bg-raised);
+        }
+      }
+    </style>
+  </body>
+</html>
