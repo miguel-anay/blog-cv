@@ -72,6 +72,41 @@ export interface ArticleListResponse {
   meta: PaginationMeta;
 }
 
+// ── Courses ────────────────────────────────────────────────────────────────
+export interface CourseResource {
+  id: number;
+  sectionId: number;
+  order: number;
+  type: 'github' | 'video' | 'link';
+  title: string;
+  url: string;
+  description?: string | null;
+}
+
+export interface CourseSection {
+  id: number;
+  courseId: number;
+  order: number;
+  title: string;
+  description?: string | null;
+  content?: string | null;
+  resources: CourseResource[];
+}
+
+export interface Course {
+  id: number;
+  slug: string;
+  title: string;
+  description: string;
+  coverUrl?: string | null;
+  level: string;
+  publishedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  sections?: CourseSection[];
+  sectionCount?: number;
+}
+
 // ── Site Config ────────────────────────────────────────────────────────────
 export interface SiteConfig {
   id: number;

@@ -24,6 +24,11 @@
   --max-w: 1180px;
   --pad-x: 56px;
 
+  /* Responsive spacing tokens */
+  --section-pad-y: 80px;
+  --hero-pad-y: 96px;
+  --stack-col-width: 280px;
+
   /* Defaults (dark · green · min) — overridden by [data-*] below */
   --bg: #0d0f14;
   --bg-raised: #131720;
@@ -897,9 +902,12 @@ hr {
    Mobile responsive
    ============================================================ */
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   :root {
     --pad-x: 24px;
+    --section-pad-y: 40px;
+    --hero-pad-y: 48px;
+    --stack-col-width: 100%;
   }
 
   .site-header__inner {
@@ -923,4 +931,37 @@ hr {
   /* TERM: simplificar titlebar — ocultar tab de la derecha */
   [data-theme="term"] .term-chrome  { grid-template-columns: auto 1fr; }
   .term-chrome__right               { display: none; }
+
+  /* Stack row collapse */
+  .stack-row { grid-template-columns: 1fr; gap: 4px; }
+
+  /* Site footer bottom wrap */
+  .site-footer__bottom { flex-wrap: wrap; gap: 8px; }
+
+}
+
+/* Stack + blog-card collapse at ≤600px */
+@media (max-width: 600px) {
+  .blog-card {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .blog-card__num { display: none; }
+  .blog-card__arrow { display: none; }
+}
+
+/* Header: hide non-essential controls at tablet and below */
+@media (max-width: 768px) {
+  .header-controls .theme-switcher,
+  .header-controls .header-sep,
+  .header-controls .kbd {
+    display: none;
+  }
+}
+
+/* cat-grid single column at ≤480px */
+@media (max-width: 480px) {
+  .cat-grid {
+    grid-template-columns: 1fr;
+  }
 }

@@ -11,8 +11,11 @@ import {
   cvExperiencia,
   cvEducacion,
   cvCursos,
+  courses,
+  courseSections,
+  courseResources,
 } from './schema';
-import type { Article, ArticleListResponse, Category, SiteConfig } from './api-types';
+import type { Article, ArticleListResponse, Category, SiteConfig, Course, CourseResource } from './api-types';
 import type { CvData } from './cv-types';
 
 function parseJson<T>(value: unknown, fallback: T): T {
@@ -225,6 +228,75 @@ export async function getSiteConfig(): Promise<SiteConfig | null> {
     return row ?? null;
   } catch (err) {
     console.error('getSiteConfig failed:', err);
+    return null;
+  }
+}
+
+// ── Courses ────────────────────────────────────────────────────────────────
+
+export async function getCourses(): Promise<Course[]> {
+  try {
+    const db = getDb();
+    const rows = await db.select().from(courses).orderBy(desc(courses.publishedAt));
+    if (rows.length === 0) return [];
+
+    const ids = rows.map((r) => r.id);
+    const countRows = await db
+      .select({ courseId: courseSections.courseId, total: count() })
+      .from(courseSections)
+      .where(inArray(courseSections.courseId, ids))
+      .groupBy(courseSections.courseId);
+
+    const countMap = new Map(countRows.map((c) => [c.courseId, c.total]));
+    return rows.map((c) => ({ ...c, sectionCount: countMap.get(c.id) ?? 0 })) as Course[];
+  } catch (err) {
+    console.error('getCourses failed:', err);
+    return [];
+  }
+}
+
+export async function getCourseBySlug(slug: string): Promise<Course | null> {
+  try {
+    const db = getDb();
+
+    const [course] = await db
+      .select()
+      .from(courses)
+      .where(eq(courses.slug, slug))
+      .limit(1);
+
+    if (!course) return null;
+
+    const sections = await db
+      .select()
+      .from(courseSections)
+      .where(eq(courseSections.courseId, course.id))
+      .orderBy(courseSections.order);
+
+    if (sections.length === 0) return { ...course, sections: [] } as Course;
+
+    const sectionIds = sections.map((s) => s.id);
+    const resources = await db
+      .select()
+      .from(courseResources)
+      .where(inArray(courseResources.sectionId, sectionIds))
+      .orderBy(courseResources.order);
+
+    const bySection = new Map<number, typeof resources>();
+    for (const r of resources) {
+      if (!bySection.has(r.sectionId)) bySection.set(r.sectionId, []);
+      bySection.get(r.sectionId)!.push(r);
+    }
+
+    return {
+      ...course,
+      sections: sections.map((s) => ({
+        ...s,
+        resources: (bySection.get(s.id) ?? []) as CourseResource[],
+      })),
+    } as Course;
+  } catch (err) {
+    console.error('getCourseBySlug failed:', err);
     return null;
   }
 }

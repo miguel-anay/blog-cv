@@ -4,6 +4,7 @@ import ThemeSwitcher from "../ThemeSwitcher.astro";
 import ModeToggle from "../ModeToggle.astro";
 import TermChrome from "../TermChrome.astro";
 import IdeShell from "../IdeShell.astro";
+import MobileNav from "./MobileNav.astro";
 
 const currentPath = Astro.url.pathname;
 const isActive = (href: string) => {
@@ -12,10 +13,11 @@ const isActive = (href: string) => {
 };
 
 const nav = [
-  { href: "/",      label: "./" },
-  { href: "/blog",  label: "./blog" },
-  { href: "/about", label: "./about" },
-  { href: "/cv",    label: "./cv" },
+  { href: "/",        label: "./" },
+  { href: "/blog",    label: "./blog" },
+  { href: "/courses", label: "./courses" },
+  { href: "/about",   label: "./about" },
+  { href: "/cv",      label: "./cv" },
 ];
 ---
 
@@ -44,6 +46,7 @@ const nav = [
       <span class="kbd" title="Atajo (próximamente)">⌘K</span>
       <span class="header-sep" aria-hidden="true"></span>
       <ModeToggle />
+      <MobileNav nav={nav} currentPath={currentPath} />
     </div>
   </div>
 </header>

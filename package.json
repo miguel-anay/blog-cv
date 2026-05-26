@@ -10,7 +10,9 @@
     "astro": "astro",
     "check": "astro check",
     "type-check": "tsc --noEmit",
-    "test": "echo \"No tests configured yet\" && exit 0",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:report": "playwright show-report",
     "lint": "npm run check",
     "validate": "npm run type-check && npm run build"
   },
@@ -26,6 +28,7 @@
     "@types/react-dom": "^19.2.0",
     "astro": "^5.14.1",
     "drizzle-orm": "^0.43.1",
+    "marked": "^18.0.4",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "sharp": "^0.34.3",
@@ -33,6 +36,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.9",
+    "@playwright/test": "^1.60.0",
     "playwright": "^1.60.0",
     "typescript": "^6.0.3"
   }

@@ -105,3 +105,36 @@ export const cvCursos = sqliteTable('cv_cursos', {
   certificado: text('certificado'),
   externo: integer('externo').notNull().default(0),
 });
+
+// ── Courses module ──────────────────────────────────────────────────────────
+
+export const courses = sqliteTable('courses', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  slug: text('slug').unique().notNull(),
+  title: text('title').notNull(),
+  description: text('description').notNull(),
+  coverUrl: text('cover_url'),
+  level: text('level').notNull().default('beginner'),
+  publishedAt: text('published_at'),
+  createdAt: text('created_at').notNull().default("(datetime('now'))"),
+  updatedAt: text('updated_at').notNull().default("(datetime('now'))"),
+});
+
+export const courseSections = sqliteTable('course_sections', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  courseId: integer('course_id').notNull().references(() => courses.id, { onDelete: 'cascade' }),
+  order: integer('order').notNull().default(0),
+  title: text('title').notNull(),
+  description: text('description'),
+  content: text('content'),
+});
+
+export const courseResources = sqliteTable('course_resources', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  sectionId: integer('section_id').notNull().references(() => courseSections.id, { onDelete: 'cascade' }),
+  order: integer('order').notNull().default(0),
+  type: text('type').notNull(),
+  title: text('title').notNull(),
+  url: text('url').notNull(),
+  description: text('description'),
+});

@@ -188,6 +188,10 @@ const slugNoExt = slug ?? title.toLowerCase().replace(/\s+/g, "-");
         padding: 5px 0;
       }
       .aside-box__link:hover { color: var(--accent); }
+
+      @media (max-width: 767px) {
+        .article-aside { display: none; }
+      }
     </style>
 
     <!-- TOC builder + copy-url -->
