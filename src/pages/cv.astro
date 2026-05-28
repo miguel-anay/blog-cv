@@ -150,21 +150,30 @@ const cursosByCategory = cursos.reduce<Record<string, typeof cursos>>((acc, curs
           <div class="cv-proj-grid">
             {proyectos.map((p) => (
               <div class="cv-proj-item">
-                <div class="cv-proj__header">
-                  <span class="cv-proj__title">{p.titulo}</span>
-                  {p.empresa && <span class="cv-proj__co">{p.empresa}</span>}
-                </div>
-                {p.descripcion && <p class="cv-proj__desc">{p.descripcion}</p>}
-                {p.tecnologias && p.tecnologias.length > 0 && (
-                  <div class="cv-exp__stack">
-                    {p.tecnologias.map((t) => (
-                      <span class="cv-exp__tag">{t}</span>
-                    ))}
+                <div class="cv-proj__inner">
+                  <div class="cv-proj__front">
+                    <div class="cv-proj__header">
+                      <span class="cv-proj__title">{p.titulo}</span>
+                      {p.empresa && <span class="cv-proj__co">{p.empresa}</span>}
+                    </div>
+                    {p.descripcion && <p class="cv-proj__desc">{p.descripcion}</p>}
+                    {p.tecnologias && p.tecnologias.length > 0 && (
+                      <div class="cv-exp__stack">
+                        {p.tecnologias.map((t) => (
+                          <span class="cv-exp__tag">{t}</span>
+                        ))}
+                      </div>
+                    )}
+                    {p.url && (
+                      <a href={p.url} target="_blank" rel="noopener" class="cv-proj__link">↗ {p.url.replace(/^https?:\/\//, '')}</a>
+                    )}
                   </div>
-                )}
-                {p.url && (
-                  <a href={p.url} target="_blank" rel="noopener" class="cv-proj__link">↗ {p.url.replace(/^https?:\/\//, '')}</a>
-                )}
+                  {p.imagen && (
+                    <div class="cv-proj__back">
+                      <img src={p.imagen} alt={`Screenshot de ${p.titulo}`} loading="lazy" />
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
           </div>
@@ -236,7 +245,7 @@ const cursosByCategory = cursos.reduce<Record<string, typeof cursos>>((acc, curs
     <script>
       import gsap from 'gsap';
       import { ScrollTrigger } from 'gsap/ScrollTrigger';
-      import { registerPlugins, splitWords, makeMagnetic } from '../lib/gsap-utils';
+      import { registerPlugins, splitWords } from '../lib/gsap-utils';
 
       registerPlugins();
 
@@ -289,12 +298,6 @@ const cursosByCategory = cursos.reduce<Record<string, typeof cursos>>((acc, curs
         });
       });
 
-      // ── TASK-4.2: CV magnetic project cards ──
-      gsap.matchMedia().add('(pointer: fine) and (prefers-reduced-motion: no-preference)', () => {
-        document.querySelectorAll<HTMLElement>('.cv-proj-item').forEach(el => {
-          makeMagnetic(el);
-        });
-      });
     </script>
 
     <style>
@@ -589,9 +592,38 @@ const cursosByCategory = cursos.reduce<Record<string, typeof cursos>>((acc, curs
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
         gap: 20px;
       }
+
+      /* ── Flip card ── */
       .cv-proj-item {
-        border: 1px solid var(--border);
+        perspective: 900px;
+        height: 220px;
+      }
+      .cv-proj__inner {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        transform-style: preserve-3d;
+        transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .cv-proj-item:hover .cv-proj__inner,
+      .cv-proj-item:focus-within .cv-proj__inner {
+        transform: rotateY(180deg);
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .cv-proj__inner { transition: none; }
+      }
+      .cv-proj__front,
+      .cv-proj__back {
+        position: absolute;
+        inset: 0;
         border-radius: 6px;
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+      }
+
+      /* Front face */
+      .cv-proj__front {
+        border: 1px solid var(--border);
         background: var(--bg-raised);
         padding: 20px;
         display: flex;
@@ -631,6 +663,21 @@ const cursosByCategory = cursos.reduce<Record<string, typeof cursos>>((acc, curs
         margin-top: auto;
       }
       .cv-proj__link:hover { color: var(--accent); }
+
+      /* Back face */
+      .cv-proj__back {
+        transform: rotateY(180deg);
+        overflow: hidden;
+        border: 1px solid var(--border);
+        background: var(--bg-raised);
+      }
+      .cv-proj__back img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: top;
+        display: block;
+      }
     </style>
   </body>
 </html>
