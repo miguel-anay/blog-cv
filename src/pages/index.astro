@@ -3,6 +3,7 @@ import BaseHead from "../components/seo/BaseHead.astro";
 import Header from "../components/layout/Header.astro";
 import Footer from "../components/layout/Footer.astro";
 import MagneticCursor from "../components/MagneticCursor.astro";
+import MatrixIntro from "../components/MatrixIntro.astro";
 import BlogCard from "./blog/components/BlogCard.astro";
 import CategoryCard from "../components/CategoryCard.astro";
 import { getArticles, getCategories, getCategoryCounts, getSiteConfig } from "../lib/api";
@@ -44,6 +45,7 @@ const lastUpdated = allArticles[0]?.publishedAt
     <BaseHead title={pageTitle} description={pageDescription} />
   </head>
   <body>
+    <MatrixIntro />
     <MagneticCursor />
     <Header />
 

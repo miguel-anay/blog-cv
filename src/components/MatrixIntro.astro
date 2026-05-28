@@ -1,0 +1,126 @@
+---
+// Matrix digital rain intro — Rezmason/matrix, trinity effect
+// Shows once per session (sessionStorage). Click or keypress to dismiss.
+---
+
+<div id="matrix-intro" class="mxintro">
+  <iframe
+    src="/matrix/?version=trinity&skipIntro=true&suppressWarnings=true"
+    class="mxintro__frame"
+    title="Matrix digital rain"
+    tabindex="-1"
+    aria-hidden="true"
+  ></iframe>
+
+  <div class="mxintro__overlay">
+    <button id="matrix-enter" class="mxintro__enter" aria-label="Entrar al sitio">
+      [ ENTER ]
+    </button>
+    <p class="mxintro__hint">o presiona cualquier tecla</p>
+  </div>
+</div>
+
+<style>
+  .mxintro {
+    position: fixed;
+    inset: 0;
+    z-index: 200000;
+    background: #000;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 10vh;
+  }
+
+  .mxintro__frame {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+  }
+
+  .mxintro__overlay {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    pointer-events: none;
+  }
+
+  .mxintro__enter {
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    font-size: clamp(13px, 2vw, 16px);
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    color: #7cf08c;
+    background: transparent;
+    border: 1px solid rgba(124, 240, 140, 0.6);
+    padding: 12px 40px;
+    cursor: pointer;
+    pointer-events: all;
+    text-shadow: 0 0 12px rgba(124, 240, 140, 0.8);
+    box-shadow: 0 0 16px rgba(124, 240, 140, 0.15), inset 0 0 16px rgba(124, 240, 140, 0.05);
+    animation: mxblink 2s steps(2, end) infinite;
+    transition: box-shadow 0.2s, border-color 0.2s;
+  }
+
+  .mxintro__enter:hover {
+    border-color: rgba(124, 240, 140, 1);
+    box-shadow: 0 0 24px rgba(124, 240, 140, 0.4), inset 0 0 16px rgba(124, 240, 140, 0.1);
+    animation-play-state: paused;
+  }
+
+  .mxintro__hint {
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    font-size: 11px;
+    color: rgba(124, 240, 140, 0.45);
+    letter-spacing: 0.08em;
+    margin: 0;
+    pointer-events: none;
+  }
+
+  @keyframes mxblink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mxintro__enter { animation: none; }
+  }
+</style>
+
+<script>
+  import gsap from 'gsap';
+
+  const intro = document.getElementById('matrix-intro') as HTMLElement | null;
+
+  if (!intro) {
+    // Component not rendered
+  } else if (sessionStorage.getItem('mx-intro-done')) {
+    intro.remove();
+  } else {
+    const dismiss = () => {
+      clearTimeout(autoTimer);
+      document.removeEventListener('keydown', onKey);
+      sessionStorage.setItem('mx-intro-done', '1');
+      gsap.to(intro, {
+        autoAlpha: 0,
+        duration: 1,
+        ease: 'power2.inOut',
+        onComplete: () => intro.remove(),
+      });
+    };
+
+    const onKey = () => dismiss();
+
+    // Auto-dismiss after 7 seconds
+    const autoTimer = setTimeout(dismiss, 7000);
+
+    document.getElementById('matrix-enter')?.addEventListener('click', dismiss);
+    document.addEventListener('keydown', onKey, { once: true });
+  }
+</script>
