@@ -168,6 +168,65 @@ const lastUpdate = "2026-05-10";
 
     <Footer />
 
+    <script>
+      import gsap from 'gsap';
+      import { ScrollTrigger } from 'gsap/ScrollTrigger';
+      import { registerPlugins, splitWords } from '../lib/gsap-utils';
+
+      registerPlugins();
+
+      // Set visibility:hidden immediately before matchMedia
+      const aboutHeroTitle = document.querySelector<HTMLElement>('.about-title');
+      if (aboutHeroTitle) aboutHeroTitle.style.visibility = 'hidden';
+
+      gsap.matchMedia().add('(prefers-reduced-motion: no-preference)', async () => {
+        // ── Hero SplitText timeline ──
+        if (aboutHeroTitle) {
+          const split = await splitWords(aboutHeroTitle);
+
+          const tl = gsap.timeline();
+
+          // Eyebrow fade-in
+          tl.from('.eyebrow', { autoAlpha: 0, duration: 0.4 });
+
+          // Title word stagger
+          tl.from(split.words, {
+            y: 40,
+            autoAlpha: 0,
+            stagger: 0.08,
+            duration: 0.6,
+            ease: 'power3.out',
+          });
+
+          // CTA cascade
+          tl.from('.about-cta a', {
+            autoAlpha: 0,
+            y: 20,
+            stagger: 0.1,
+            duration: 0.4,
+          }, '-=0.3');
+
+          tl.eventCallback('onComplete', () => {
+            if (aboutHeroTitle) aboutHeroTitle.style.visibility = '';
+          });
+        }
+
+        // ── Section reveals — created top-to-bottom in DOM order ──
+        document.querySelectorAll<HTMLElement>('.section').forEach(el => {
+          gsap.from(el, {
+            autoAlpha: 0,
+            y: 20,
+            duration: 0.6,
+            scrollTrigger: {
+              trigger: el,
+              start: 'top 85%',
+              toggleActions: 'play none none none',
+            },
+          });
+        });
+      });
+    </script>
+
     <style>
       .about-hero { border-bottom: 1px dashed var(--border); }
       .about-hero__inner {
