@@ -228,6 +228,110 @@ const lastUpdated = allArticles[0]?.publishedAt
 
     <Footer />
 
+    <script>
+      import gsap from 'gsap';
+      import { ScrollTrigger } from 'gsap/ScrollTrigger';
+      import { registerPlugins, splitWords } from '~/lib/gsap-utils';
+
+      registerPlugins();
+
+      // Set visibility:hidden before matchMedia so it applies immediately
+      const heroTitle = document.querySelector<HTMLElement>('.hero__title');
+      if (heroTitle) heroTitle.style.visibility = 'hidden';
+
+      // ── TASK-3.1: Hero SplitText + eyebrow/CTA/counter timeline ──
+      gsap.matchMedia().add('(prefers-reduced-motion: no-preference)', async () => {
+        if (!heroTitle) return;
+
+        const split = await splitWords(heroTitle);
+
+        const tl = gsap.timeline();
+
+        // Eyebrow fade-in
+        tl.from('.eyebrow', { autoAlpha: 0, duration: 0.4 });
+
+        // Hero title word stagger
+        tl.from(split.words, {
+          y: 40,
+          autoAlpha: 0,
+          stagger: 0.08,
+          duration: 0.6,
+          ease: 'power3.out',
+        });
+
+        // CTA cascade
+        tl.from('.hero__cta a', {
+          autoAlpha: 0,
+          y: 20,
+          stagger: 0.1,
+          duration: 0.4,
+        }, '-=0.3');
+
+        // Stat counters — only animate numeric values (entries 1 and 2)
+        document.querySelectorAll<HTMLElement>('.stat__v').forEach(el => {
+          const raw = el.textContent ?? '';
+          const parsed = parseFloat(raw);
+          if (!isNaN(parsed) && String(parsed) === raw.trim()) {
+            el.textContent = '0';
+            tl.to({ val: 0 }, {
+              val: parsed,
+              duration: 1.2,
+              ease: 'power2.out',
+              onUpdate() {
+                el.textContent = Math.round((this as gsap.core.Tween)._targets[0].val).toString();
+              },
+            }, '<');
+          }
+        });
+
+        tl.eventCallback('onComplete', () => {
+          if (heroTitle) heroTitle.style.visibility = '';
+        });
+
+        // ── TASK-3.2: ScrollTrigger reveals ──
+
+        // Featured image parallax — .featured__r has no overflow:hidden by default;
+        // we animate the img itself with yPercent and let CSS handle any clipping
+        gsap.to('.featured__r img', {
+          yPercent: 15,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: '.featured__r',
+            scrub: true,
+          },
+        });
+
+        // Blog card stagger (top-to-bottom creation order)
+        ScrollTrigger.batch('.blog-card', {
+          onEnter: els => gsap.from(els, {
+            autoAlpha: 0,
+            y: 24,
+            stagger: 0.12,
+            duration: 0.5,
+          }),
+          start: 'top 85%',
+          once: true,
+        });
+
+        // Category bars — per-element ScrollTrigger created in DOM order
+        document.querySelectorAll<HTMLElement>('.cat-cell__bar-fill').forEach(el => {
+          gsap.fromTo(el,
+            { scaleX: 0 },
+            {
+              scaleX: 1,
+              ease: 'power2.out',
+              duration: 0.8,
+              scrollTrigger: {
+                trigger: el,
+                start: 'top 90%',
+                toggleActions: 'play none none none',
+              },
+            },
+          );
+        });
+      });
+    </script>
+
     <style>
       .hero {
         padding: 96px var(--pad-x);
