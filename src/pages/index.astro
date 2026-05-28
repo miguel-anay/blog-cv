@@ -235,37 +235,37 @@ const lastUpdated = allArticles[0]?.publishedAt
 
       registerPlugins();
 
-      // Set visibility:hidden before matchMedia so it applies immediately
       const heroTitle = document.querySelector<HTMLElement>('.hero__title');
-      if (heroTitle) heroTitle.style.visibility = 'hidden';
+      const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-      // ── TASK-3.1: Hero SplitText + eyebrow/CTA/counter timeline ──
+      // ── Hero animation — no font wait, works on all devices ──
       gsap.matchMedia().add('(prefers-reduced-motion: no-preference)', async () => {
         if (!heroTitle) return;
 
+        // Show immediately, split after — no visibility:hidden delay
         const split = await splitWords(heroTitle);
 
         const tl = gsap.timeline();
 
         // Eyebrow fade-in
-        tl.from('.eyebrow', { autoAlpha: 0, duration: 0.4 });
+        tl.from('.eyebrow', { autoAlpha: 0, duration: 0.35 });
 
         // Hero title word stagger
         tl.from(split.words, {
-          y: 40,
+          y: 30,
           autoAlpha: 0,
-          stagger: 0.08,
-          duration: 0.6,
+          stagger: 0.06,
+          duration: 0.5,
           ease: 'power3.out',
         });
 
         // CTA cascade
         tl.from('.hero__cta a', {
           autoAlpha: 0,
-          y: 20,
-          stagger: 0.1,
-          duration: 0.4,
-        }, '-=0.3');
+          y: 16,
+          stagger: 0.08,
+          duration: 0.35,
+        }, '-=0.25');
 
         // Stat counters — only animate numeric values (entries 1 and 2)
         document.querySelectorAll<HTMLElement>('.stat__v').forEach(el => {
@@ -309,7 +309,7 @@ const lastUpdated = allArticles[0]?.publishedAt
             stagger: 0.12,
             duration: 0.5,
           }),
-          start: 'top 85%',
+          start: 'top 92%',
           once: true,
         });
 

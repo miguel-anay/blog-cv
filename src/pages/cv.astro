@@ -245,58 +245,54 @@ const cursosByCategory = cursos.reduce<Record<string, typeof cursos>>((acc, curs
     <script>
       import gsap from 'gsap';
       import { ScrollTrigger } from 'gsap/ScrollTrigger';
-      import { registerPlugins, splitWords } from '../lib/gsap-utils';
+      import { registerPlugins } from '../lib/gsap-utils';
 
       registerPlugins();
 
-      // Set visibility:hidden immediately before matchMedia
       const cvHeroTitle = document.querySelector<HTMLElement>('.cv-name');
-      if (cvHeroTitle) cvHeroTitle.style.visibility = 'hidden';
+      const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-      // ── TASK-4.1: CV hero SplitText + experience slide-in ──
-      gsap.matchMedia().add('(prefers-reduced-motion: no-preference)', async () => {
-        if (!cvHeroTitle) return;
+      // ── Typewriter: no SplitText, no font wait, instant on all devices ──
+      if (cvHeroTitle) {
+        const fullText = cvHeroTitle.textContent?.trim() ?? '';
 
-        const split = await splitWords(cvHeroTitle);
+        if (reducedMotion) {
+          // Show immediately, no animation
+          cvHeroTitle.style.visibility = 'visible';
+        } else {
+          cvHeroTitle.textContent = '';
+          cvHeroTitle.style.visibility = 'visible';
 
-        const tl = gsap.timeline();
+          let i = 0;
+          const TYPE_SPEED = 22; // ms per character — fast but readable
 
-        // CV label fade-in
-        tl.from('.cv-hero__label', { autoAlpha: 0, duration: 0.4 });
+          const type = () => {
+            if (i < fullText.length) {
+              cvHeroTitle.textContent += fullText[i++];
+              setTimeout(type, TYPE_SPEED);
+            } else {
+              // Typing done — fade in label + buttons
+              gsap.from('.cv-hero__label', { autoAlpha: 0, duration: 0.3, delay: 0.05 });
+              gsap.from('.cv-actions a', { autoAlpha: 0, y: 14, stagger: 0.08, duration: 0.35, delay: 0.15 });
+            }
+          };
+          type();
+        }
+      }
 
-        // Hero name word stagger
-        tl.from(split.words, {
-          y: 40,
-          autoAlpha: 0,
-          stagger: 0.08,
-          duration: 0.6,
-          ease: 'power3.out',
-        });
-
-        // CV action buttons cascade
-        tl.from('.cv-actions a', {
-          autoAlpha: 0,
-          y: 20,
-          stagger: 0.1,
-          duration: 0.4,
-        }, '-=0.3');
-
-        tl.eventCallback('onComplete', () => {
-          if (cvHeroTitle) cvHeroTitle.style.visibility = '';
-        });
-
-        // Experience items slide-in (top-to-bottom DOM order)
+      // ── ScrollTrigger reveals — work on all devices ──
+      if (!reducedMotion) {
         ScrollTrigger.batch('.cv-exp-item', {
           onEnter: els => gsap.from(els, {
-            x: 30,
+            x: 20,
             autoAlpha: 0,
-            stagger: 0.12,
-            duration: 0.5,
+            stagger: 0.1,
+            duration: 0.45,
           }),
           once: true,
-          start: 'top 85%',
+          start: 'top 92%',
         });
-      });
+      }
 
     </script>
 
