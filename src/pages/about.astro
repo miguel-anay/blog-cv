@@ -5,24 +5,48 @@ import Footer from "../components/layout/Footer.astro";
 import MagneticCursor from "../components/MagneticCursor.astro";
 
 const stack = [
-  ["lenguajes", "TypeScript · Python · Bash · SQL"],
-  ["frontend", "Astro · React · Tailwind · MDX"],
-  ["backend", "Node · Hono · SQLite · Drizzle"],
-  ["infra", "AWS Lambda · Turso · Vercel"],
-  ["ci/cd", "Azure DevOps · GitHub Actions · Vercel CD"],
-  ["editor", "Zed · Neovim ocasional · zsh + starship"],
-  ["herramientas", "1Password · Linear · Raycast · Arc"],
+  ["lenguajes",  "TypeScript · C# · Python · SQL"],
+  ["frontend",   "Astro · Next.js · Angular · React · Tailwind"],
+  ["backend",    "Node · .NET · Hono · SQLite · Drizzle"],
+  ["erp",        "Odoo · FactuFácil (propio)"],
+  ["infra",      "AWS · Turso · Vercel · Azure DevOps"],
+  ["ecommerce",  "Importación desde China · WooCommerce"],
+  ["editor",     "Zed · VS Code · zsh + starship"],
 ];
 
 const now = [
-  { k: "trabajando en", v: "blog personal — SSR con Astro, Turso y Vercel" },
-  { k: "leyendo",       v: "Designing Data-Intensive Applications (relectura)" },
-  { k: "aprendiendo",   v: "rust básico — solo por curiosidad, sin presión" },
-  { k: "escribiendo",   v: "una serie sobre deploy patterns en AWS" },
-  { k: "evitando",      v: "frameworks nuevos por al menos seis meses" },
+  { k: "construyendo",  v: "FactuFácil.pe — ERP con IA para microempresas" },
+  { k: "lanzando",      v: "PrecioDeCajon.pe — precios mayoristas desde una unidad" },
+  { k: "creando",       v: "PawPet.pe — ONG de adopción de animales con IA (en proceso)" },
+  { k: "compartiendo",  v: "contenido sobre desarrollo, ecommerce e importación en TikTok y YouTube" },
+  { k: "enfocado en",   v: "digitalización de microempresas integrando IA en sus procesos" },
 ];
 
-const lastUpdate = "2026-05-10";
+const projects = [
+  {
+    name: "FactuFácil.pe",
+    url: "https://factufacil.pe",
+    tag: "ERP · SaaS",
+    desc: "Software ERP para microempresas que digitaliza sus procesos e integra IA para automatizar facturación, inventario y gestión.",
+    status: "live",
+  },
+  {
+    name: "PrecioDeCajon.pe",
+    url: "https://preciodecajon.pe",
+    tag: "Ecommerce · Importación",
+    desc: "Plataforma que permite a microempresarios acceder a precios de cajón desde una sola unidad. Democratizando el acceso a productos de importación.",
+    status: "live",
+  },
+  {
+    name: "PawPet.pe",
+    url: "https://pawpet.pe",
+    tag: "ONG · IA · En construcción",
+    desc: "Fundación que conecta animales en refugio y de la calle con familias adoptantes usando personajes animados con IA — como un Facebook de animales, o un Tamagotchi real.",
+    status: "wip",
+  },
+];
+
+const lastUpdate = "2026-05-28";
 ---
 
 <!doctype html>
@@ -30,7 +54,7 @@ const lastUpdate = "2026-05-10";
   <head>
     <BaseHead
       title="Sobre mí — Miguel Anay"
-      description="Ingeniero de software, importador, y mantenedor de pipelines. Lima, Perú."
+      description="Forward Deployed Engineer, especialista en comercio electrónico e importación desde China. Fundador de FactuFácil.pe, PrecioDeCajon.pe y PawPet.pe."
     />
   </head>
   <body>
@@ -46,31 +70,53 @@ const lastUpdate = "2026-05-10";
               <span>./about.md · whoami</span>
             </div>
             <h1 class="about-title">
-              Soy <span class="accent">Miguel</span>.<br />
-              Construyo cosas,<br />
-              importo cosas, y a<br />
-              veces escribo sobre<br />
-              ambas.
+              Soy <span class="accent">Miguel Anay</span>.<br />
+              Forward Deployed<br />
+              Engineer &amp;<br />
+              especialista en<br />
+              ecommerce.
             </h1>
             <p class="about-lede">
-              Ingeniero de software basado en Lima. CEO de Yiwu Import Corporation.
-              Trabajo con Astro, AWS y Turso para clientes — y para mí. Este blog
-              es donde dejo las notas que no caben en un commit message.
+              Ingeniero de la UNI, especialista en comercio electrónico e
+              importación desde China. Construyo tecnología que ayuda a
+              microempresas a ser más rentables — y comparto lo que aprendo
+              con otros desarrolladores.
             </p>
             <div class="about-cta">
               <a href="/cv" class="btn-primary">$ open ./cv →</a>
               <a href="mailto:hola@miguel-anay.nom.pe" class="btn-ghost">hola@miguel-anay.nom.pe</a>
             </div>
+            <div class="about-social">
+              <a href="https://www.youtube.com/@M1Anay" target="_blank" rel="noopener" class="social-link">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                YouTube
+              </a>
+              <a href="https://www.tiktok.com/@m1anay" target="_blank" rel="noopener" class="social-link">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.22 8.22 0 0 0 4.83 1.56V6.79a4.85 4.85 0 0 1-1.06-.1z"/></svg>
+                TikTok
+              </a>
+              <a href="https://www.linkedin.com/in/miguel-anay" target="_blank" rel="noopener" class="social-link">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                LinkedIn
+              </a>
+            </div>
           </div>
           <div class="about-hero__r">
-            <div class="about-photo" aria-label="Foto de perfil (drop placeholder)">
-              <span>~/avatar.jpg</span>
-              <span class="about-photo__cap">4:5 · 800×1000</span>
+            <div class="duck-scene" aria-hidden="true">
+              <div class="duck-card" id="duck-card">
+                <img
+                  src="/cv/assets/pngwing.com.png"
+                  alt=""
+                  class="duck-img"
+                  draggable="false"
+                />
+                <div class="duck-glare" id="duck-glare"></div>
+              </div>
             </div>
             <div class="about-meta">
               <span>Lima · -12.04° -77.04°</span>
               <span>GMT-5</span>
-              <span>macOS 15.4 · zsh</span>
+              <span>UNI — Ingeniería</span>
             </div>
           </div>
         </div>
@@ -80,27 +126,30 @@ const lastUpdate = "2026-05-10";
         <div class="section-head">
           <div class="section-head__left">
             <span class="section-head__num">§ 01</span>
-            <h2 class="section-head__title">bio breve</h2>
+            <h2 class="section-head__title">bio</h2>
           </div>
           <span></span><span></span>
         </div>
         <div class="bio-grid">
           <p>
-            Empecé a programar en 2011 con PHP y un libro pirata. Quince años
-            después sigo aprendiendo, ahora con TypeScript y muchos menos errores
-            en producción. He trabajado en backend, infra y ahora mayormente
-            full-stack para proyectos propios y de clientes.
+            Empecé trabajando en la empresa familiar de mis padres en el Centro
+            de Lima — administrando la operación comercial desde adentro. De ahí,
+            seis años en Prosegur y cinco en Enconra: gestión de equipos, procesos
+            a escala, y la convicción de que la tecnología podía hacer todo esto
+            mejor.
           </p>
           <p>
-            En paralelo dirijo Yiwu Import Corporation — una operación de
-            importación desde China que me obliga a pensar en logística, márgenes
-            y SKUs cuando no estoy peleándome con CloudFront. La combinación rara,
-            lo sé.
+            Fundé mi empresa de desarrollo de software y ecommerce para convertir
+            esa convicción en productos reales. Hoy construyo FactuFácil.pe,
+            PrecioDeCajon.pe y PawPet.pe — tres apuestas para digitalizar
+            microempresas, democratizar el acceso a precios de cajón, y darle
+            tecnología a la adopción de animales.
           </p>
           <p>
-            Vivo en Lima con mi familia. Cuando no estoy frente a una pantalla,
-            ando en bici por los acantilados de Miraflores o cocinando algo que
-            requiere demasiados ingredientes.
+            Mi objetivo es claro: ayudar a desarrolladores y empresas a integrar
+            tecnología que los haga más rentables. Trabajo con Odoo, C#/.NET,
+            Next.js, Astro y Angular. Y si puedo enseñar algo en el camino —
+            mejor todavía.
           </p>
         </div>
       </section>
@@ -109,6 +158,31 @@ const lastUpdate = "2026-05-10";
         <div class="section-head">
           <div class="section-head__left">
             <span class="section-head__num">§ 02</span>
+            <h2 class="section-head__title">proyectos</h2>
+          </div>
+          <span></span><span></span>
+        </div>
+        <div class="projects-grid">
+          {projects.map((p) => (
+            <a href={p.url} target="_blank" rel="noopener" class="project-card">
+              <div class="project-card__top">
+                <span class="project-card__name">{p.name}</span>
+                <span class={`project-card__status project-card__status--${p.status}`}>
+                  {p.status === "live" ? "● live" : "○ wip"}
+                </span>
+              </div>
+              <span class="project-card__tag">{p.tag}</span>
+              <p class="project-card__desc">{p.desc}</p>
+              <span class="project-card__arrow">→</span>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <div class="section-head__left">
+            <span class="section-head__num">§ 03</span>
             <h2 class="section-head__title">now · qué estoy haciendo</h2>
           </div>
           <span class="section-head__hint">{`actualizado ${lastUpdate}`}</span>
@@ -127,7 +201,7 @@ const lastUpdate = "2026-05-10";
       <section class="section">
         <div class="section-head">
           <div class="section-head__left">
-            <span class="section-head__num">§ 03</span>
+            <span class="section-head__num">§ 04</span>
             <h2 class="section-head__title">stack que uso en serio</h2>
           </div>
           <span class="section-head__hint"># cat ~/.zshrc | grep alias</span>
@@ -146,22 +220,42 @@ const lastUpdate = "2026-05-10";
       <section class="section">
         <div class="section-head">
           <div class="section-head__left">
-            <span class="section-head__num">§ 04</span>
-            <h2 class="section-head__title">sobre la escritura</h2>
+            <span class="section-head__num">§ 05</span>
+            <h2 class="section-head__title">compartí esto</h2>
           </div>
           <span></span><span></span>
         </div>
-        <div class="writing">
-          <p>
-            Escribo este blog porque me obliga a entender lo que hago. Si no
-            puedo explicar algo en 2,000 palabras, probablemente no lo entiendo
-            bien. No espero que nadie lo lea — pero si vos llegaste hasta acá,
-            gracias.
+        <div class="share-block">
+          <p class="share-intro">
+            Si esto te sirve — o conocés alguien a quien le pueda servir —
+            compartí la página. Cada reach cuenta.
           </p>
-          <p>
-            Publico cuando tengo algo útil que decir. Algunos meses son tres
-            posts, otros son cero. No me gusta forzar contenido por keeping up.
-          </p>
+          <div class="share-actions">
+            <a
+              href="https://wa.me/?text=Conocé%20a%20Miguel%20Anay%20—%20Forward%20Deployed%20Engineer%2C%20especialista%20en%20ecommerce%20e%20importación%20desde%20China.%20https%3A%2F%2Fblog.miguel-anay.nom.pe%2Fabout"
+              target="_blank"
+              rel="noopener"
+              class="share-btn"
+            >WhatsApp</a>
+            <a
+              href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fblog.miguel-anay.nom.pe%2Fabout"
+              target="_blank"
+              rel="noopener"
+              class="share-btn"
+            >LinkedIn</a>
+            <a
+              href="https://twitter.com/intent/tweet?text=Conocé%20a%20Miguel%20Anay%20—%20Forward%20Deployed%20Engineer%2C%20especialista%20en%20ecommerce%20e%20importación%20desde%20China.&url=https%3A%2F%2Fblog.miguel-anay.nom.pe%2Fabout"
+              target="_blank"
+              rel="noopener"
+              class="share-btn"
+            >X / Twitter</a>
+            <button class="share-btn" id="copy-link">Copiar link</button>
+          </div>
+          <div class="share-channels">
+            <span class="share-channels__label">seguime en:</span>
+            <a href="https://www.youtube.com/@M1Anay" target="_blank" rel="noopener" class="channel-link">YouTube →</a>
+            <a href="https://www.tiktok.com/@m1anay" target="_blank" rel="noopener" class="channel-link">TikTok →</a>
+          </div>
         </div>
       </section>
     </main>
@@ -175,21 +269,17 @@ const lastUpdate = "2026-05-10";
 
       registerPlugins();
 
-      // Set visibility:hidden immediately before matchMedia
       const aboutHeroTitle = document.querySelector<HTMLElement>('.about-title');
       if (aboutHeroTitle) aboutHeroTitle.style.visibility = 'hidden';
 
       gsap.matchMedia().add('(prefers-reduced-motion: no-preference)', async () => {
-        // ── Hero SplitText timeline ──
         if (aboutHeroTitle) {
           const split = await splitWords(aboutHeroTitle);
 
           const tl = gsap.timeline();
 
-          // Eyebrow fade-in
           tl.from('.eyebrow', { autoAlpha: 0, duration: 0.4 });
 
-          // Title word stagger
           tl.from(split.words, {
             y: 40,
             autoAlpha: 0,
@@ -198,7 +288,6 @@ const lastUpdate = "2026-05-10";
             ease: 'power3.out',
           });
 
-          // CTA cascade
           tl.from('.about-cta a', {
             autoAlpha: 0,
             y: 20,
@@ -206,12 +295,17 @@ const lastUpdate = "2026-05-10";
             duration: 0.4,
           }, '-=0.3');
 
+          tl.from('.about-social', {
+            autoAlpha: 0,
+            y: 16,
+            duration: 0.4,
+          }, '-=0.2');
+
           tl.eventCallback('onComplete', () => {
             if (aboutHeroTitle) aboutHeroTitle.style.visibility = '';
           });
         }
 
-        // ── Section reveals — created top-to-bottom in DOM order ──
         document.querySelectorAll<HTMLElement>('.section').forEach(el => {
           gsap.from(el, {
             autoAlpha: 0,
@@ -225,6 +319,41 @@ const lastUpdate = "2026-05-10";
           });
         });
       });
+
+      // ── Duck 3D tilt ──
+      const duckCard = document.getElementById('duck-card') as HTMLElement | null;
+      const duckGlare = document.getElementById('duck-glare') as HTMLElement | null;
+
+      if (duckCard && matchMedia('(pointer: fine)').matches && matchMedia('(prefers-reduced-motion: no-preference)').matches) {
+        const setRX = gsap.quickTo(duckCard, 'rotateX', { duration: 0.4, ease: 'power2.out' });
+        const setRY = gsap.quickTo(duckCard, 'rotateY', { duration: 0.4, ease: 'power2.out' });
+
+        duckCard.addEventListener('mousemove', (e) => {
+          const r = duckCard.getBoundingClientRect();
+          const x = (e.clientX - r.left) / r.width  - 0.5;  // -0.5 → 0.5
+          const y = (e.clientY - r.top)  / r.height - 0.5;
+          setRY(x * 28);
+          setRX(-y * 18);
+          if (duckGlare) {
+            duckGlare.style.background = `radial-gradient(circle at ${(x + 0.5) * 100}% ${(y + 0.5) * 100}%, rgba(255,255,255,0.28) 0%, transparent 65%)`;
+          }
+        });
+
+        duckCard.addEventListener('mouseleave', () => {
+          setRX(0);
+          setRY(0);
+          if (duckGlare) duckGlare.style.background = '';
+        });
+      }
+
+      const copyBtn = document.getElementById('copy-link');
+      if (copyBtn) {
+        copyBtn.addEventListener('click', async () => {
+          await navigator.clipboard.writeText(window.location.href);
+          copyBtn.textContent = '✓ copiado';
+          setTimeout(() => { (copyBtn as HTMLButtonElement).textContent = 'Copiar link'; }, 2000);
+        });
+      }
     </script>
 
     <style>
@@ -266,22 +395,78 @@ const lastUpdate = "2026-05-10";
         align-items: center;
         flex-wrap: wrap;
       }
-      .about-photo {
-        aspect-ratio: 4/5;
-        background: var(--bg-sunken);
-        border: 1px solid var(--border);
-        border-radius: 6px;
-        background-image: repeating-linear-gradient(135deg, var(--border-dim) 0 1px, transparent 1px 16px);
+      .about-social {
+        margin-top: 20px;
         display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        padding: 16px;
-        max-width: 380px;
-        font-family: var(--font-mono);
-        font-size: 11px;
-        color: var(--text-dim);
+        gap: 20px;
+        flex-wrap: wrap;
+        align-items: center;
       }
-      .about-photo__cap { text-align: right; color: var(--text-muted); }
+      .social-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-family: var(--font-mono);
+        font-size: 12px;
+        color: var(--text-muted);
+        text-decoration: none;
+        transition: color 0.15s;
+      }
+      .social-link:hover { color: var(--accent); }
+      /* ── Duck 3D scene ── */
+      .duck-scene {
+        perspective: 800px;
+        max-width: 340px;
+        width: 100%;
+      }
+      .duck-card {
+        position: relative;
+        border-radius: 16px;
+        transform-style: preserve-3d;
+        will-change: transform;
+        animation: duck-float 4s ease-in-out infinite;
+        cursor: pointer;
+        box-shadow:
+          0 20px 60px rgba(0, 0, 0, 0.35),
+          0 6px 20px rgba(0, 0, 0, 0.2);
+        transition: box-shadow 0.3s ease;
+      }
+      .duck-card:hover {
+        box-shadow:
+          0 30px 80px rgba(0, 0, 0, 0.45),
+          0 10px 30px rgba(255, 200, 0, 0.15);
+        animation-play-state: paused;
+      }
+      .duck-img {
+        display: block;
+        width: 100%;
+        border-radius: 16px;
+        user-select: none;
+        pointer-events: none;
+      }
+      .duck-glare {
+        position: absolute;
+        inset: 0;
+        border-radius: 16px;
+        background: radial-gradient(
+          circle at 50% 50%,
+          rgba(255, 255, 255, 0.25) 0%,
+          transparent 65%
+        );
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+        mix-blend-mode: screen;
+      }
+      .duck-card:hover .duck-glare { opacity: 1; }
+      @keyframes duck-float {
+        0%, 100% { transform: translateY(0px) rotateX(0deg); }
+        50%       { transform: translateY(-12px) rotateX(2deg); }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .duck-card { animation: none; }
+        .duck-card, .duck-glare { transition: none; }
+      }
       .about-meta {
         margin-top: 12px;
         display: flex;
@@ -311,6 +496,68 @@ const lastUpdate = "2026-05-10";
         margin: 0;
       }
 
+      .projects-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+      }
+      @media (max-width: 900px) {
+        .projects-grid { grid-template-columns: 1fr; }
+      }
+      .project-card {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 22px;
+        background: var(--bg-raised);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        text-decoration: none;
+        transition: border-color 0.15s, background 0.15s;
+      }
+      .project-card:hover { border-color: var(--accent); background: var(--bg-sunken); }
+      .project-card__top {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+      }
+      .project-card__name {
+        font-family: var(--font-mono);
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--text-strong);
+      }
+      .project-card__status {
+        font-family: var(--font-mono);
+        font-size: 11px;
+      }
+      .project-card__status--live { color: #4ade80; }
+      .project-card__status--wip  { color: var(--text-muted); }
+      .project-card__tag {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--accent);
+      }
+      .project-card__desc {
+        font-family: var(--font-sans);
+        font-size: 14px;
+        line-height: 1.55;
+        color: var(--text-muted);
+        margin: 0;
+        flex: 1;
+      }
+      .project-card__arrow {
+        font-family: var(--font-mono);
+        font-size: 13px;
+        color: var(--text-dim);
+        align-self: flex-end;
+        transition: color 0.15s, transform 0.15s;
+      }
+      .project-card:hover .project-card__arrow {
+        color: var(--accent);
+        transform: translateX(4px);
+      }
+
       .now-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
@@ -321,7 +568,7 @@ const lastUpdate = "2026-05-10";
       }
       .now-item {
         display: grid;
-        grid-template-columns: 150px 1fr;
+        grid-template-columns: 160px 1fr;
         gap: 16px;
         padding: 16px 0;
         border-top: 1px solid var(--border-dim);
@@ -348,14 +595,54 @@ const lastUpdate = "2026-05-10";
       .stack-k { color: var(--accent); }
       .stack-v { color: var(--text); }
 
-      .writing p {
+      .share-block { display: flex; flex-direction: column; gap: 20px; }
+      .share-intro {
         font-family: var(--font-serif);
         font-size: 18px;
         line-height: 1.65;
         color: var(--text);
-        margin: 0 0 20px;
-        max-width: 720px;
+        margin: 0;
+        max-width: 620px;
       }
+      .share-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .share-btn {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 16px;
+        border-radius: 4px;
+        font-family: var(--font-mono);
+        font-size: 13px;
+        text-decoration: none;
+        cursor: pointer;
+        border: 1px solid var(--border);
+        background: var(--bg-raised);
+        color: var(--text);
+        transition: border-color 0.15s, color 0.15s;
+      }
+      .share-btn:hover { border-color: var(--accent); color: var(--accent); }
+      .share-channels {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      .share-channels__label {
+        font-family: var(--font-mono);
+        font-size: 12px;
+        color: var(--text-dim);
+      }
+      .channel-link {
+        font-family: var(--font-mono);
+        font-size: 13px;
+        color: var(--text-muted);
+        text-decoration: none;
+        transition: color 0.15s;
+      }
+      .channel-link:hover { color: var(--accent); }
     </style>
   </body>
 </html>

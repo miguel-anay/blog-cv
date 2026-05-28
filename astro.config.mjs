@@ -34,6 +34,6 @@ export default defineConfig({
 
   vite: {
     plugins: [tailwindcss()],
-    cacheDir: "/home/k3n5h1n/.cache/vite-callous",
+    cacheDir: "/home/k3n5h1n/.cache/vite-callous-1779996592106",
   },
 });
