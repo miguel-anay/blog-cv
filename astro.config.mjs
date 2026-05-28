@@ -34,5 +34,6 @@ export default defineConfig({
 
   vite: {
     plugins: [tailwindcss()],
+    cacheDir: "/tmp/vite-cache-callous",
   },
 });
