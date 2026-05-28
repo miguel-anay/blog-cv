@@ -57,8 +57,9 @@ const nav = [
 
   function initNavPill() {
     const nav = document.querySelector<HTMLElement>(".site-nav");
-    const pill = nav?.querySelector<HTMLElement>(".nav-pill");
-    if (!nav || !pill) return;
+    const pillMaybe = nav?.querySelector<HTMLElement>(".nav-pill");
+    if (!nav || !pillMaybe) return;
+    const pill: HTMLElement = pillMaybe;
 
     const links = Array.from(nav.querySelectorAll<HTMLAnchorElement>("a"));
     const activeLink = links.find((a) => a.classList.contains("is-active")) ?? links[0];
