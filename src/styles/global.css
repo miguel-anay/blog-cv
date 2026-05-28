@@ -1193,7 +1193,9 @@ hr {
     transition: none;
   }
 
-  .hero__title {
+  .hero__title,
+  .cv-name,
+  .about-title {
     visibility: visible;
   }
 }
