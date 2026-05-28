@@ -44,6 +44,7 @@ const slugNoExt = slug ?? title.toLowerCase().replace(/\s+/g, "-");
     <BaseHead title={title} description={description ?? undefined} image={heroImage as string | undefined} />
   </head>
   <body>
+    <div class="progress-bar" aria-hidden="true"></div>
     <MagneticCursor />
     <Header />
 
@@ -195,6 +196,29 @@ const slugNoExt = slug ?? title.toLowerCase().replace(/\s+/g, "-");
         .article-aside { display: none; }
       }
     </style>
+
+    <!-- Reading progress bar (vanilla rAF — no GSAP import) -->
+    <script>
+      {
+        const bar = document.querySelector<HTMLElement>('.progress-bar');
+        if (bar && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          let ticking = false;
+          const update = () => {
+            const scrolled = window.scrollY;
+            const total = document.documentElement.scrollHeight - window.innerHeight;
+            const p = total > 0 ? Math.min(1, scrolled / total) : 0;
+            bar.style.transform = `scaleX(${p})`;
+            ticking = false;
+          };
+          document.addEventListener('scroll', () => {
+            if (!ticking) {
+              requestAnimationFrame(update);
+              ticking = true;
+            }
+          }, { passive: true });
+        }
+      }
+    </script>
 
     <!-- TOC builder + copy-url -->
     <script>
