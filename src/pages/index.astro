@@ -58,7 +58,7 @@ const lastUpdated = allArticles[0]?.publishedAt
             <span>actualizado {lastUpdated}</span>
           </div>
 
-          <h1 class="hero__title" aria-label="Soy Miguel Anay. Forward Deployed Engineer & especialista en ecommerce"></h1>
+          <h1 class="hero__title">Soy Miguel Anay.<br />Forward Deployed<br />Engineer &amp;<br />especialista en<br />ecommerce</h1>
 
           <p class="hero__lede">
             Diario público de un ingeniero. Escribo sobre infraestructura,
@@ -234,72 +234,59 @@ const lastUpdated = allArticles[0]?.publishedAt
       const heroTitle = document.querySelector<HTMLElement>('.hero__title');
       const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-      // ── Hero typewriter — instant on all devices ──
-      const LINES = [
-        'Soy Miguel Anay.',
-        'Forward Deployed',
-        'Engineer &',
-        'especialista en',
-        'ecommerce',
-      ];
+      // ── Hero typewriter — reads text from SSR HTML, retypes it ──
+      if (heroTitle && !reducedMotion) {
+        // Extract lines from rendered HTML (br = line separator)
+        const lines: string[] = [];
+        heroTitle.childNodes.forEach(node => {
+          if (node.nodeType === Node.TEXT_NODE) {
+            const t = node.textContent?.trim();
+            if (t) lines.push(t);
+          }
+        });
 
-      if (heroTitle) {
-        if (reducedMotion) {
-          LINES.forEach((line, i) => {
-            heroTitle.appendChild(document.createTextNode(line));
-            if (i < LINES.length - 1) heroTitle.appendChild(document.createElement('br'));
-          });
-        } else {
-          let lineIdx = 0;
-          let charIdx = 0;
+        // Lock height before clearing to prevent CLS, then make visible
+        heroTitle.style.minHeight = heroTitle.offsetHeight + 'px';
+        heroTitle.style.visibility = 'visible';
 
-          const type = () => {
-            if (lineIdx >= LINES.length) {
-              // Done — animate the rest of the hero
-              gsap.from('.eyebrow', { autoAlpha: 0, duration: 0.3, delay: 0.05 });
-              gsap.from('.hero__cta a', { autoAlpha: 0, y: 14, stagger: 0.08, duration: 0.35, delay: 0.15 });
-              // Stat counters
-              document.querySelectorAll<HTMLElement>('.stat__v').forEach(el => {
-                const raw = el.textContent ?? '';
-                const parsed = parseFloat(raw);
-                if (!isNaN(parsed) && String(parsed) === raw.trim()) {
-                  const target = parsed;
-                  el.textContent = '0';
-                  gsap.to({ val: 0 }, {
-                    val: target,
-                    delay: 0.3,
-                    duration: 1.2,
-                    ease: 'power2.out',
-                    onUpdate() { el.textContent = Math.round((this as gsap.core.Tween)._targets[0].val).toString(); },
-                  });
-                }
+        // Clear and retype
+        heroTitle.innerHTML = '';
+        let lineIdx = 0;
+        let charIdx = 0;
+
+        const onDone = () => {
+          gsap.from('.eyebrow', { autoAlpha: 0, duration: 0.3, delay: 0.05 });
+          gsap.from('.hero__cta a', { autoAlpha: 0, y: 14, stagger: 0.08, duration: 0.35, delay: 0.15 });
+          document.querySelectorAll<HTMLElement>('.stat__v').forEach(el => {
+            const raw = el.textContent ?? '';
+            const parsed = parseFloat(raw);
+            if (!isNaN(parsed) && String(parsed) === raw.trim()) {
+              const proxy = { val: 0 };
+              el.textContent = '0';
+              gsap.to(proxy, {
+                val: parsed, delay: 0.3, duration: 1.2, ease: 'power2.out',
+                onUpdate() { el.textContent = Math.round(proxy.val).toString(); },
               });
-              return;
             }
+          });
+        };
 
-            const line = LINES[lineIdx];
-            if (charIdx === 0 && lineIdx > 0) {
-              heroTitle.appendChild(document.createElement('br'));
-            }
-
-            if (charIdx < line.length) {
-              // Append next char as text node (safe, no XSS)
-              const last = heroTitle.lastChild;
-              if (last && last.nodeType === Node.TEXT_NODE) {
-                last.textContent += line[charIdx];
-              } else {
-                heroTitle.appendChild(document.createTextNode(line[charIdx]));
-              }
-              charIdx++;
-              setTimeout(type, 22);
-            } else {
-              lineIdx++;
-              charIdx = 0;
-              setTimeout(type, 80); // brief pause between lines
-            }
-          };
-          type();
-        }
+        const type = () => {
+          if (lineIdx >= lines.length) { onDone(); return; }
+          const line = lines[lineIdx];
+          if (charIdx === 0 && lineIdx > 0) heroTitle.appendChild(document.createElement('br'));
+          if (charIdx < line.length) {
+            const last = heroTitle.lastChild;
+            if (last?.nodeType === Node.TEXT_NODE) last.textContent += line[charIdx];
+            else heroTitle.appendChild(document.createTextNode(line[charIdx]));
+            charIdx++;
+            setTimeout(type, 22);
+          } else {
+            lineIdx++; charIdx = 0;
+            setTimeout(type, 80);
+          }
+        };
+        type();
       }
 
       gsap.matchMedia().add('(prefers-reduced-motion: no-preference)', () => {
