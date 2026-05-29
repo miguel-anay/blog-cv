@@ -1,0 +1,119 @@
+---
+// Matrix digital rain intro — pure Canvas 2D
+// Shows once per session (sessionStorage). Auto-dismisses after 5 seconds.
+---
+
+<div id="matrix-intro" class="mxintro">
+  <canvas id="matrix-canvas"></canvas>
+  <p id="matrix-text" class="mxintro__text" aria-hidden="true"></p>
+</div>
+
+<style>
+  .mxintro {
+    position: fixed;
+    inset: 0;
+    z-index: 200000;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #matrix-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .mxintro__text {
+    position: relative;
+    z-index: 1;
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    font-size: clamp(18px, 3vw, 32px);
+    font-weight: 700;
+    color: #7cf08c;
+    text-shadow: 0 0 20px rgba(124, 240, 140, 0.9), 0 0 40px rgba(124, 240, 140, 0.4);
+    letter-spacing: 0.05em;
+    margin: 0;
+    white-space: nowrap;
+  }
+</style>
+
+<script>
+  import gsap from 'gsap';
+
+  const intro = document.getElementById('matrix-intro') as HTMLElement | null;
+  const canvas = document.getElementById('matrix-canvas') as HTMLCanvasElement | null;
+  const textEl = document.getElementById('matrix-text') as HTMLParagraphElement | null;
+
+  if (!intro || !canvas || !textEl) {
+    // not rendered
+  } else if (sessionStorage.getItem('mx-intro-done')) {
+    intro.remove();
+  } else {
+    // --- Canvas rain ---
+    const ctx = canvas.getContext('2d')!;
+    const FONT_SIZE = 16;
+    const CHARS = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let drops: number[] = [];
+
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      const cols = Math.floor(canvas.width / FONT_SIZE);
+      while (drops.length < cols) drops.push(Math.random() * -50 | 0);
+      drops.length = cols;
+    };
+
+    resize();
+    window.addEventListener('resize', resize);
+
+    const draw = () => {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.font = `${FONT_SIZE}px monospace`;
+
+      for (let i = 0; i < drops.length; i++) {
+        const char = CHARS[Math.floor(Math.random() * CHARS.length)];
+        const y = drops[i] * FONT_SIZE;
+
+        ctx.fillStyle = '#9fff9f';
+        ctx.fillText(char, i * FONT_SIZE, y);
+
+        if (y > 0) {
+          ctx.fillStyle = '#00cc44';
+          ctx.fillText(CHARS[Math.floor(Math.random() * CHARS.length)], i * FONT_SIZE, y - FONT_SIZE);
+        }
+
+        if (y > canvas.height && Math.random() > 0.975) drops[i] = 0;
+        drops[i]++;
+      }
+    };
+
+    const rainTimer = setInterval(draw, 33);
+
+    // --- Typewriter ---
+    const MESSAGE = 'Rubber duck debugging';
+    let i = 0;
+    const typeTimer = setInterval(() => {
+      textEl.textContent += MESSAGE[i];
+      i++;
+      if (i >= MESSAGE.length) clearInterval(typeTimer);
+    }, 80);
+
+    // --- Dismiss after 5s ---
+    setTimeout(() => {
+      clearInterval(rainTimer);
+      clearInterval(typeTimer);
+      window.removeEventListener('resize', resize);
+      sessionStorage.setItem('mx-intro-done', '1');
+      gsap.to(intro, {
+        autoAlpha: 0,
+        duration: 1,
+        ease: 'power2.inOut',
+        onComplete: () => intro.remove(),
+      });
+    }, 5000);
+  }
+</script>

@@ -1042,9 +1042,9 @@ hr {
   content: "";
   position: absolute;
   inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h1v24H0zm23 0h1v24h-1zM0 0v1h24V0zm0 23v1h24v-1z' fill='%23ffffff' fill-opacity='0.03'/%3E%3C/svg%3E");
-  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 30%, transparent 100%);
-  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 30%, transparent 100%);
+  background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h1v24H0zm23 0h1v24h-1zM0 0v1h24V0zm0 23v1h24v-1z' fill='%23ffffff' fill-opacity='0.06'/%3E%3C/svg%3E");
+  mask-image: radial-gradient(ellipse 100% 80% at 50% 0%, black 40%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 100% 80% at 50% 0%, black 40%, transparent 100%);
   pointer-events: none;
   z-index: 0;
 }
@@ -1193,7 +1193,9 @@ hr {
     transition: none;
   }
 
-  .hero__title {
+  .hero__title,
+  .cv-name,
+  .about-title {
     visibility: visible;
   }
 }
