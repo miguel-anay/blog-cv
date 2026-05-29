@@ -3,6 +3,7 @@ import type { CollectionEntry } from "astro:content";
 import BaseHead from "../components/seo/BaseHead.astro";
 import Header from "../components/layout/Header.astro";
 import Footer from "../components/layout/Footer.astro";
+import MagneticCursor from "../components/MagneticCursor.astro";
 import "../styles/prose.css";
 
 type Props =
@@ -43,6 +44,7 @@ const slugNoExt = slug ?? title.toLowerCase().replace(/\s+/g, "-");
     <BaseHead title={title} description={description ?? undefined} image={heroImage as string | undefined} />
   </head>
   <body>
+    <MagneticCursor />
     <Header />
 
     <article class="article-shell">

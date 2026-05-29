@@ -965,3 +965,235 @@ hr {
     grid-template-columns: 1fr;
   }
 }
+
+/* ============================================================
+   === GSAP: Cursor ===
+   Only active on fine-pointer (mouse) devices.
+   ============================================================ */
+
+@media (pointer: fine) {
+  .cursor-dot {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--text-strong);
+    mix-blend-mode: difference;
+    pointer-events: none;
+    z-index: 99999;
+    transform: translate(-50%, -50%);
+    will-change: transform;
+  }
+
+  .cursor-ring {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--text-muted);
+    pointer-events: none;
+    z-index: 99998;
+    transform: translate(-50%, -50%);
+    will-change: transform;
+  }
+
+  body.cursor-on {
+    cursor: none;
+  }
+
+  body.cursor-on * {
+    cursor: none;
+  }
+}
+
+/* ============================================================
+   === GSAP: Nav Pill ===
+   Sliding indicator behind active / hovered nav link.
+   ============================================================ */
+
+.site-nav {
+  position: relative;
+}
+
+.nav-pill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--bg-overlay);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* ============================================================
+   === GSAP: Hero Grid ===
+   Crosshatch decorative background on the hero section.
+   ============================================================ */
+
+.hero {
+  position: relative;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h1v24H0zm23 0h1v24h-1zM0 0v1h24V0zm0 23v1h24v-1z' fill='%23ffffff' fill-opacity='0.03'/%3E%3C/svg%3E");
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 30%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 30%, transparent 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.hero__inner {
+  position: relative;
+  z-index: 1;
+}
+
+/* Hero title — visibility: hidden prevents CLS while SplitText loads. */
+/* JS will restore visibility after fonts are ready and the split runs. */
+.hero__title {
+  visibility: hidden;
+  min-height: 1.2em;
+}
+
+/* ============================================================
+   === GSAP: Button Shimmer ===
+   Pseudo-element sweep on .btn-primary hover.
+   ============================================================ */
+
+.btn-primary {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.25) 50%,
+    transparent 70%
+  );
+  transform: translateX(-100%);
+  pointer-events: none;
+  transition: transform 0.45s ease;
+}
+
+.btn-primary:hover::after {
+  transform: translateX(100%);
+}
+
+/* ============================================================
+   === GSAP: Blog Card Hover ===
+   Accent bar reveal + arrow nudge on .blog-card hover.
+   ============================================================ */
+
+.blog-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.blog-card::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--accent);
+  transform-origin: left;
+  transform: scaleX(0);
+  will-change: transform;
+  transition: transform 0.25s ease;
+}
+
+.blog-card:hover::before {
+  transform: scaleX(1);
+}
+
+.blog-card__arrow {
+  transition: transform 0.2s ease;
+}
+
+.blog-card:hover .blog-card__arrow {
+  transform: translateX(4px);
+}
+
+/* ============================================================
+   === GSAP: Category Bar ===
+   GSAP ScrolLTrigger animates scaleX from 0 → fill width.
+   ============================================================ */
+
+.cat-cell__bar-fill {
+  transform-origin: left;
+  transform: scaleX(0);
+  will-change: transform;
+}
+
+/* ============================================================
+   === GSAP: Progress Bar ===
+   Reading progress bar fixed to top of viewport.
+   ============================================================ */
+
+.progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--accent);
+  transform-origin: left;
+  transform: scaleX(0);
+  z-index: 9999;
+  will-change: transform;
+}
+
+/* ============================================================
+   === GSAP: Reduced Motion ===
+   Suppress all CSS transitions and animations added above
+   for users who prefer reduced motion.
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor-dot,
+  .cursor-ring {
+    display: none;
+  }
+
+  .nav-pill {
+    transition: none;
+  }
+
+  .btn-primary::after {
+    transition: none;
+    display: none;
+  }
+
+  .blog-card::before {
+    transition: none;
+  }
+
+  .blog-card__arrow {
+    transition: none;
+  }
+
+  .cat-cell__bar-fill {
+    transform: scaleX(1);
+    transition: none;
+  }
+
+  .progress-bar {
+    transition: none;
+  }
+
+  .hero__title {
+    visibility: visible;
+  }
+}
