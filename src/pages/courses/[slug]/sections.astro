@@ -1,0 +1,156 @@
+---
+import BaseHead from '../../../components/seo/BaseHead.astro';
+import Header from '../../../components/layout/Header.astro';
+import Footer from '../../../components/layout/Footer.astro';
+import MagneticCursor from '../../../components/MagneticCursor.astro';
+import SectionCard from '../../../features/courses/components/SectionCard.astro';
+import { getCourseBySlug } from '../../../lib/api';
+
+const { slug } = Astro.params;
+if (!slug) return Astro.redirect('/courses');
+
+const course = await getCourseBySlug(slug);
+if (!course) return new Response(null, { status: 404, statusText: 'Not Found' });
+
+const sections = course.sections ?? [];
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <BaseHead
+      title={`${course.title} — Secciones`}
+      description={`${sections.length} secciones del diplomado ${course.title}.`}
+    />
+  </head>
+  <body>
+    <MagneticCursor />
+    <Header />
+
+    <main>
+      <section class="course-head">
+        <div class="course-head__inner">
+          <nav class="breadcrumb">
+            <a href="/courses" class="breadcrumb__back">← cursos</a>
+          </nav>
+
+          <div class="course-meta">
+            <span class="course-type">diplomado</span>
+            <span class="course-sep">·</span>
+            <span>{sections.length} {sections.length === 1 ? 'sección' : 'secciones'}</span>
+          </div>
+
+          <h1 class="course-title">{course.title}</h1>
+          {course.description && (
+            <p class="course-description">{course.description}</p>
+          )}
+        </div>
+      </section>
+
+      <section class="sections-section">
+        <div class="sections-inner">
+          {sections.length === 0 ? (
+            <div class="empty">
+              <span class="empty__prompt">#</span>
+              <span>este diplomado todavía no tiene secciones.</span>
+            </div>
+          ) : (
+            <div class="section-grid">
+              {sections.map((section, i) => (
+                <SectionCard
+                  title={section.title}
+                  description={section.description}
+                  resourceCount={section.resources.length}
+                  href={`/courses/${slug}/#section-${section.id}`}
+                  index={i + 1}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+    </main>
+
+    <Footer />
+
+    <style>
+      .course-head {
+        border-bottom: 1px dashed var(--border);
+        background: var(--bg-sunken);
+      }
+      .course-head__inner {
+        max-width: var(--max-w);
+        margin: 0 auto;
+        padding: 56px var(--pad-x) 64px;
+      }
+
+      .breadcrumb { margin-bottom: 32px; }
+      .breadcrumb__back {
+        font-family: var(--font-mono);
+        font-size: 13px;
+        color: var(--text-muted);
+        text-decoration: none;
+      }
+      .breadcrumb__back:hover { color: var(--accent); }
+
+      .course-meta {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: var(--font-mono);
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-bottom: 20px;
+      }
+      .course-type {
+        color: var(--accent);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .course-sep { color: var(--text-faint); }
+
+      .course-title {
+        font-family: var(--font-sans);
+        font-size: clamp(32px, 4.5vw, 52px);
+        font-weight: 800;
+        line-height: 1.08;
+        letter-spacing: -0.03em;
+        color: var(--text-strong);
+        margin: 0 0 20px;
+        max-width: 860px;
+      }
+
+      .course-description {
+        font-size: 17px;
+        color: var(--text-muted);
+        line-height: 1.65;
+        margin: 0;
+        max-width: 680px;
+      }
+
+      .sections-inner {
+        max-width: var(--max-w);
+        margin: 0 auto;
+        padding: 48px var(--pad-x) 80px;
+      }
+
+      .section-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 20px;
+      }
+
+      .empty {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-family: var(--font-mono);
+        font-size: 14px;
+        color: var(--text-dim);
+        padding: 48px 0;
+      }
+      .empty__prompt { color: var(--accent); }
+    </style>
+  </body>
+</html>
