@@ -45,20 +45,19 @@ const courses = await getCourses();
               <span>no hay cursos publicados todavía.</span>
             </div>
           ) : (
-            <ol class="course-list">
+            <div class="course-grid">
               {courses.map((course, i) => (
-                <li>
-                  <CourseCard
-                    title={course.title}
-                    description={course.description}
-                    slug={course.slug}
-                    level={course.level}
-                    sectionCount={course.sectionCount ?? 0}
-                    index={i + 1}
-                  />
-                </li>
+                <CourseCard
+                  title={course.title}
+                  description={course.description}
+                  slug={course.slug}
+                  level={course.level}
+                  type={course.type}
+                  sectionCount={course.sectionCount ?? 0}
+                  index={i + 1}
+                />
               ))}
-            </ol>
+            </div>
           )}
         </div>
       </section>
@@ -112,7 +111,11 @@ const courses = await getCourses();
         padding: 48px var(--pad-x) 80px;
       }
 
-      .course-list { list-style: none; padding: 0; margin: 0; }
+      .course-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 20px;
+      }
 
       .empty {
         display: flex;
