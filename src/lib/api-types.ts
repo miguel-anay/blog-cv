@@ -100,6 +100,7 @@ export interface Course {
   description: string;
   coverUrl?: string | null;
   level: string;
+  type: 'course' | 'diplomado';
   publishedAt?: string | null;
   createdAt: string;
   updatedAt: string;

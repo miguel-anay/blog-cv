@@ -115,6 +115,7 @@ export const courses = sqliteTable('courses', {
   description: text('description').notNull(),
   coverUrl: text('cover_url'),
   level: text('level').notNull().default('beginner'),
+  type: text('type').notNull().default('course'),
   publishedAt: text('published_at'),
   createdAt: text('created_at').notNull().default("(datetime('now'))"),
   updatedAt: text('updated_at').notNull().default("(datetime('now'))"),
