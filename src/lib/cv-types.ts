@@ -56,6 +56,7 @@ export interface CvEducacion {
   estado: string;
   anioInicio?: number | null;
   anioFin?: number | null;
+  certificado?: string | null;
 }
 
 export interface CvData {

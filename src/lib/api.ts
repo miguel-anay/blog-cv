@@ -206,6 +206,7 @@ export async function getCv(): Promise<CvData | null> {
       educacion: educacion.map((r) => ({
         ...r,
         estado: r.estado ?? '',
+        certificado: r.certificado ?? null,
       })),
       cursos: cursos.map((r) => ({
         ...r,

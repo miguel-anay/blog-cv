@@ -93,6 +93,7 @@ export const cvEducacion = sqliteTable('cv_educacion', {
   estado: text('estado'),
   anioInicio: integer('anio_inicio'),
   anioFin: integer('anio_fin'),
+  certificado: text('certificado'),
 });
 
 export const cvCursos = sqliteTable('cv_cursos', {

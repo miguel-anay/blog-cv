@@ -194,6 +194,14 @@ const cursosByCategory = cursos.reduce<Record<string, typeof cursos>>((acc, curs
                     <div class="cv-edu__title">{edu.titulo}</div>
                     <div class="cv-edu__place">{edu.institucion}</div>
                     {edu.estado && <div class="cv-edu__estado">{edu.estado}</div>}
+                    {edu.certificado && (
+                      <a
+                        href={edu.certificado}
+                        target="_blank"
+                        rel="noopener"
+                        class="cv-edu__cert"
+                      >↗ certificado</a>
+                    )}
                   </div>
                 ))}
               </div>
@@ -533,6 +541,15 @@ const cursosByCategory = cursos.reduce<Record<string, typeof cursos>>((acc, curs
         color: var(--accent);
         margin-top: 4px;
       }
+      .cv-edu__cert {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--text-muted);
+        text-decoration: none;
+        margin-top: 4px;
+        display: inline-block;
+      }
+      .cv-edu__cert:hover { color: var(--accent); }
 
       .cv-spec { display: flex; flex-direction: column; gap: 4px; }
       .cv-spec-item {
