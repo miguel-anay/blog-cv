@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "zn7nlmLIZ2P+RosTeHFE+T2kMwc8Wm5b5rJvyZ7pHuo=",
+  "Source": "BlogBackend.Api",
+  "BasePath": "_content/BlogBackend.Api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

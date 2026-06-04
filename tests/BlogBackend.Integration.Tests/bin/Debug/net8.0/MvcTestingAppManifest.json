@@ -1,0 +1,6 @@
+{
+  "BlogBackend.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "\/home\/k3n5h1n\/Escritorio\/strapi\/callous-cluster\/src\/BlogBackend\/BlogBackend.Api",
+  "BlogBackend.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "\/home\/k3n5h1n\/Escritorio\/strapi\/callous-cluster\/src\/BlogBackend\/BlogBackend.Application",
+  "BlogBackend.Domain, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "\/home\/k3n5h1n\/Escritorio\/strapi\/callous-cluster\/src\/BlogBackend\/BlogBackend.Domain",
+  "BlogBackend.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "\/home\/k3n5h1n\/Escritorio\/strapi\/callous-cluster\/src\/BlogBackend\/BlogBackend.Infrastructure"
+}
