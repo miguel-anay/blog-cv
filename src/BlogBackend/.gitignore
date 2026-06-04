@@ -1,0 +1,19 @@
+# .NET build artifacts
+bin/
+obj/
+*.user
+.vs/
+*.suo
+.vscode/
+publish/
+
+# Environment files
+.env
+*.env
+
+# NuGet
+*.nupkg
+*.nuspec
+
+# Test results
+TestResults/
