@@ -180,3 +180,84 @@ Slice 1 is scaffold only — no application logic, no domain logic. No test logi
 - `TotalComments` in DashboardStatsDto uses `totalPosts` as a placeholder — actual total comments would require a new port method `ICommentRepository.CountAllAsync()`. This is documented as a refinement for Slice 4.
 
 ### Next: Slice 4 — Infrastructure + API Layers (PR 4)
+
+---
+
+## Slice 4 — Infrastructure + API Layers (PR 4) — COMPLETE
+
+**Status**: All 25 tasks complete (4.5 simplified per task prompt). Quality gate passed.
+**Build result**: `dotnet build BlogBackend.sln` → exit code 0, 0 errors, 0 warnings
+**Test result**: `dotnet test BlogBackend.sln` → 23 passed (6 domain + 16 application + 1 integration), 0 failed
+**Branch**: `feat/7-dotnet-blog-backend`
+
+### Completed Tasks
+
+#### ICommentRepository Fix (prerequisite)
+- [x] Added `Task<int> CountAllAsync(CancellationToken ct = default)` to `ICommentRepository.cs`
+- [x] Updated `GetDashboardStatsQueryHandler` to call `CountAllAsync()` (fixes TotalComments placeholder from Slice 3)
+- [x] Updated `GetDashboardStatsQueryHandlerTests` to mock `CountAllAsync` + assert `TotalComments`
+
+#### Infrastructure — EF Core
+- [x] 4.1 `BlogBackend.Infrastructure/Persistence/BlogDbContext.cs` — DbSets for all 7 entities; schemas blog/subscription/identity via ApplyConfigurationsFromAssembly
+- [x] 4.2 `Persistence/Configurations/Blog/` — PostConfiguration (JSONB tags + ValueComparer), CategoryConfiguration, TagConfiguration, AuthorConfiguration, CommentConfiguration — all with schema "blog"
+- [x] 4.3 `Persistence/Configurations/Subscription/SubscriberConfiguration.cs` — schema "subscription", unique index on Email
+- [x] 4.4 `Persistence/Configurations/Identity/UserConfiguration.cs` — schema "identity", PasswordHash + RefreshTokenHash as BCrypt hashes (HARD-005)
+- [x] 4.5 DomainEventDispatchInterceptor: skipped — task prompt approved simpler approach (handlers dispatch events manually)
+- [x] 4.6 `Persistence/BlogDbContextFactory.cs` (IDesignTimeDbContextFactory); `dotnet ef migrations add InitialCreate` → `Migrations/20260605012225_InitialCreate.cs` covers all 3 schemas
+
+#### Infrastructure — Repositories
+- [x] 4.7 `Persistence/Repositories/PostRepository.cs` — GetBySlugAsync, paginated GetAllAsync, Add/Update/Delete
+- [x] 4.8 `Persistence/Repositories/CategoryRepository.cs`, `TagRepository.cs`, `AuthorRepository.cs`, `CommentRepository.cs` — CommentRepository includes `CountAllAsync()` and `GetPendingAsync()`
+- [x] 4.9 `Persistence/Repositories/SubscriberRepository.cs` — GetByEmailAsync + paginated GetAllAsync
+- [x] 4.10 `Persistence/Repositories/UserRepository.cs` — GetByEmailAsync
+
+#### Infrastructure — Auth + Messaging
+- [x] 4.11 `Auth/TokenService.cs` — HS256 JWT (sub/email/role/jti, 60min expiry); refresh = RandomNumberGenerator 64-byte base64 → BCrypt hash (HARD-005); ValidateAccessToken returns ClaimsPrincipal or null
+- [x] 4.12 `Messaging/BackgroundTaskQueue.cs` — Channel.CreateBounded(100), IBackgroundTaskQueue interface defined here
+- [x] 4.13 `Messaging/EmailWorkerService.cs` — BackgroundService with 3x exponential backoff retry then discard + log error
+- [x] 4.14 `Email/SmtpEmailNotificationAdapter.cs` — System.Net.Mail.SmtpClient; reads SMTP__Host/SMTP__Port/SMTP__From from IConfiguration
+- [x] 4.15 `DependencyInjection.cs` — AddInfrastructure() registers all: DbContext (Npgsql), all 7 repositories, TokenService, SmtpEmailNotificationAdapter, BackgroundTaskQueue (singleton), EmailWorkerService (hosted)
+
+#### API Layer
+- [x] 4.16 `Controllers/BlogController.cs` — 6 endpoints: GET / (paginated), GET /{slug}, POST /, PUT /{id}, POST /{id}/publish, POST /{id}/archive; [Authorize(Roles="Admin,Editor")] on writes; [ProducesResponseType] on all (HARD-004)
+- [x] 4.17 `Controllers/CommentController.cs` — 5 endpoints: POST / (anonymous), GET /pending (Admin/Editor), POST /{id}/approve (Admin/Editor), POST /{id}/reject (Admin/Editor), DELETE /{id} (Admin)
+- [x] 4.18 `Controllers/SubscriptionController.cs` — 4 endpoints: POST /subscribe, POST /unsubscribe (anonymous), GET / paginated (Admin), GET /export/csv (Admin)
+- [x] 4.19 `Controllers/AuthController.cs` — 3 endpoints: POST /login [AllowAnonymous], POST /refresh [AllowAnonymous], POST /revoke [Authorize]; revoke reads userId from sub/NameIdentifier claim
+- [x] 4.20 `Controllers/AdminController.cs` — 2 endpoints: GET /stats, GET /activity; [Authorize(Roles="Admin")] at class level
+- [x] 4.21 `Middleware/GlobalExceptionMiddleware.cs` — NotFoundException→404, ConflictException→409, UnauthorizedException→401, ValidationException→422, unhandled→500; all ApiResponse<object> envelope (HARD-006)
+- [x] 4.22 `Filters/ApiResponseFilter.cs` — IResultFilter wrapping ObjectResult values in ApiResponse<object> if not already wrapped (HARD-006)
+- [x] 4.23 `Program.cs` — full wire-up: AddInfrastructure, AddMediator (scoped), LoggingBehavior + ValidationBehavior, AddFluentValidationAutoValidation, JWT Bearer auth, CORS (blog.miguel-anay.nom.pe + localhost:4321 — HARD-007), HealthChecks.AddNpgSql, GlobalExceptionMiddleware, /health endpoint
+- [x] 4.24 Swashbuckle AddSecurityDefinition("Bearer") + AddSecurityRequirement in Program.cs (HARD-004)
+- [x] 4.25 Quality gate: `dotnet build BlogBackend.sln` → exit 0, 0 errors, 0 warnings (HARD-001); `dotnet test` → 23 passed, 0 failed
+
+### New Packages Added (Slice 4)
+- `FluentValidation.AspNetCore 11.3.0` → Api project (for AddFluentValidationAutoValidation)
+- `Microsoft.AspNetCore.Authentication.JwtBearer 8.0.0` → Api project
+- `AspNetCore.HealthChecks.NpgSql 8.0.2` → Api project
+- `Microsoft.EntityFrameworkCore.Design 8.0.4` → Api + Infrastructure (design-time migrations tooling)
+
+### Commits Made (Slice 4)
+1. `4fb2aa5` — `feat(infra): add EF Core DbContext, configurations, and migrations`
+2. `9ad5ea8` — `feat(infra): add repositories and auth/messaging services`
+3. `8f7be78` — `feat(api): add controllers, middleware, and Program.cs wire-up`
+4. `0fe1943` — `chore(ci): dotnet build and test green — Slice 4 complete`
+
+### TDD Evidence Table (Slice 4)
+
+Slice 4 is Infrastructure + API plumbing. No new unit tests were required for this slice (spec calls for integration tests in Slice 5). The ICommentRepository fix updated the existing Application test with correct mocking.
+
+| Area | Verification | Result |
+|------|-------------|--------|
+| ICommentRepository fix | Updated Application test mock + assertion | 16 application tests GREEN |
+| Infrastructure compilation | `dotnet build BlogBackend.Infrastructure` | 0 errors, 0 warnings |
+| API compilation | `dotnet build BlogBackend.Api` | 0 errors, 0 warnings |
+| Full solution | `dotnet build BlogBackend.sln` | 0 errors, 0 warnings |
+| All prior tests | `dotnet test BlogBackend.sln` | 23 passed, 0 failed |
+
+### Deviations from Design (Slice 4)
+
+- Task 4.5: DomainEventDispatchInterceptor omitted — task prompt explicitly approves simpler approach where handlers dispatch events manually. No architectural regression: events are dispatched from within the Application handler's scope.
+- Task 4.11: JWT expiry set to 60 minutes (task prompt) vs 15 minutes (spec). Task prompt is authoritative.
+- CORS policy applied unconditionally in Program.cs (not only in non-Dev). HARD-007 constraint satisfied for both environments.
+
+### Next: Slice 5 — Integration Tests + QA Gate (PR 5)
