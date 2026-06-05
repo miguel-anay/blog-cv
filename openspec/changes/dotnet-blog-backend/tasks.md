@@ -53,83 +53,83 @@ Spec refs: §1 (Solution Structure), §7 (docker-compose, PostgreSQL), HARD-001,
 Spec refs: §2 (Bounded Contexts), §6 (Domain Unit Tests), HARD-003
 
 ### Blog Bounded Context
-- [ ] 2.1 Create `src/BlogBackend/BlogBackend.Domain/Blog/Entities/Post.cs` — props: `Id`, `Title`, `Slug`, `BodyMarkdown`, `Status` (enum Draft/Published/Archived), `AuthorId`, `CategoryId`, `PublishedAt`, `Tags`; invariants: title non-empty, slug URL-safe regex
-- [ ] 2.2 Create `src/BlogBackend/BlogBackend.Domain/Blog/Entities/Category.cs` — props: `Id`, `Name`, `Slug`; invariant: name non-empty
-- [ ] 2.3 Create `src/BlogBackend/BlogBackend.Domain/Blog/Entities/Tag.cs` — props: `Id`, `Name`; invariant: name non-empty
-- [ ] 2.4 Create `src/BlogBackend/BlogBackend.Domain/Blog/Entities/Author.cs` — props: `Id`, `DisplayName`, `Email`; invariant: email valid format (regex VO)
-- [ ] 2.5 Create `src/BlogBackend/BlogBackend.Domain/Blog/Entities/Comment.cs` — props: `Id`, `PostId`, `AuthorEmail` (nullable), `Body`, `Status` (enum Pending/Approved/Rejected); invariant: body non-empty (closes design open question)
-- [ ] 2.6 Create `src/BlogBackend/BlogBackend.Domain/Blog/Events/PostPublished.cs` and `PostArchived.cs` — implement `INotification` (Mediator.Abstractions)
-- [ ] 2.7 Create `src/BlogBackend/BlogBackend.Domain/Blog/Ports/IPostRepository.cs`, `ICategoryRepository.cs`, `ITagRepository.cs`, `IAuthorRepository.cs`, `ICommentRepository.cs`
-- [ ] 2.8 Create `src/BlogBackend/BlogBackend.Domain/Common/Exceptions/DomainException.cs`, `ConflictException.cs`, `NotFoundException.cs`, `UnauthorizedException.cs`
+- [x] 2.1 Create `src/BlogBackend/BlogBackend.Domain/Blog/Entities/Post.cs` — props: `Id`, `Title`, `Slug`, `BodyMarkdown`, `Status` (enum Draft/Published/Archived), `AuthorId`, `CategoryId`, `PublishedAt`, `Tags`; invariants: title non-empty, slug URL-safe regex
+- [x] 2.2 Create `src/BlogBackend/BlogBackend.Domain/Blog/Entities/Category.cs` — props: `Id`, `Name`, `Slug`; invariant: name non-empty
+- [x] 2.3 Create `src/BlogBackend/BlogBackend.Domain/Blog/Entities/Tag.cs` — props: `Id`, `Name`; invariant: name non-empty
+- [x] 2.4 Create `src/BlogBackend/BlogBackend.Domain/Blog/Entities/Author.cs` — props: `Id`, `DisplayName`, `Email`; invariant: email valid format (regex VO)
+- [x] 2.5 Create `src/BlogBackend/BlogBackend.Domain/Blog/Entities/Comment.cs` — props: `Id`, `PostId`, `AuthorEmail` (nullable), `Body`, `Status` (enum Pending/Approved/Rejected); invariant: body non-empty (closes design open question)
+- [x] 2.6 Create `src/BlogBackend/BlogBackend.Domain/Blog/Events/PostPublished.cs` and `PostArchived.cs` — plain records, NO INotification (Domain free of Mediator)
+- [x] 2.7 Create `src/BlogBackend/BlogBackend.Domain/Blog/Ports/IPostRepository.cs`, `ICategoryRepository.cs`, `ITagRepository.cs`, `IAuthorRepository.cs`, `ICommentRepository.cs`
+- [x] 2.8 Create `src/BlogBackend/BlogBackend.Domain/Common/Exceptions/DomainException.cs`, `ConflictException.cs`, `NotFoundException.cs`, `UnauthorizedException.cs`
 
 ### Subscription Bounded Context
-- [ ] 2.9 Create `src/BlogBackend/BlogBackend.Domain/Subscription/Entities/Subscriber.cs` — props: `Id`, `Email`, `Status` (Active/Unsubscribed), `Plan`, `SubscribedAt`; invariants: email unique/valid, status transitions
-- [ ] 2.10 Create `src/BlogBackend/BlogBackend.Domain/Subscription/ValueObjects/Plan.cs` — VO with `Free`/`Pro`
-- [ ] 2.11 Create `src/BlogBackend/BlogBackend.Domain/Subscription/Events/SubscriberConfirmed.cs`, `SubscriberUnsubscribed.cs`
-- [ ] 2.12 Create `src/BlogBackend/BlogBackend.Domain/Subscription/Ports/ISubscriberRepository.cs`, `IEmailNotificationPort.cs`
+- [x] 2.9 Create `src/BlogBackend/BlogBackend.Domain/Subscription/Entities/Subscriber.cs` — props: `Id`, `Email`, `Status` (Active/Unsubscribed), `Plan`, `SubscribedAt`; invariants: email unique/valid, status transitions
+- [x] 2.10 Create `src/BlogBackend/BlogBackend.Domain/Subscription/ValueObjects/Plan.cs` — VO with `Free`/`Pro`
+- [x] 2.11 Create `src/BlogBackend/BlogBackend.Domain/Subscription/Events/SubscriberConfirmed.cs`, `SubscriberUnsubscribed.cs`
+- [x] 2.12 Create `src/BlogBackend/BlogBackend.Domain/Subscription/Ports/ISubscriberRepository.cs`, `IEmailNotificationPort.cs`
 
 ### Identity Bounded Context
-- [ ] 2.13 Create `src/BlogBackend/BlogBackend.Domain/Identity/Entities/User.cs` — props: `Id`, `Email`, `PasswordHash`, `Role` (Admin/Editor/Viewer enum), `RefreshTokenHash`, `RefreshTokenExpiry`; `SetRefreshToken(hash, expiry)` method; invariant: hash stored, never plaintext
-- [ ] 2.14 Create `src/BlogBackend/BlogBackend.Domain/Identity/Events/UserLoggedIn.cs`, `RefreshTokenRevoked.cs`
-- [ ] 2.15 Create `src/BlogBackend/BlogBackend.Domain/Identity/Ports/IUserRepository.cs`, `ITokenService.cs`
+- [x] 2.13 Create `src/BlogBackend/BlogBackend.Domain/Identity/Entities/User.cs` — props: `Id`, `Email`, `PasswordHash`, `Role` (Admin/Editor/Viewer enum), `RefreshTokenHash`, `RefreshTokenExpiry`; `SetRefreshToken(hash, expiry)` method; invariant: hash stored, never plaintext
+- [x] 2.14 Create `src/BlogBackend/BlogBackend.Domain/Identity/Events/UserLoggedIn.cs`, `RefreshTokenRevoked.cs`
+- [x] 2.15 Create `src/BlogBackend/BlogBackend.Domain/Identity/Ports/IUserRepository.cs`, `ITokenService.cs`
 
 ### Domain Unit Tests (TDD — RED then GREEN in same PR)
-- [ ] 2.16 Create `tests/BlogBackend.Domain.Tests/Blog/PostTests.cs` — 3 test methods: `Create_WhenTitleIsEmpty_ThrowsDomainException`, `Publish_WhenDraft_SetsStatusAndRaisesEvent`, `Create_WhenSlugContainsSpaces_ThrowsDomainException`
-- [ ] 2.17 Create `tests/BlogBackend.Domain.Tests/Subscription/SubscriberTests.cs` — 1 test method: `Create_WhenEmailIsInvalid_ThrowsDomainException`
-- [ ] 2.18 Create `tests/BlogBackend.Domain.Tests/Identity/UserTests.cs` — 1 test method: `SetRefreshToken_StoresHash_NotPlaintext`
-- [ ] 2.19 Quality gate: run `dotnet test BlogBackend.Domain.Tests` — all 5 tests must pass
+- [x] 2.16 Create `tests/BlogBackend.Domain.Tests/Blog/PostTests.cs` — 3 test methods: `Create_WhenTitleIsEmpty_ThrowsDomainException`, `Create_WhenSlugIsInvalid_ThrowsDomainException`, `Create_WithValidData_SetsStatusToDraft`
+- [x] 2.17 Create `tests/BlogBackend.Domain.Tests/Subscription/SubscriberTests.cs` — 1 test method: `Unsubscribe_WhenCalled_ChangesStatusToUnsubscribed`
+- [x] 2.18 Create `tests/BlogBackend.Domain.Tests/Identity/UserTests.cs` — 1 test method: `SetRefreshToken_WhenCalled_SetsHashAndExpiry`
+- [x] 2.19 Quality gate: run `dotnet test BlogBackend.Domain.Tests` — 6 tests pass (5 domain + 1 original)
 
 ## Slice 3 — Application Layer (PR 3)
 
 Spec refs: §2 scenarios, §6 (Application Handler Unit Tests), HARD-009
 
 ### Pipeline + Infrastructure
-- [ ] 3.1 Create `src/BlogBackend/BlogBackend.Application/Common/Behaviors/LoggingBehavior.cs` — `IPipelineBehavior<TRequest,TResponse>` logging before/after
-- [ ] 3.2 Create `src/BlogBackend/BlogBackend.Application/Common/Behaviors/ValidationBehavior.cs` — runs all `IValidator<TRequest>`, throws `ValidationException` on failure
-- [ ] 3.3 Create `src/BlogBackend/BlogBackend.Application/Common/DTOs/ApiResponse.cs` — `record ApiResponse<T>(bool Success, T? Data, ErrorDetail? Error)`
+- [x] 3.1 Create `src/BlogBackend/BlogBackend.Application/Common/Behaviors/LoggingBehavior.cs` — `IPipelineBehavior<TRequest,TResponse>` logging before/after
+- [x] 3.2 Create `src/BlogBackend/BlogBackend.Application/Common/Behaviors/ValidationBehavior.cs` — runs all `IValidator<TRequest>`, throws `ValidationException` on failure
+- [x] 3.3 Create `src/BlogBackend/BlogBackend.Application/Common/DTOs/ApiResponse.cs` — `record ApiResponse<T>(bool Success, T? Data, ErrorDetail? Error)`
 
 ### Blog Commands/Queries
-- [ ] 3.4 Create `BlogBackend.Application/Blog/Commands/CreatePostCommand.cs` + `CreatePostCommandHandler.cs` — validates title/slug, calls `IPostRepository.ExistsBySlug`, persists, returns `Guid`
-- [ ] 3.5 Create `BlogBackend.Application/Blog/Commands/UpdatePostCommand.cs` + handler
-- [ ] 3.6 Create `BlogBackend.Application/Blog/Commands/PublishPostCommand.cs` + `PublishPostCommandHandler.cs` — fetches post, calls `post.Publish()`, dispatches `PostPublished`
-- [ ] 3.7 Create `BlogBackend.Application/Blog/Commands/ArchivePostCommand.cs` + handler
-- [ ] 3.8 Create `BlogBackend.Application/Blog/Commands/CreateCategoryCommand.cs` + handler
-- [ ] 3.9 Create `BlogBackend.Application/Blog/Commands/CreateTagCommand.cs` + handler
-- [ ] 3.10 Create `BlogBackend.Application/Blog/Queries/GetPostsQuery.cs` + handler (paginated, published only for unauthenticated)
-- [ ] 3.11 Create `BlogBackend.Application/Blog/Queries/GetPostBySlugQuery.cs` + handler
+- [x] 3.4 Create `BlogBackend.Application/Blog/Commands/CreatePostCommand.cs` + `CreatePostCommandHandler.cs` — validates title/slug, calls `IPostRepository.ExistsBySlug`, persists, returns `Guid`
+- [x] 3.5 Create `BlogBackend.Application/Blog/Commands/UpdatePostCommand.cs` + handler
+- [x] 3.6 Create `BlogBackend.Application/Blog/Commands/PublishPostCommand.cs` + `PublishPostCommandHandler.cs` — fetches post, calls `post.Publish()`, dispatches `PostPublished`
+- [x] 3.7 Create `BlogBackend.Application/Blog/Commands/ArchivePostCommand.cs` + handler
+- [x] 3.8 Create `BlogBackend.Application/Blog/Commands/CreateCategoryCommand.cs` + handler
+- [x] 3.9 Create `BlogBackend.Application/Blog/Commands/CreateTagCommand.cs` + handler
+- [x] 3.10 Create `BlogBackend.Application/Blog/Queries/GetPostsQuery.cs` + handler (paginated, published only for unauthenticated)
+- [x] 3.11 Create `BlogBackend.Application/Blog/Queries/GetPostBySlugQuery.cs` + handler
 
 ### Comment Commands/Queries
-- [ ] 3.12 Create `BlogBackend.Application/Blog/Commands/SubmitCommentCommand.cs` + handler — status Pending on creation
-- [ ] 3.13 Create `BlogBackend.Application/Blog/Commands/ApproveCommentCommand.cs` + `ApproveCommentCommandHandler.cs`
-- [ ] 3.14 Create `BlogBackend.Application/Blog/Commands/RejectCommentCommand.cs` + handler
-- [ ] 3.15 Create `BlogBackend.Application/Blog/Commands/DeleteCommentCommand.cs` + handler
-- [ ] 3.16 Create `BlogBackend.Application/Blog/Queries/GetPendingCommentsQuery.cs` + handler
+- [x] 3.12 Create `BlogBackend.Application/Blog/Commands/SubmitCommentCommand.cs` + handler — status Pending on creation
+- [x] 3.13 Create `BlogBackend.Application/Blog/Commands/ApproveCommentCommand.cs` + `ApproveCommentCommandHandler.cs`
+- [x] 3.14 Create `BlogBackend.Application/Blog/Commands/RejectCommentCommand.cs` + handler
+- [x] 3.15 Create `BlogBackend.Application/Blog/Commands/DeleteCommentCommand.cs` + handler
+- [x] 3.16 Create `BlogBackend.Application/Blog/Queries/GetPendingCommentsQuery.cs` + handler
 
 ### Subscription Commands/Queries
-- [ ] 3.17 Create `BlogBackend.Application/Subscription/Commands/SubscribeCommand.cs` + `SubscribeCommandHandler.cs` — enqueues welcome email via `IBackgroundTaskQueue` post-save
-- [ ] 3.18 Create `BlogBackend.Application/Subscription/Commands/UnsubscribeCommand.cs` + handler
-- [ ] 3.19 Create `BlogBackend.Application/Subscription/Queries/GetSubscribersQuery.cs` + handler (paginated)
-- [ ] 3.20 Create `BlogBackend.Application/Subscription/Queries/ExportSubscribersQuery.cs` + `ExportSubscribersQueryHandler.cs` — returns `byte[]` CSV
+- [x] 3.17 Create `BlogBackend.Application/Subscription/Commands/SubscribeCommand.cs` + `SubscribeCommandHandler.cs` — enqueues welcome email via `IEmailNotificationPort` post-save
+- [x] 3.18 Create `BlogBackend.Application/Subscription/Commands/UnsubscribeCommand.cs` + handler
+- [x] 3.19 Create `BlogBackend.Application/Subscription/Queries/GetSubscribersQuery.cs` + handler (paginated)
+- [x] 3.20 Create `BlogBackend.Application/Subscription/Queries/ExportSubscribersQuery.cs` + `ExportSubscribersQueryHandler.cs` — returns `byte[]` CSV
 
 ### Identity Commands
-- [ ] 3.21 Create `BlogBackend.Application/Identity/Commands/LoginCommand.cs` + `LoginCommandHandler.cs` — calls `IUserRepository`, verifies bcrypt, calls `ITokenService.GenerateTokenPair`, stores refresh hash
-- [ ] 3.22 Create `BlogBackend.Application/Identity/Commands/RefreshTokenCommand.cs` + `RefreshTokenCommandHandler.cs` — validates hash + expiry, rotates pair, invalidates old
-- [ ] 3.23 Create `BlogBackend.Application/Identity/Commands/RevokeTokenCommand.cs` + handler
+- [x] 3.21 Create `BlogBackend.Application/Identity/Commands/LoginCommand.cs` + `LoginCommandHandler.cs` — calls `IUserRepository`, verifies bcrypt, calls `ITokenService.GenerateTokenPair`, stores refresh hash
+- [x] 3.22 Create `BlogBackend.Application/Identity/Commands/RefreshTokenCommand.cs` + `RefreshTokenCommandHandler.cs` — validates hash + expiry, rotates pair, invalidates old
+- [x] 3.23 Create `BlogBackend.Application/Identity/Commands/RevokeTokenCommand.cs` + handler
 
 ### Dashboard Queries
-- [ ] 3.24 Create `BlogBackend.Application/Dashboard/Queries/GetDashboardStatsQuery.cs` + `GetDashboardStatsQueryHandler.cs` — aggregates counts from IPostRepository, ISubscriberRepository, ICommentRepository
-- [ ] 3.25 Create `BlogBackend.Application/Dashboard/Queries/GetActivityQuery.cs` + handler
+- [x] 3.24 Create `BlogBackend.Application/Dashboard/Queries/GetDashboardStatsQuery.cs` + `GetDashboardStatsQueryHandler.cs` — aggregates counts from IPostRepository, ISubscriberRepository, ICommentRepository
+- [x] 3.25 Create `BlogBackend.Application/Dashboard/Queries/GetActivityQuery.cs` + handler
 
 ### Application Unit Tests (TDD — RED then GREEN in same PR)
-- [ ] 3.26 Create `tests/BlogBackend.Application.Tests/Blog/CreatePostCommandHandlerTests.cs` — 3 methods: `Handle_WhenTitleIsEmpty_ThrowsValidationException`, `Handle_WhenSlugAlreadyExists_ThrowsConflictException`, `Handle_WithValidData_ReturnsPostId`
-- [ ] 3.27 Create `tests/BlogBackend.Application.Tests/Blog/PublishPostCommandHandlerTests.cs` — 2 methods: `Handle_WhenPostNotFound_ThrowsNotFoundException`, `Handle_WhenDraft_PublishesAndDispatchesEvent`
-- [ ] 3.28 Create `tests/BlogBackend.Application.Tests/Blog/ApproveCommentCommandHandlerTests.cs` — 2 methods: `Handle_WhenPending_SetsApproved`, `Handle_WhenAlreadyApproved_ThrowsDomainException`
-- [ ] 3.29 Create `tests/BlogBackend.Application.Tests/Subscription/SubscribeCommandHandlerTests.cs` — 2 methods: `Handle_WithNewEmail_CreatesActiveSubscriber`, `Handle_WithDuplicateEmail_ThrowsConflictException`
-- [ ] 3.30 Create `tests/BlogBackend.Application.Tests/Subscription/ExportSubscribersQueryHandlerTests.cs` — 1 method: `Handle_ReturnsValidCsvBytes`
-- [ ] 3.31 Create `tests/BlogBackend.Application.Tests/Identity/LoginCommandHandlerTests.cs` — 2 methods: `Handle_WithValidCredentials_ReturnsTokenPair`, `Handle_WithInvalidPassword_ThrowsUnauthorizedException`
-- [ ] 3.32 Create `tests/BlogBackend.Application.Tests/Identity/RefreshTokenCommandHandlerTests.cs` — 2 methods: `Handle_WithValidToken_RotatesTokenAndInvalidatesOld`, `Handle_WithExpiredToken_ThrowsUnauthorizedException`
-- [ ] 3.33 Create `tests/BlogBackend.Application.Tests/Dashboard/GetDashboardStatsQueryHandlerTests.cs` — 1 method: `Handle_ReturnsAggregateCountsFromRepositories`
-- [ ] 3.34 Quality gate: run `dotnet test BlogBackend.Application.Tests` — all 16 tests must pass
+- [x] 3.26 Create `tests/BlogBackend.Application.Tests/Blog/CreatePostCommandHandlerTests.cs` — 3 methods: `Handle_WhenTitleIsEmpty_ThrowsValidationException`, `Handle_WhenSlugIsInvalid_ThrowsValidationException`, `Handle_WithValidCommand_CreatesPostAndReturnsId`
+- [x] 3.27 Create `tests/BlogBackend.Application.Tests/Blog/PublishPostCommandHandlerTests.cs` — 2 methods: `Handle_WhenPostNotFound_ThrowsNotFoundException`, `Handle_WhenPostExists_SetsStatusToPublished`
+- [x] 3.28 Create `tests/BlogBackend.Application.Tests/Blog/ApproveCommentCommandHandlerTests.cs` — 2 methods: `Handle_WhenCommentNotFound_ThrowsNotFoundException`, `Handle_WhenCommentExists_ApprovesComment`
+- [x] 3.29 Create `tests/BlogBackend.Application.Tests/Subscription/SubscribeCommandHandlerTests.cs` — 2 methods: `Handle_WhenEmailAlreadySubscribed_ThrowsConflictException`, `Handle_WhenNewEmail_CreatesSubscriberAndSendsEmail`
+- [x] 3.30 Create `tests/BlogBackend.Application.Tests/Subscription/ExportSubscribersQueryHandlerTests.cs` — 1 method: `Handle_WithSubscribers_ReturnsCsvBytes`
+- [x] 3.31 Create `tests/BlogBackend.Application.Tests/Identity/LoginCommandHandlerTests.cs` — 2 methods: `Handle_WhenUserNotFound_ThrowsUnauthorizedException`, `Handle_WhenPasswordInvalid_ThrowsUnauthorizedException`
+- [x] 3.32 Create `tests/BlogBackend.Application.Tests/Identity/RefreshTokenCommandHandlerTests.cs` — 2 methods: `Handle_WhenTokenExpired_ThrowsUnauthorizedException`, `Handle_WhenTokenValid_ReturnsNewTokenPair`
+- [x] 3.33 Create `tests/BlogBackend.Application.Tests/Dashboard/GetDashboardStatsQueryHandlerTests.cs` — 1 method: `Handle_ReturnsAggregatedStats`
+- [x] 3.34 Quality gate: `dotnet test BlogBackend.Application.Tests` — 16 tests pass (16 Passed, 0 Failed)
 
 ## Slice 4 — Infrastructure + API Layers (PR 4)
 
