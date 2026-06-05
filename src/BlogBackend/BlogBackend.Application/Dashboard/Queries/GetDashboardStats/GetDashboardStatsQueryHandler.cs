@@ -27,6 +27,7 @@ public class GetDashboardStatsQueryHandler : IRequestHandler<GetDashboardStatsQu
         var (posts, totalPosts) = await _postRepository.GetAllAsync(1, int.MaxValue, cancellationToken);
         var (subscribers, totalSubscribers) = await _subscriberRepository.GetAllAsync(1, int.MaxValue, cancellationToken);
         var pendingComments = await _commentRepository.GetPendingAsync(cancellationToken);
+        var totalComments = await _commentRepository.CountAllAsync(cancellationToken);
 
         var publishedPosts = posts.Count(p => p.Status == PostStatus.Published);
         var activeSubscribers = subscribers.Count(s => s.Status == SubscriberStatus.Active);
@@ -36,7 +37,7 @@ public class GetDashboardStatsQueryHandler : IRequestHandler<GetDashboardStatsQu
             PublishedPosts: publishedPosts,
             TotalSubscribers: totalSubscribers,
             ActiveSubscribers: activeSubscribers,
-            TotalComments: totalPosts,
+            TotalComments: totalComments,
             PendingComments: pendingComments.Count);
     }
 }

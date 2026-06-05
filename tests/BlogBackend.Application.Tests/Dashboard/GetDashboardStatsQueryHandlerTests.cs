@@ -46,9 +46,8 @@ public class GetDashboardStatsQueryHandlerTests
         _commentRepository.GetPendingAsync(Arg.Any<CancellationToken>())
             .Returns((IReadOnlyList<Comment>)pendingComments.AsReadOnly());
 
-        var allComments = new List<Comment> { comment };
-        _commentRepository.GetByPostIdAsync(Arg.Any<Guid>(), Arg.Any<int>(), Arg.Any<int>(), Arg.Any<CancellationToken>())
-            .Returns(((IReadOnlyList<Comment>)allComments.AsReadOnly(), allComments.Count));
+        _commentRepository.CountAllAsync(Arg.Any<CancellationToken>())
+            .Returns(1);
 
         var query = new GetDashboardStatsQuery();
 
@@ -60,6 +59,7 @@ public class GetDashboardStatsQueryHandlerTests
         stats.PublishedPosts.Should().Be(1);
         stats.TotalSubscribers.Should().Be(1);
         stats.ActiveSubscribers.Should().Be(1);
+        stats.TotalComments.Should().Be(1);
         stats.PendingComments.Should().Be(1);
     }
 }
