@@ -76,6 +76,17 @@ public class Post
         PublishedAt = DateTime.UtcNow;
     }
 
+    public void Update(string title, string bodyMarkdown, Guid? categoryId, IEnumerable<string> tags)
+    {
+        if (string.IsNullOrWhiteSpace(title))
+            throw new DomainException("Post title must not be empty.");
+
+        Title = title;
+        BodyMarkdown = bodyMarkdown;
+        CategoryId = categoryId;
+        Tags = tags.ToList().AsReadOnly();
+    }
+
     public void Archive()
     {
         if (Status == PostStatus.Archived)
