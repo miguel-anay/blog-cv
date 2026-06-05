@@ -48,9 +48,10 @@ public class PostsEndpointTests : IClassFixture<BlogBackendFactory>
         {
             title = "Integration Test Post",
             slug = "integration-test-post",
-            body = "This is the body content of the integration test post.",
-            excerpt = "Excerpt text",
-            tags = Array.Empty<string>()
+            bodyMarkdown = "This is the body content of the integration test post.",
+            authorId = Guid.NewGuid(),
+            categoryId = (Guid?)null,
+            tags = new List<string>()
         };
 
         var response = await client.PostAsJsonAsync("/api/v1/posts", payload);
@@ -67,9 +68,10 @@ public class PostsEndpointTests : IClassFixture<BlogBackendFactory>
         {
             title = "No Auth Post",
             slug = "no-auth-post",
-            body = "Body content.",
-            excerpt = "Excerpt",
-            tags = Array.Empty<string>()
+            bodyMarkdown = "Body content.",
+            authorId = Guid.NewGuid(),
+            categoryId = (Guid?)null,
+            tags = new List<string>()
         };
 
         var response = await client.PostAsJsonAsync("/api/v1/posts", payload);
