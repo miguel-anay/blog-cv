@@ -1,0 +1,65 @@
+project: blog-cv
+repo: callous-cluster
+root: /home/k3n5h1n/Escritorio/strapi/callous-cluster
+site_url: https://blog.miguel-anay.nom.pe
+initialized: 2026-05-25
+artifact_store: hybrid
+
+context:
+  framework: Astro v5.14.1 (SSR, Vercel adapter)
+  language: TypeScript (strict)
+  frontend_stack: Astro + React 19 + Tailwind CSS v4 + Drizzle ORM + Turso/LibSQL
+  backend_stack: Hono v4 + Drizzle ORM + Turso/LibSQL + Zod (blog-api workspace)
+  architecture: Hexagonal/Screaming (blog-api), Scope Rule (Astro frontend)
+  features: blog, courses, cv
+  deployment: Vercel (frontend), esbuild Lambda bundle (blog-api)
+  ci: Azure Pipelines (azure-pipelines.yml)
+  monorepo: pnpm workspaces (root = Astro, blog-api/ = Hono backend)
+
+testing:
+  strict_tdd: false
+  reason: "Playwright installed but not configured. Test script is a no-op. No vitest/jest present."
+  unit: unavailable
+  integration: unavailable
+  e2e: partial (Playwright installed, no test scripts)
+  coverage: unavailable
+  quality_gate: "npm run type-check && npm run build"
+  linter: "npm run lint (astro check)"
+  type_checker: "npm run type-check (tsc --noEmit)"
+
+phases:
+  proposal:
+    model: opus
+    reads: [explore]
+    writes: [proposal]
+  spec:
+    model: sonnet
+    reads: [proposal]
+    writes: [spec]
+  design:
+    model: opus
+    reads: [proposal]
+    writes: [design]
+  tasks:
+    model: sonnet
+    reads: [spec, design]
+    writes: [tasks]
+  apply:
+    model: sonnet
+    reads: [tasks, spec, design, apply-progress]
+    writes: [apply-progress]
+  verify:
+    model: sonnet
+    reads: [spec, tasks, apply-progress]
+    writes: [verify-report]
+  archive:
+    model: haiku
+    reads: [all]
+    writes: [archive-report]
+
+conventions:
+  branch_format: "feature/{issue-number}-{short-name}"
+  commit_format: "type(scope): description"
+  sdd_change_name: "{issue-number}-{short-name}"
+  issue_first: true
+  no_direct_main_commits: true
