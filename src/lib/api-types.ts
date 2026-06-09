@@ -81,6 +81,15 @@ export interface CourseResource {
   title: string;
   url: string;
   description?: string | null;
+  sessionNumber?: number | null;
+}
+
+export interface CourseSession {
+  number: number;
+  title: string;
+  video?: CourseResource;
+  materials: CourseResource[];
+  anchorId: string;
 }
 
 export interface CourseSection {

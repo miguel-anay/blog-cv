@@ -2,18 +2,24 @@
 import { marked } from 'marked';
 import type { CourseSection } from '../../../lib/api-types';
 import ResourceItem from './ResourceItem.astro';
+import SessionBlock from './SessionBlock.astro';
+import { groupSessions } from '../lib/sessions';
 
 export interface Props {
   sections: CourseSection[];
+  activeSectionId?: number | null;
 }
 
-const { sections } = Astro.props;
+const { sections, activeSectionId = null } = Astro.props;
+const visibleSections = activeSectionId !== null
+  ? sections.filter((s) => s.id === activeSectionId)
+  : sections;
 
 marked.setOptions({ gfm: true, breaks: true });
 ---
 
 <div class="sections">
-  {sections.map((section, i) => (
+  {visibleSections.map((section, i) => (
     <div class="course-section" id={`section-${section.id}`}>
       <div class="section__header">
         <span class="section__num">{String(i + 1).padStart(2, '0')}</span>
@@ -34,18 +40,27 @@ marked.setOptions({ gfm: true, breaks: true });
         <div class="section__content prose" set:html={marked.parse(section.content)} />
       )}
 
-      {section.resources.length > 0 && (
-        <div class="section__resources">
-          <span class="section__resources-label">
-            <span class="section__resources-prompt">$</span> recursos
-          </span>
-          <div class="section__resources-list">
-            {section.resources.map((resource) => (
-              <ResourceItem resource={resource} />
+      {section.resources.length > 0 && (() => {
+        const sessions = groupSessions(section.resources);
+        return sessions.length > 0 ? (
+          <div class="section__sessions">
+            {sessions.map((session) => (
+              <SessionBlock session={session} />
             ))}
           </div>
-        </div>
-      )}
+        ) : (
+          <div class="section__resources">
+            <span class="section__resources-label">
+              <span class="section__resources-prompt">$</span> recursos
+            </span>
+            <div class="section__resources-list">
+              {section.resources.map((resource) => (
+                <ResourceItem resource={resource} anchorId={`resource-${resource.id}`} />
+              ))}
+            </div>
+          </div>
+        );
+      })()}
     </div>
   ))}
 </div>
@@ -171,7 +186,10 @@ marked.setOptions({ gfm: true, breaks: true });
   .prose :global(a) { color: var(--accent); }
   .prose :global(a:hover) { text-decoration: underline; }
 
-  /* Resources */
+  /* Sessions (diplomado with session_number) */
+  .section__sessions { display: flex; flex-direction: column; }
+
+  /* Resources (fallback flat list) */
   .section__resources { padding-left: var(--pad-x); }
 
   .section__resources-label {

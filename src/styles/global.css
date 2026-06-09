@@ -374,6 +374,7 @@
 
 html {
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 body {
@@ -869,7 +870,7 @@ hr {
    ============================================================ */
 
 .section {
-  padding: 80px var(--pad-x);
+  padding: var(--section-pad-y) var(--pad-x);
   border-bottom: 1px dashed var(--border);
   max-width: var(--max-w);
   margin: 0 auto;
