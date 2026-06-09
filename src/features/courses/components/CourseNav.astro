@@ -1,58 +1,115 @@
 ---
-import type { CourseSection } from '../../../lib/api-types';
+import type { CourseSection, CourseSession } from '../../../lib/api-types';
 
 export interface Props {
   sections: CourseSection[];
+  activeSectionId?: number | null;
+  isDiplomado?: boolean;
+  sessions?: CourseSession[];
 }
 
-const { sections } = Astro.props;
+const { sections, activeSectionId = null, isDiplomado = false, sessions = [] } = Astro.props;
+
+const showSessions = isDiplomado && sessions.length > 0;
 ---
 
-<nav class="course-nav" aria-label="Secciones del curso">
+<nav
+  class="course-nav"
+  aria-label={isDiplomado ? 'Semanas del diplomado' : 'Secciones del curso'}
+  data-mode={isDiplomado ? 'diplomado' : 'course'}
+>
   <div class="course-nav__label">
     <span class="course-nav__prompt">#</span>
-    <span>secciones</span>
+    <span>{showSessions ? 'sesiones' : isDiplomado ? 'semanas' : 'secciones'}</span>
   </div>
 
-  <ol class="course-nav__list">
-    {sections.map((section, i) => (
-      <li>
-        <a
-          href={`#section-${section.id}`}
-          class="course-nav__item"
-          data-section={`section-${section.id}`}
-        >
-          <span class="course-nav__num">{String(i + 1).padStart(2, '0')}</span>
-          <span class="course-nav__title">{section.title}</span>
-          {section.resources.length > 0 && (
-            <span class="course-nav__badge">{section.resources.length}</span>
-          )}
-        </a>
-      </li>
-    ))}
-  </ol>
+  {showSessions ? (
+    <ol class="course-nav__list">
+      {sessions.map((session) => (
+        <li>
+          <a
+            href={`#${session.anchorId}`}
+            class="course-nav__item"
+            data-section={session.anchorId}
+          >
+            <span class="course-nav__num">{String(session.number).padStart(2, '0')}</span>
+            <span class="course-nav__title">{session.title}</span>
+          </a>
+        </li>
+      ))}
+    </ol>
+  ) : (
+    <ol class="course-nav__list">
+      {sections.map((section, i) => (
+        <li>
+          <a
+            href={isDiplomado ? `?section=${section.id}` : `#section-${section.id}`}
+            class:list={[
+              'course-nav__item',
+              isDiplomado
+                ? activeSectionId === section.id && 'is-active'
+                : false,
+            ]}
+            data-section={`section-${section.id}`}
+          >
+            <span class="course-nav__num">{String(i + 1).padStart(2, '0')}</span>
+            <span class="course-nav__title">
+              {isDiplomado ? `Semana ${section.order}` : section.title}
+            </span>
+            {section.resources.length > 0 && (
+              <span class="course-nav__badge">{section.resources.length}</span>
+            )}
+          </a>
+        </li>
+      ))}
+    </ol>
+  )}
 </nav>
 
 <script>
-  const navItems = document.querySelectorAll<HTMLAnchorElement>('.course-nav__item');
-  const sections = document.querySelectorAll<HTMLElement>('.course-section');
+  const nav = document.querySelector<HTMLElement>('.course-nav');
+  const mode = nav?.dataset.mode;
 
-  if (navItems.length && sections.length) {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (!entry.isIntersecting) continue;
-          const id = entry.target.id;
-          navItems.forEach((a) => {
-            const active = a.dataset.section === id;
-            a.classList.toggle('is-active', active);
-          });
-        }
-      },
-      { rootMargin: '-20% 0px -70% 0px', threshold: 0 },
+  if (mode === 'course') {
+    const navItems = document.querySelectorAll<HTMLAnchorElement>('.course-nav__item');
+    const sections = document.querySelectorAll<HTMLElement>('.course-section');
+
+    if (navItems.length && sections.length) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (!entry.isIntersecting) continue;
+            const id = entry.target.id;
+            navItems.forEach((a) => {
+              a.classList.toggle('is-active', a.dataset.section === id);
+            });
+          }
+        },
+        { rootMargin: '-20% 0px -70% 0px', threshold: 0 },
+      );
+      sections.forEach((s) => observer.observe(s));
+    }
+  } else if (mode === 'diplomado') {
+    const navItems = document.querySelectorAll<HTMLAnchorElement>(
+      '.course-nav__item[data-section^="session-"]',
     );
+    const blocks = document.querySelectorAll<HTMLElement>('.session-block[id^="session-"]');
 
-    sections.forEach((s) => observer.observe(s));
+    if (navItems.length && blocks.length) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (!entry.isIntersecting) continue;
+            const id = entry.target.id;
+            navItems.forEach((a) => {
+              a.classList.toggle('is-active', a.dataset.section === id);
+            });
+          }
+        },
+        { rootMargin: '-10% 0px -80% 0px', threshold: 0 },
+      );
+      blocks.forEach((b) => observer.observe(b));
+    }
   }
 </script>
 
@@ -83,7 +140,14 @@ const { sections } = Astro.props;
   }
   .course-nav__prompt { color: var(--accent); }
 
-  .course-nav__list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 2px; }
+  .course-nav__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
 
   .course-nav__item {
     display: flex;
@@ -131,8 +195,36 @@ const { sections } = Astro.props;
     color: var(--accent);
   }
 
+  /* Mobile */
   @media (max-width: 767px) {
-    .course-nav {
+    /* Diplomado: vertical sticky nav */
+    .course-nav[data-mode="diplomado"] {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      max-height: 50vh;
+      overflow-y: auto;
+      flex-direction: column;
+      background: var(--bg-raised);
+      border-bottom: 1px solid var(--border);
+      border-radius: 0;
+      gap: 4px;
+    }
+
+    .course-nav[data-mode="diplomado"] .course-nav__list {
+      flex-direction: column;
+      overflow-x: visible;
+    }
+
+    .course-nav[data-mode="diplomado"] .course-nav__item {
+      white-space: normal;
+      border-left: 2px solid transparent;
+      border-bottom: none;
+      border-radius: 4px;
+    }
+
+    /* Regular course: compact vertical list */
+    .course-nav[data-mode="course"] {
       max-height: 50vh;
       overflow-y: auto;
     }

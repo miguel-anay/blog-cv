@@ -139,6 +139,7 @@ export const courseResources = sqliteTable('course_resources', {
   title: text('title').notNull(),
   url: text('url').notNull(),
   description: text('description'),
+  sessionNumber: integer('session_number'),
 });
 
 // ── Better Auth tables ───────────────────────────────────────────────────────

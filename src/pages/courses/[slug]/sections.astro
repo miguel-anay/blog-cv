@@ -61,7 +61,7 @@ const sections = course.sections ?? [];
                   title={section.title}
                   description={section.description}
                   resourceCount={section.resources.length}
-                  href={`/courses/${slug}/#section-${section.id}`}
+                  href={`/courses/${slug}/?section=${section.id}`}
                   index={i + 1}
                 />
               ))}

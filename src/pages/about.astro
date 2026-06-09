@@ -357,7 +357,7 @@ const lastUpdate = "2026-05-28";
       .about-hero__inner {
         max-width: var(--max-w);
         margin: 0 auto;
-        padding: 72px var(--pad-x);
+        padding: var(--hero-pad-y) var(--pad-x);
         display: grid;
         grid-template-columns: 1.2fr 1fr;
         gap: 64px;
@@ -590,6 +590,9 @@ const lastUpdate = "2026-05-28";
       .stack-row:last-child { border-bottom: 0; }
       .stack-k { color: var(--accent); }
       .stack-v { color: var(--text); }
+      @media (max-width: 600px) {
+        .stack-row { grid-template-columns: 1fr; gap: 4px; }
+      }
 
       .share-block { display: flex; flex-direction: column; gap: 20px; }
       .share-intro {

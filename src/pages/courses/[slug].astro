@@ -6,6 +6,7 @@ import MagneticCursor from '../../components/MagneticCursor.astro';
 import SectionList from '../../features/courses/components/SectionList.astro';
 import CourseNav from '../../features/courses/components/CourseNav.astro';
 import { getCourseBySlug } from '../../lib/api';
+import { groupSessions } from '../../features/courses/lib/sessions';
 
 const { slug } = Astro.params;
 if (!slug) return Astro.redirect('/courses');
@@ -23,6 +24,21 @@ const levelLabel: Record<string, string> = {
   intermediate: 'intermedio',
   advanced: 'avanzado',
 };
+
+const isDiplomado = course.type === 'diplomado';
+let activeSectionId: number | null = null;
+
+if (isDiplomado && course.sections?.length) {
+  const param = Astro.url.searchParams.get('section');
+  const parsed = param ? Number(param) : NaN;
+  const valid = !isNaN(parsed) && course.sections.some((s) => s.id === parsed);
+  activeSectionId = valid ? parsed : course.sections[0].id;
+}
+
+const activeSection = isDiplomado
+  ? (course.sections ?? []).find((s) => s.id === activeSectionId) ?? null
+  : null;
+const sessions = groupSessions(activeSection?.resources ?? []);
 ---
 
 <!doctype html>
@@ -44,7 +60,7 @@ const levelLabel: Record<string, string> = {
           <div class="course-meta">
             <span class="course-level">{levelLabel[course.level] ?? course.level}</span>
             <span class="course-sep">·</span>
-            <span>{course.sections?.length ?? 0} secciones</span>
+            <span>{course.sections?.length ?? 0} {isDiplomado ? 'semanas' : 'secciones'}</span>
             <span class="course-sep">·</span>
             <span>{totalResources} recursos</span>
           </div>
@@ -66,8 +82,13 @@ const levelLabel: Record<string, string> = {
       <div class="course-body">
         <div class="course-body__inner">
           {(course.sections?.length ?? 0) > 0 && (
-            <aside class="course-sidebar">
-              <CourseNav sections={course.sections!} />
+            <aside class="course-sidebar" {...(isDiplomado ? { 'data-diplomado': '' } : {})}>
+              <CourseNav
+                sections={course.sections!}
+                activeSectionId={activeSectionId}
+                isDiplomado={isDiplomado}
+                sessions={sessions}
+              />
             </aside>
           )}
 
@@ -78,7 +99,10 @@ const levelLabel: Record<string, string> = {
                 <span>este curso todavía no tiene secciones.</span>
               </div>
             ) : (
-              <SectionList sections={course.sections!} />
+              <SectionList
+                sections={course.sections!}
+                activeSectionId={activeSectionId}
+              />
             )}
           </article>
         </div>
@@ -189,6 +213,15 @@ const levelLabel: Record<string, string> = {
           border-radius: 6px;
           padding: 16px;
           background: var(--bg-raised);
+        }
+        aside[data-diplomado] {
+          position: sticky;
+          top: 0;
+          z-index: 50;
+          border-radius: 0;
+          padding: 0;
+          background: transparent;
+          border: none;
         }
       }
     </style>
