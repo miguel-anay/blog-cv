@@ -17,13 +17,12 @@ context:
   monorepo: pnpm workspaces (root = Astro, blog-api/ = Hono backend)
 
 testing:
-  strict_tdd: false
-  reason: "Playwright installed but not configured. Test script is a no-op. No vitest/jest present."
-  unit: unavailable
-  integration: unavailable
-  e2e: partial (Playwright installed, no test scripts)
-  coverage: unavailable
-  quality_gate: "npm run type-check && npm run build"
+  strict_tdd: true
+  unit: available
+  integration: available
+  e2e: available (Playwright)
+  coverage: available
+  quality_gate: "npm run type-check && npm run build && npm run test"
   linter: "npm run lint (astro check)"
   type_checker: "npm run type-check (tsc --noEmit)"
 
