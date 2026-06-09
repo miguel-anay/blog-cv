@@ -7,8 +7,8 @@ phases_complete:
   - spec
   - design
   - apply
-phases_pending:
   - verify
+phases_pending:
   - archive
 stack:
   auth_library: better-auth
@@ -18,8 +18,6 @@ stack:
   framework: astro
   social_providers:
     - google
-    - facebook
-    - linkedin
 delivery_strategy: single-pr
 engram_project: blog
 engram_topic: sdd/better-auth

@@ -20,14 +20,6 @@ export const auth = betterAuth({
       clientId: import.meta.env.GOOGLE_CLIENT_ID ?? process.env.GOOGLE_CLIENT_ID ?? '',
       clientSecret: import.meta.env.GOOGLE_CLIENT_SECRET ?? process.env.GOOGLE_CLIENT_SECRET ?? '',
     },
-    facebook: {
-      clientId: import.meta.env.FACEBOOK_CLIENT_ID ?? process.env.FACEBOOK_CLIENT_ID ?? '',
-      clientSecret: import.meta.env.FACEBOOK_CLIENT_SECRET ?? process.env.FACEBOOK_CLIENT_SECRET ?? '',
-    },
-    linkedin: {
-      clientId: import.meta.env.LINKEDIN_CLIENT_ID ?? process.env.LINKEDIN_CLIENT_ID ?? '',
-      clientSecret: import.meta.env.LINKEDIN_CLIENT_SECRET ?? process.env.LINKEDIN_CLIENT_SECRET ?? '',
-    },
   },
 });
 

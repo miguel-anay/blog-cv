@@ -56,6 +56,6 @@ Chain strategy: single-to-main
 
 ## Phase 8: Verificación
 
-- [ ] 8.1 Ejecutar checklist de `verification.md`
-- [ ] 8.2 Crear `verify-report.md` con resultados
+- [x] 8.1 Ejecutar checklist de `verification.md`
+- [x] 8.2 Crear `verify-report.md` con resultados
 - [ ] 8.3 Archivar el cambio
