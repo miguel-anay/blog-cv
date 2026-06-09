@@ -1,0 +1,23 @@
+---
+change: better-auth
+status: implemented
+artifact_store: hybrid
+phases_complete:
+  - propose
+  - spec
+  - design
+  - apply
+  - verify
+phases_pending:
+  - archive
+stack:
+  auth_library: better-auth
+  adapter: drizzle
+  db: turso
+  db_driver: "@libsql/client"
+  framework: astro
+  social_providers:
+    - google
+delivery_strategy: single-pr
+engram_project: blog
+engram_topic: sdd/better-auth
