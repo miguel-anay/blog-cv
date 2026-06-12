@@ -1,10 +1,7 @@
 import { Resend } from 'resend';
 
 function getResend(): Resend {
-  const apiKey =
-    (typeof import.meta !== 'undefined' ? (import.meta as Record<string, unknown>)?.env?.RESEND_API_KEY : undefined) as
-      | string
-      | undefined ?? process.env.RESEND_API_KEY;
+  const apiKey = import.meta.env.RESEND_API_KEY ?? process.env.RESEND_API_KEY;
   if (!apiKey) throw new Error('RESEND_API_KEY is not set');
   return new Resend(apiKey);
 }
@@ -12,10 +9,7 @@ function getResend(): Resend {
 export async function sendMagicLinkEmail(params: { email: string; url: string }): Promise<void> {
   const { email, url } = params;
 
-  const fromEmail =
-    (typeof import.meta !== 'undefined' ? (import.meta as Record<string, unknown>)?.env?.RESEND_FROM_EMAIL : undefined) as
-      | string
-      | undefined ?? process.env.RESEND_FROM_EMAIL ?? 'noreply@miguel-anay.nom.pe';
+  const fromEmail = import.meta.env.RESEND_FROM_EMAIL ?? process.env.RESEND_FROM_EMAIL ?? 'noreply@miguel-anay.nom.pe';
 
   try {
     const resend = getResend();
