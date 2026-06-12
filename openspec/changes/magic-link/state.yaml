@@ -1,0 +1,22 @@
+---
+change: magic-link
+status: proposed
+artifact_store: hybrid
+phases_complete:
+  - propose
+  - spec
+  - design
+  - tasks
+  - apply
+  - verify
+phases_pending:
+  - archive
+stack:
+  auth_library: better-auth
+  magic_link_plugin: built-in
+  email_provider: resend
+  adapter: drizzle
+  db: turso
+  framework: astro
+delivery_strategy: single-pr
+engram_project: blog-cv

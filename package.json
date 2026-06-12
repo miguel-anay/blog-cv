@@ -13,6 +13,9 @@
     "test": "playwright test",
     "test:ui": "playwright test --ui",
     "test:report": "playwright show-report",
+    "test:unit": "vitest run",
+    "test:unit:watch": "vitest",
+    "test:unit:coverage": "vitest run --coverage",
     "lint": "npm run check",
     "validate": "npm run type-check && npm run build"
   },
@@ -33,13 +36,16 @@
     "marked": "^18.0.4",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "resend": "^6.12.4",
     "sharp": "^0.34.3",
     "tailwindcss": "^4.1.14"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.9",
     "@playwright/test": "^1.60.0",
+    "@vitest/coverage-v8": "^4.1.8",
     "playwright": "^1.60.0",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.8"
   }
 }
