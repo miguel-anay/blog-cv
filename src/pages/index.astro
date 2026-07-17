@@ -135,7 +135,7 @@ const lastUpdated = allArticles[0]?.publishedAt
             </div>
             {featured.coverUrl && (
               <div class="featured__r">
-                <img src={featured.coverUrl} alt={featured.coverAlt ?? featured.title} loading="lazy" />
+                <img src={featured.coverUrl} alt={featured.coverAlt ?? featured.title} loading="lazy" width="1200" height="630" />
               </div>
             )}
           </a>
@@ -247,9 +247,8 @@ const lastUpdated = allArticles[0]?.publishedAt
           }
         });
 
-        // Lock height before clearing to prevent CLS, then make visible
+        // Lock height before clearing to prevent CLS during retype
         heroTitle.style.minHeight = heroTitle.offsetHeight + 'px';
-        heroTitle.style.visibility = 'visible';
 
         // Clear and retype
         heroTitle.innerHTML = '';
