@@ -1055,13 +1055,6 @@ hr {
   z-index: 1;
 }
 
-/* Hero title — visibility: hidden prevents CLS while SplitText loads. */
-/* JS will restore visibility after fonts are ready and the split runs. */
-.hero__title {
-  visibility: hidden;
-  min-height: 1.2em;
-}
-
 /* ============================================================
    === GSAP: Button Shimmer ===
    Pseudo-element sweep on .btn-primary hover.
@@ -1194,7 +1187,6 @@ hr {
     transition: none;
   }
 
-  .hero__title,
   .cv-name,
   .about-title {
     visibility: visible;

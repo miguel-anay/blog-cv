@@ -1,11 +1,11 @@
 ---
 // Matrix digital rain intro — pure Canvas 2D
-// Shows once per session (sessionStorage). Auto-dismisses after 5 seconds.
+// Shows once per session (sessionStorage). Dismisses on real page load,
+// bounded by a minimum display time and a hard safety timeout.
 ---
 
 <div id="matrix-intro" class="mxintro">
   <canvas id="matrix-canvas"></canvas>
-  <p id="matrix-text" class="mxintro__text" aria-hidden="true"></p>
 </div>
 
 <style>
@@ -25,19 +25,6 @@
     width: 100%;
     height: 100%;
   }
-
-  .mxintro__text {
-    position: relative;
-    z-index: 1;
-    font-family: 'JetBrains Mono', 'Courier New', monospace;
-    font-size: clamp(18px, 3vw, 32px);
-    font-weight: 700;
-    color: #7cf08c;
-    text-shadow: 0 0 20px rgba(124, 240, 140, 0.9), 0 0 40px rgba(124, 240, 140, 0.4);
-    letter-spacing: 0.05em;
-    margin: 0;
-    white-space: nowrap;
-  }
 </style>
 
 <script>
@@ -45,11 +32,13 @@
 
   const intro = document.getElementById('matrix-intro') as HTMLElement | null;
   const canvas = document.getElementById('matrix-canvas') as HTMLCanvasElement | null;
-  const textEl = document.getElementById('matrix-text') as HTMLParagraphElement | null;
 
-  if (!intro || !canvas || !textEl) {
+  if (!intro || !canvas) {
     // not rendered
   } else if (sessionStorage.getItem('mx-intro-done')) {
+    intro.remove();
+  } else if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    sessionStorage.setItem('mx-intro-done', '1');
     intro.remove();
   } else {
     // --- Canvas rain ---
@@ -91,21 +80,30 @@
       }
     };
 
-    const rainTimer = setInterval(draw, 33);
+    // --- rAF loop, throttled to ~30fps ---
+    const FRAME_INTERVAL = 33;
+    let lastFrameTime = 0;
+    let rafId = 0;
 
-    // --- Typewriter ---
-    const MESSAGE = 'Rubber duck debugging';
-    let i = 0;
-    const typeTimer = setInterval(() => {
-      textEl.textContent += MESSAGE[i];
-      i++;
-      if (i >= MESSAGE.length) clearInterval(typeTimer);
-    }, 80);
+    const loop = (now: number) => {
+      if (now - lastFrameTime >= FRAME_INTERVAL) {
+        lastFrameTime = now;
+        draw();
+      }
+      rafId = requestAnimationFrame(loop);
+    };
+    rafId = requestAnimationFrame(loop);
 
-    // --- Dismiss after 5s ---
-    setTimeout(() => {
-      clearInterval(rainTimer);
-      clearInterval(typeTimer);
+    // --- Dismiss tied to real page load, bounded by min/max display time ---
+    const MIN_DISPLAY_MS = 350;
+    const MAX_DISPLAY_MS = 2800;
+    const startTime = performance.now();
+    let dismissed = false;
+
+    const dismiss = () => {
+      if (dismissed) return;
+      dismissed = true;
+      cancelAnimationFrame(rafId);
       window.removeEventListener('resize', resize);
       sessionStorage.setItem('mx-intro-done', '1');
       gsap.to(intro, {
@@ -114,6 +112,25 @@
         ease: 'power2.inOut',
         onComplete: () => intro.remove(),
       });
-    }, 5000);
+    };
+
+    const tryDismiss = () => {
+      const elapsed = performance.now() - startTime;
+      if (elapsed < MIN_DISPLAY_MS) {
+        setTimeout(dismiss, MIN_DISPLAY_MS - elapsed);
+      } else {
+        dismiss();
+      }
+    };
+
+    if (document.readyState === 'complete') {
+      // Script runs before paint, so the load event may have already fired.
+      setTimeout(tryDismiss, 0);
+    } else {
+      window.addEventListener('load', tryDismiss);
+    }
+
+    // Hard safety cap — never block longer than this regardless of `load`.
+    setTimeout(dismiss, MAX_DISPLAY_MS);
   }
 </script>
