@@ -1,0 +1,105 @@
+---
+import QuizShell from '../../../../../layouts/QuizShell.astro';
+import ExamSummaryPanel from '../../../../../features/exams/components/ExamSummaryPanel.astro';
+import { getExamBySlug, getAttemptById, getAttemptResult } from '../../../../../lib/exam-api';
+
+const { slug, attemptId: attemptIdParam } = Astro.params;
+if (!slug) return Astro.redirect('/exams');
+
+const user = Astro.locals.user;
+if (!user) return Astro.redirect('/login?redirect=' + encodeURIComponent(Astro.url.pathname));
+
+const attemptId = Number(attemptIdParam);
+if (!Number.isInteger(attemptId) || attemptId <= 0) {
+  return new Response(null, { status: 404, statusText: 'Not Found' });
+}
+
+// Ownership check (REQ-008) — getAttemptById is owner-scoped in its query, so
+// a non-owner or a nonexistent attempt both resolve to `null` here, same
+// pattern as the attempt-taking page.
+const attempt = await getAttemptById(attemptId, user.id);
+if (!attempt) return new Response(null, { status: 404, statusText: 'Not Found' });
+
+const exam = await getExamBySlug(slug);
+// Defends against a mismatched URL (valid attempt id, wrong exam slug) as
+// well as a missing exam.
+if (!exam || exam.id !== attempt.examId) {
+  return new Response(null, { status: 404, statusText: 'Not Found' });
+}
+
+// GET must stay side-effect-free — never auto-submit here. If the attempt
+// hasn't been submitted yet, send the user back to the attempt page instead
+// of scoring it on their behalf.
+if (!attempt.submittedAt) {
+  return Astro.redirect(`/exams/${slug}/attempt/${attempt.id}`);
+}
+
+// getAttemptResult is also owner-scoped and read-only (no auto-submit); it
+// only returns null if the attempt isn't submitted, which we've already
+// ruled out above, but guard defensively anyway.
+const result = await getAttemptResult(attemptId, user.id);
+if (!result) return new Response(null, { status: 404, statusText: 'Not Found' });
+---
+
+<QuizShell title={`${exam.title} — resultados`} description={exam.description}>
+  <div class="results-page">
+    <header class="results-page__header">
+      <p class="results-page__eyebrow">Resultados</p>
+      <h1 class="results-page__title">{exam.title}</h1>
+    </header>
+
+    <ExamSummaryPanel
+      variant="results"
+      score={result.score}
+      correctCount={result.correctCount}
+      totalQuestions={result.totalQuestions}
+      passScorePercent={result.passScorePercent}
+      passed={result.passed}
+      questions={result.questions}
+    />
+
+    <a href={`/exams/${slug}`} class="results-page__back">← Volver al examen</a>
+  </div>
+</QuizShell>
+
+<style>
+  .results-page {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .results-page__header {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .results-page__eyebrow {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin: 0;
+  }
+
+  .results-page__title {
+    font-family: var(--font-sans);
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--text-strong);
+    margin: 0;
+  }
+
+  .results-page__back {
+    align-self: flex-start;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .results-page__back:hover {
+    color: var(--accent);
+  }
+</style>
