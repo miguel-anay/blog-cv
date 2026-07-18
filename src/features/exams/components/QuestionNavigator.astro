@@ -1,0 +1,94 @@
+---
+// Numbered grid of question buttons. Renders the server-known state
+// (answered / flagged) for every question up front. The "current question"
+// highlight is a client-only concern — attempt-controller.ts (Phase 4) toggles
+// an `.is-current` class based on `data-question-index`; nothing here decides
+// which question is "current" at render time.
+
+export interface QuestionState {
+  index: number;
+  answered: boolean;
+  flagged: boolean;
+}
+
+export interface Props {
+  totalQuestions: number;
+  initialStates: QuestionState[];
+}
+
+const { totalQuestions, initialStates } = Astro.props;
+const stateByIndex = new Map(initialStates.map((s) => [s.index, s]));
+const questions: QuestionState[] = Array.from({ length: totalQuestions }, (_, i) => {
+  const index = i + 1;
+  return stateByIndex.get(index) ?? { index, answered: false, flagged: false };
+});
+---
+
+<nav class="question-nav" aria-label="Navegador de preguntas" data-question-navigator>
+  <ol class="question-nav__grid">
+    {questions.map((q) => (
+      <li>
+        <button
+          type="button"
+          class="question-nav__btn"
+          data-question-index={q.index}
+          data-answered={q.answered}
+          data-flagged={q.flagged}
+          aria-label={`Pregunta ${q.index}`}
+        >
+          {q.index}
+        </button>
+      </li>
+    ))}
+  </ol>
+</nav>
+
+<style>
+  .question-nav__grid {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
+    gap: 6px;
+    padding: 0;
+    margin: 0;
+  }
+
+  .question-nav__btn {
+    width: 100%;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-muted);
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.12s, border-color 0.12s, color 0.12s;
+  }
+
+  .question-nav__btn:hover {
+    border-color: var(--accent);
+    color: var(--text);
+  }
+
+  .question-nav__btn[data-answered='true'] {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-color: rgba(124, 240, 140, 0.3);
+  }
+
+  .question-nav__btn[data-flagged='true'] {
+    border-color: #ffb454;
+    box-shadow: inset 0 0 0 1px #ffb454;
+  }
+
+  .question-nav__btn.is-current {
+    background: var(--accent);
+    color: var(--accent-on);
+    border-color: var(--accent);
+    font-weight: 700;
+  }
+</style>

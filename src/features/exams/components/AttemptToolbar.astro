@@ -1,0 +1,111 @@
+---
+// Page-level controls for an in-progress attempt. Per the approved design,
+// there is intentionally NO standalone "Submit" button here — submission only
+// happens from inside the Quiz Summary panel or automatically on timeout.
+// Wiring (click handlers) is added by attempt-controller.ts in Phase 4; this
+// component only exposes `data-action` hooks for that controller to bind to.
+
+export interface Props {
+  totalQuestions: number;
+}
+
+const { totalQuestions } = Astro.props;
+---
+
+<div class="attempt-toolbar" data-attempt-toolbar data-total-questions={totalQuestions}>
+  <button type="button" class="attempt-toolbar__btn" data-action="flag" aria-pressed="false">
+    <span class="attempt-toolbar__icon" aria-hidden="true">&#9873;</span>
+    Marcar para revisar
+  </button>
+  <button type="button" class="attempt-toolbar__btn" data-action="pause">
+    <span class="attempt-toolbar__icon" aria-hidden="true">&#10074;&#10074;</span>
+    Pausar
+  </button>
+  <button type="button" class="attempt-toolbar__btn" data-action="back">
+    <span class="attempt-toolbar__icon" aria-hidden="true">&larr;</span>
+    Atrás
+  </button>
+  <div class="attempt-toolbar__spacer"></div>
+  <button type="button" class="attempt-toolbar__btn attempt-toolbar__btn--primary" data-action="save-next">
+    Guardar y siguiente
+    <span class="attempt-toolbar__icon" aria-hidden="true">&rarr;</span>
+  </button>
+  <button type="button" class="attempt-toolbar__btn attempt-toolbar__btn--accent" data-action="quiz-summary">
+    Resumen del examen
+  </button>
+</div>
+
+<style>
+  .attempt-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 16px 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .attempt-toolbar__spacer {
+    flex: 1;
+  }
+
+  .attempt-toolbar__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--text);
+    background: transparent;
+    padding: 10px 16px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: border-color 0.12s, color 0.12s, background 0.12s;
+  }
+
+  .attempt-toolbar__btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .attempt-toolbar__btn[aria-pressed='true'] {
+    border-color: #ffb454;
+    color: #ffb454;
+  }
+
+  .attempt-toolbar__btn--primary {
+    background: var(--accent);
+    color: var(--accent-on);
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+
+  .attempt-toolbar__btn--primary:hover {
+    filter: brightness(1.08);
+    color: var(--accent-on);
+  }
+
+  .attempt-toolbar__btn--accent {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .attempt-toolbar__icon {
+    font-size: 12px;
+    line-height: 1;
+  }
+
+  @media (max-width: 600px) {
+    .attempt-toolbar {
+      gap: 8px;
+    }
+    .attempt-toolbar__spacer {
+      display: none;
+    }
+    .attempt-toolbar__btn {
+      flex: 1 1 auto;
+      justify-content: center;
+    }
+  }
+</style>
