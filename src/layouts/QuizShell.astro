@@ -1,0 +1,35 @@
+---
+// Minimal-chrome layout for exam attempts and results — no Header/Footer/MagneticCursor.
+// Keeps the reader focused on the timer and questions instead of site navigation.
+import BaseHead from '../components/seo/BaseHead.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <BaseHead title={title} description={description} />
+  </head>
+  <body class="quiz-shell">
+    <main class="quiz-shell__main">
+      <slot />
+    </main>
+
+    <style>
+      .quiz-shell {
+        min-height: 100vh;
+      }
+      .quiz-shell__main {
+        max-width: var(--max-w);
+        margin: 0 auto;
+        padding: 32px var(--pad-x) 64px;
+      }
+    </style>
+  </body>
+</html>
