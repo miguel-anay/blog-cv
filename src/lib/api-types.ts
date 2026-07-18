@@ -117,6 +117,106 @@ export interface Course {
   sectionCount?: number;
 }
 
+// ── Exams ──────────────────────────────────────────────────────────────────
+
+export interface ExamSummary {
+  id: number;
+  slug: string;
+  title: string;
+  description: string;
+  coverUrl?: string | null;
+  level: string;
+  timeLimitSeconds: number;
+  passScorePercent: number;
+  publishedAt?: string | null;
+  questionCount: number;
+}
+
+export interface ExamOption {
+  id: number;
+  order: number;
+  text: string;
+}
+
+/** Same shape as the listing — kept as its own name because the detail page is a distinct call site. */
+export type ExamDetail = ExamSummary;
+
+/** A single question rendered for an in-progress attempt — never carries isCorrect. */
+export interface AttemptQuestion {
+  id: number;
+  order: number;
+  prompt: string;
+  allowMultiple: boolean;
+  options: ExamOption[];
+  selectedOptionId?: number | null;
+  flaggedForReview: boolean;
+}
+
+// Timestamp fields below are native Date objects (as returned by drizzle's
+// `{ mode: 'timestamp' }` integer columns) rather than strings — exam-api.ts
+// is called directly from Astro frontmatter (no JSON boundary), and callers
+// like TimerDisplay need raw epoch ms (`.getTime()`) for client-side timer math.
+
+export interface ExamAttempt {
+  id: number;
+  examId: number;
+  userId: string;
+  timeLimitSeconds: number;
+  startedAt: Date;
+  pausedAt: Date | null;
+  pausedSeconds: number;
+  submittedAt: Date | null;
+  autoSubmitted: boolean;
+  score: number | null;
+  correctCount: number | null;
+  totalQuestions: number | null;
+  createdAt: Date;
+}
+
+export interface ExamAttemptSummary {
+  id: number;
+  startedAt: Date;
+  submittedAt: Date | null;
+  autoSubmitted: boolean;
+  score: number | null;
+  correctCount: number | null;
+  totalQuestions: number | null;
+}
+
+export interface ExamResultQuestion {
+  id: number;
+  order: number;
+  prompt: string;
+  explanation?: string | null;
+  options: Array<ExamOption & { isCorrect: boolean }>;
+  selectedOptionId: number | null;
+  isCorrect: boolean;
+  flaggedForReview: boolean;
+}
+
+export interface ExamResult {
+  attemptId: number;
+  examId: number;
+  examSlug: string;
+  examTitle: string;
+  score: number;
+  correctCount: number;
+  totalQuestions: number;
+  passScorePercent: number;
+  passed: boolean;
+  submittedAt: Date;
+  autoSubmitted: boolean;
+  questions: ExamResultQuestion[];
+}
+
+export interface AttemptStatus {
+  remainingSeconds: number;
+  paused: boolean;
+  submitted: boolean;
+  expired: boolean;
+  redirectTo?: string;
+}
+
 // ── Site Config ────────────────────────────────────────────────────────────
 export interface SiteConfig {
   id: number;

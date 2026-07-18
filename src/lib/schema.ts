@@ -1,4 +1,4 @@
-import { sqliteTable, integer, text, primaryKey } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, integer, text, primaryKey, uniqueIndex } from 'drizzle-orm/sqlite-core';
 
 export const authors = sqliteTable('authors', {
   id: integer('id').primaryKey({ autoIncrement: true }),
@@ -141,6 +141,70 @@ export const courseResources = sqliteTable('course_resources', {
   description: text('description'),
   sessionNumber: integer('session_number'),
 });
+
+// ── Exams module ─────────────────────────────────────────────────────────────
+
+export const exams = sqliteTable('exams', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  slug: text('slug').unique().notNull(),
+  title: text('title').notNull(),
+  description: text('description').notNull(),
+  coverUrl: text('cover_url'),
+  level: text('level').notNull().default('beginner'),
+  timeLimitSeconds: integer('time_limit_seconds').notNull().default(5400),
+  passScorePercent: integer('pass_score_percent').notNull().default(70),
+  publishedAt: text('published_at'),
+  createdAt: text('created_at').notNull().default("(datetime('now'))"),
+  updatedAt: text('updated_at').notNull().default("(datetime('now'))"),
+});
+
+export const examQuestions = sqliteTable('exam_questions', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  examId: integer('exam_id').notNull().references(() => exams.id, { onDelete: 'cascade' }),
+  order: integer('order').notNull().default(0),
+  prompt: text('prompt').notNull(),
+  explanation: text('explanation'),
+  allowMultiple: integer('allow_multiple', { mode: 'boolean' }).notNull().default(false),
+});
+
+export const examOptions = sqliteTable('exam_options', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  questionId: integer('question_id').notNull().references(() => examQuestions.id, { onDelete: 'cascade' }),
+  order: integer('order').notNull().default(0),
+  text: text('text').notNull(),
+  isCorrect: integer('is_correct', { mode: 'boolean' }).notNull().default(false),
+});
+
+export const examAttempts = sqliteTable('exam_attempts', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  examId: integer('exam_id').notNull().references(() => exams.id, { onDelete: 'cascade' }),
+  userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+  timeLimitSeconds: integer('time_limit_seconds').notNull(),
+  startedAt: integer('started_at', { mode: 'timestamp' }).notNull(),
+  pausedAt: integer('paused_at', { mode: 'timestamp' }),
+  pausedSeconds: integer('paused_seconds').notNull().default(0),
+  submittedAt: integer('submitted_at', { mode: 'timestamp' }),
+  autoSubmitted: integer('auto_submitted', { mode: 'boolean' }).notNull().default(false),
+  score: integer('score'),
+  correctCount: integer('correct_count'),
+  totalQuestions: integer('total_questions'),
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+});
+
+export const examAnswers = sqliteTable(
+  'exam_answers',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    attemptId: integer('attempt_id').notNull().references(() => examAttempts.id, { onDelete: 'cascade' }),
+    questionId: integer('question_id').notNull().references(() => examQuestions.id, { onDelete: 'cascade' }),
+    selectedOptionId: integer('selected_option_id').references(() => examOptions.id),
+    flaggedForReview: integer('flagged_for_review', { mode: 'boolean' }).notNull().default(false),
+    answeredAt: integer('answered_at', { mode: 'timestamp' }),
+  },
+  (t) => ({
+    attemptQuestionIdx: uniqueIndex('exam_answers_attempt_question_idx').on(t.attemptId, t.questionId),
+  }),
+);
 
 // ── Better Auth tables ───────────────────────────────────────────────────────
 
