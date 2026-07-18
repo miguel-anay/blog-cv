@@ -147,7 +147,7 @@ export function initAttemptController(): void {
       // triggers its lazy auto-finalize (getAttemptStatus finalizes when
       // remaining <= 0 and not paused) and confirms via redirect (REQ-003/006).
       stopIntervals();
-      void resync();
+      void resyncUntilFinalized();
     }
   }
 
@@ -167,27 +167,87 @@ export function initAttemptController(): void {
       renderTimer(currentRemaining());
 
       if (data.paused !== paused) {
-        // Cross-tab pause/resume detected — reflect it locally.
+        // Cross-tab pause/resume detected — reflect it locally. Resync
+        // polling itself keeps running either way (see startResyncPolling
+        // being independent of the tick interval) so a later remote resume
+        // is still picked up while this tab shows "paused".
         applyPaused(data.paused);
-        if (data.paused) stopIntervals();
-        else startIntervals();
+        if (data.paused) stopTick();
+        else startTick();
       }
     } catch {
       // Network hiccup — keep the local estimate; the next resync retries.
     }
   }
 
-  function stopIntervals(): void {
+  // Keeps polling GET status until the server confirms the attempt is
+  // finalized. A single one-shot request here would otherwise leave the page
+  // frozen at 00:00:00 forever if that one fetch happened to fail.
+  async function resyncUntilFinalized(): Promise<void> {
+    const maxAttempts = 20; // ~1 minute at 3s between retries
+    for (let i = 0; i < maxAttempts; i++) {
+      try {
+        const res = await fetch(`/api/exams/attempts/${attemptId}/status`);
+        if (res.ok) {
+          const data: AttemptStatusResponse = await res.json();
+          if (data.submitted || data.expired) {
+            finalizeAndRedirect();
+            return;
+          }
+
+          anchorMs = Date.now();
+          anchorRemaining = data.remainingSeconds;
+          renderTimer(currentRemaining());
+
+          if (data.paused) {
+            // Paused right at expiry — the server won't auto-finalize while
+            // paused. Reflect that and keep resync polling for a later
+            // resume/expiry instead of retrying this loop.
+            applyPaused(true);
+            startResyncPolling();
+            return;
+          }
+          if (data.remainingSeconds > 0) {
+            // Clock drift resolved itself (server had more time than our
+            // local estimate) — resume normal polling instead of looping.
+            startIntervals();
+            return;
+          }
+        }
+      } catch {
+        // Network hiccup — retry after the backoff below.
+      }
+      await new Promise((resolve) => window.setTimeout(resolve, 3000));
+    }
+    // Exhausted retries — surface a visible error instead of a silently
+    // frozen page; the user's answers up to this point are already saved.
+    window.alert('No se pudo confirmar el envío del examen. Revisá tu conexión y recargá la página.');
+  }
+
+  function stopTick(): void {
     if (tickIntervalId !== undefined) window.clearInterval(tickIntervalId);
-    if (resyncIntervalId !== undefined) window.clearInterval(resyncIntervalId);
     tickIntervalId = undefined;
+  }
+
+  function startTick(): void {
+    if (tickIntervalId === undefined) tickIntervalId = window.setInterval(tick, TICK_INTERVAL_MS);
+  }
+
+  function startResyncPolling(): void {
+    if (resyncIntervalId === undefined) {
+      resyncIntervalId = window.setInterval(() => void resync(), RESYNC_INTERVAL_MS);
+    }
+  }
+
+  function stopIntervals(): void {
+    stopTick();
+    if (resyncIntervalId !== undefined) window.clearInterval(resyncIntervalId);
     resyncIntervalId = undefined;
   }
 
   function startIntervals(): void {
-    stopIntervals();
-    tickIntervalId = window.setInterval(tick, TICK_INTERVAL_MS);
-    resyncIntervalId = window.setInterval(() => void resync(), RESYNC_INTERVAL_MS);
+    startTick();
+    startResyncPolling();
   }
 
   function finalizeAndRedirect(): void {
@@ -243,7 +303,9 @@ export function initAttemptController(): void {
       anchorRemaining = currentRemaining();
       anchorMs = Date.now();
       applyPaused(true);
-      stopIntervals();
+      // Only stop the 1s local tick — resync polling keeps running so a
+      // remote resume (another tab/device) is still detected while paused.
+      stopTick();
     } catch {
       // Best-effort — leave state as-is, user can retry.
     }
@@ -253,7 +315,14 @@ export function initAttemptController(): void {
     try {
       const res = await fetch(`/api/exams/attempts/${attemptId}/resume`, { method: 'POST' });
       const data: ResumeResponse = await res.json().catch(() => ({ ok: false }));
-      if (!data.ok) return; // no-op: wasn't paused, or already submitted
+      if (!data.ok) {
+        // The server said no-op, which can mean "wasn't paused" — e.g. this
+        // attempt was already resumed from another tab. Resync now instead
+        // of leaving this tab stuck showing a paused UI that Reanudar can't
+        // fix.
+        await resync();
+        return;
+      }
 
       anchorMs = Date.now();
       anchorRemaining = data.remainingSeconds ?? anchorRemaining;
@@ -264,7 +333,7 @@ export function initAttemptController(): void {
         finalizeAndRedirect();
         return;
       }
-      startIntervals();
+      startTick();
     } catch {
       // Best-effort — leave state as-is, user can retry.
     }
@@ -318,7 +387,11 @@ export function initAttemptController(): void {
     updateFlagButton();
   }
 
-  async function postAnswer(questionId: number, selectedOptionId: number | null, flaggedForReview: boolean): Promise<void> {
+  // Returns whether the write was actually persisted server-side. Callers
+  // must not mark a question "answered" in the navigator on a false result —
+  // otherwise a network blip or a paused-attempt rejection would silently
+  // show credit for an answer that was never saved.
+  async function postAnswer(questionId: number, selectedOptionId: number | null, flaggedForReview: boolean): Promise<boolean> {
     try {
       const res = await fetch(`/api/exams/attempts/${attemptId}/answers`, {
         method: 'POST',
@@ -329,23 +402,28 @@ export function initAttemptController(): void {
 
       if (data.expired) {
         finalizeAndRedirect();
-        return;
+        return false;
       }
       if (data.paused) {
         // The server rejected the write because the attempt is paused (e.g.
         // paused from another tab between our last resync and this save) —
         // treat it the same as "inputs are disabled", don't silently drop it.
         applyPaused(true);
-        stopIntervals();
+        stopTick();
+        return false;
       }
+      return data.ok;
     } catch {
-      // Network failure — best-effort autosave; the next resync/navigation
-      // implicitly retries.
+      // Network failure — best-effort autosave; the next navigation/flag
+      // toggle implicitly retries, but this attempt's UI state must not
+      // claim it was saved.
+      return false;
     }
   }
 
   // Always saves — including a null selection — so a flag toggled without an
-  // answer still persists on navigation (REQ-005).
+  // answer still persists on navigation (REQ-005). Only reflects "answered"
+  // in the navigator once the server has actually confirmed the write.
   async function saveCurrentAnswerIfPresent(): Promise<void> {
     if (disabled) return;
     const card = getQuestionCard(currentIndex);
@@ -355,8 +433,8 @@ export function initAttemptController(): void {
     const selectedOptionId = getSelectedOptionId(card);
     const flagged = flaggedState.get(currentIndex) ?? false;
 
-    await postAnswer(questionId, selectedOptionId, flagged);
-    updateNavState(currentIndex, selectedOptionId != null, flagged);
+    const saved = await postAnswer(questionId, selectedOptionId, flagged);
+    if (saved) updateNavState(currentIndex, selectedOptionId != null, flagged);
   }
 
   // ── Quiz Summary & submission ─────────────────────────────────────────
@@ -428,9 +506,14 @@ export function initAttemptController(): void {
       if (!card) return;
       const questionId = Number(card.dataset.questionId);
       const selectedOptionId = getSelectedOptionId(card);
-      updateNavState(currentIndex, selectedOptionId != null, newFlag);
-      updateFlagButton();
-      void postAnswer(questionId, selectedOptionId, newFlag);
+      // Only reflect the flag toggle once the server confirms the write —
+      // an optimistic update here could show a flag that was never saved.
+      void postAnswer(questionId, selectedOptionId, newFlag).then((saved) => {
+        if (saved) {
+          updateNavState(currentIndex, selectedOptionId != null, newFlag);
+          updateFlagButton();
+        }
+      });
       return;
     }
     if (action === 'back') {
@@ -485,9 +568,12 @@ export function initAttemptController(): void {
 
   showQuestion(currentIndex);
   renderTimer(currentRemaining());
+  // Resync polling always runs (even while paused) so a remote pause/resume
+  // is detected regardless of this tab's state on load.
+  startResyncPolling();
   if (paused) {
     applyPaused(true);
   } else {
-    startIntervals();
+    startTick();
   }
 }
