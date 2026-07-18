@@ -1,4 +1,4 @@
-import { eq, and, desc, count } from 'drizzle-orm';
+import { eq, and, desc, count, isNotNull } from 'drizzle-orm';
 import { getDb } from './db';
 import { exams, examQuestions, examOptions, examAttempts, examAnswers } from './schema';
 import type {
@@ -18,7 +18,11 @@ import { scoreAttempt } from '../features/exams/lib/scoring';
 export async function getExams(): Promise<ExamSummary[]> {
   try {
     const db = getDb();
-    const rows = await db.select().from(exams).orderBy(desc(exams.publishedAt));
+    const rows = await db
+      .select()
+      .from(exams)
+      .where(isNotNull(exams.publishedAt))
+      .orderBy(desc(exams.publishedAt));
     if (rows.length === 0) return [];
 
     const countRows = await db
