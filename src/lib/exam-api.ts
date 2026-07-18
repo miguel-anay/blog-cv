@@ -38,6 +38,26 @@ export async function getExams(): Promise<ExamSummary[]> {
   }
 }
 
+/**
+ * Minimal exam lookup by id — used by `POST /api/exams/attempts` to resolve the
+ * exam's slug for the post-create redirect (createAttempt only returns the
+ * attempt, not the exam's slug).
+ */
+export async function getExamById(examId: number): Promise<{ id: number; slug: string } | null> {
+  try {
+    const db = getDb();
+    const [exam] = await db
+      .select({ id: exams.id, slug: exams.slug })
+      .from(exams)
+      .where(eq(exams.id, examId))
+      .limit(1);
+    return exam ?? null;
+  } catch (err) {
+    console.error('getExamById failed:', err);
+    return null;
+  }
+}
+
 export async function getExamBySlug(slug: string): Promise<ExamDetail | null> {
   try {
     const db = getDb();
@@ -193,6 +213,28 @@ export async function getExamQuestionsForAttempt(
   } catch (err) {
     console.error('getExamQuestionsForAttempt failed:', err);
     return [];
+  }
+}
+
+/**
+ * Unscoped owner lookup — lets API routes tell "attempt doesn't exist" (404)
+ * apart from "attempt belongs to someone else" (403) without leaking any
+ * attempt data. All other attempt functions are owner-scoped in their query
+ * and return `null` for both cases, which isn't enough to pick the right
+ * HTTP status per REQ-008.
+ */
+export async function getAttemptOwnerId(attemptId: number): Promise<string | null> {
+  try {
+    const db = getDb();
+    const [row] = await db
+      .select({ userId: examAttempts.userId })
+      .from(examAttempts)
+      .where(eq(examAttempts.id, attemptId))
+      .limit(1);
+    return row?.userId ?? null;
+  } catch (err) {
+    console.error('getAttemptOwnerId failed:', err);
+    return null;
   }
 }
 
