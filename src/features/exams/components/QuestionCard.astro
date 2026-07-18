@@ -66,6 +66,13 @@ const promptId = `question-${questionId}-prompt`;
     gap: 20px;
   }
 
+  /* Author `display` always wins over the UA stylesheet's `[hidden] { display: none }`,
+     regardless of specificity — without this override, the controller's `card.hidden =
+     true/false` toggle has no visual effect. */
+  .question-card[hidden] {
+    display: none;
+  }
+
   .question-card__meta {
     font-family: var(--font-mono);
     font-size: 12px;
