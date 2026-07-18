@@ -1,0 +1,147 @@
+---
+import QuizShell from '../../../../layouts/QuizShell.astro';
+import TimerDisplay from '../../../../features/exams/components/TimerDisplay.astro';
+import QuestionNavigator from '../../../../features/exams/components/QuestionNavigator.astro';
+import QuestionCard from '../../../../features/exams/components/QuestionCard.astro';
+import AttemptToolbar from '../../../../features/exams/components/AttemptToolbar.astro';
+import ExamSummaryPanel from '../../../../features/exams/components/ExamSummaryPanel.astro';
+import { getExamBySlug, getAttemptById, getExamQuestionsForAttempt } from '../../../../lib/exam-api';
+
+const { slug, attemptId: attemptIdParam } = Astro.params;
+if (!slug) return Astro.redirect('/exams');
+
+const user = Astro.locals.user;
+if (!user) return Astro.redirect('/login?redirect=' + encodeURIComponent(Astro.url.pathname));
+
+const attemptId = Number(attemptIdParam);
+if (!Number.isInteger(attemptId) || attemptId <= 0) {
+  return new Response(null, { status: 404, statusText: 'Not Found' });
+}
+
+// Ownership check (REQ-008) — getAttemptById is owner-scoped in its query, so
+// a non-owner or a nonexistent attempt both resolve to `null` here. At the
+// page level a single 404 for both cases is enough (unlike the API routes,
+// which must distinguish 404 vs 403 — see _lib.ts's resolveOwnedAttemptId).
+const attempt = await getAttemptById(attemptId, user.id);
+if (!attempt) return new Response(null, { status: 404, statusText: 'Not Found' });
+
+const exam = await getExamBySlug(slug);
+// Defends against a mismatched URL (valid attempt id, wrong exam slug) as
+// well as a missing exam.
+if (!exam || exam.id !== attempt.examId) {
+  return new Response(null, { status: 404, statusText: 'Not Found' });
+}
+
+// Already submitted — REQ-006/007 gate: an attempt page never re-renders a
+// finished attempt, it hands off to results instead.
+if (attempt.submittedAt) {
+  return Astro.redirect(`/exams/${slug}/attempt/${attempt.id}/results`);
+}
+
+const questions = await getExamQuestionsForAttempt(attempt.examId, attempt.id);
+const totalQuestions = questions.length;
+
+// Judgment call (documented in apply-progress): on load, the first
+// *unanswered* question is shown instead of always question 1, so resuming
+// an attempt drops the user where they left off rather than making them
+// re-page through everything they already answered. Falls back to question 1
+// if every question already has an answer (e.g. only flags remain, or the
+// user is about to review before submitting).
+const firstUnansweredIndex = questions.findIndex((q) => q.selectedOptionId == null);
+const initialQuestionIndex = firstUnansweredIndex === -1 ? 1 : firstUnansweredIndex + 1;
+
+const navigatorStates = questions.map((q, i) => ({
+  index: i + 1,
+  answered: q.selectedOptionId != null,
+  flagged: q.flaggedForReview,
+}));
+---
+
+<QuizShell title={`${exam.title} — en progreso`} description={exam.description}>
+  <div class="attempt-page" data-attempt-root data-exam-slug={slug} data-initial-question-index={initialQuestionIndex}>
+    <header class="attempt-page__header">
+      <TimerDisplay
+        timeLimitSeconds={attempt.timeLimitSeconds}
+        startedAtMs={attempt.startedAt.getTime()}
+        pausedSeconds={attempt.pausedSeconds}
+        pausedAtMs={attempt.pausedAt ? attempt.pausedAt.getTime() : null}
+        attemptId={attempt.id}
+      />
+    </header>
+
+    <div class="attempt-page__body">
+      <aside class="attempt-page__nav">
+        <QuestionNavigator totalQuestions={totalQuestions} initialStates={navigatorStates} />
+      </aside>
+
+      <div class="attempt-page__questions">
+        {questions.map((q, i) => (
+          <QuestionCard
+            questionId={q.id}
+            index={i + 1}
+            prompt={q.prompt}
+            options={q.options}
+            selectedOptionId={q.selectedOptionId}
+            total={totalQuestions}
+            initiallyVisible={i + 1 === initialQuestionIndex}
+          />
+        ))}
+      </div>
+    </div>
+
+    <AttemptToolbar totalQuestions={totalQuestions} />
+  </div>
+
+  <ExamSummaryPanel variant="overlay" totalQuestions={totalQuestions} initialStates={navigatorStates} />
+</QuizShell>
+
+<script>
+  // Static import, NOT `define:vars` — see attempt-controller.ts header for
+  // why (this project already hit and fixed that bundling trap once, in
+  // src/pages/login.astro). All initial state is read from data-* attributes
+  // at runtime instead.
+  import { initAttemptController } from '../../../../features/exams/lib/attempt-controller';
+
+  initAttemptController();
+</script>
+
+<style>
+  .attempt-page {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .attempt-page__header {
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    padding: 4px 0 16px;
+    z-index: 10;
+  }
+
+  .attempt-page__body {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 32px;
+    align-items: start;
+  }
+
+  .attempt-page__nav {
+    position: sticky;
+    top: 72px;
+  }
+
+  .attempt-page__questions {
+    min-width: 0;
+  }
+
+  @media (max-width: 800px) {
+    .attempt-page__body {
+      grid-template-columns: 1fr;
+    }
+    .attempt-page__nav {
+      position: static;
+    }
+  }
+</style>
