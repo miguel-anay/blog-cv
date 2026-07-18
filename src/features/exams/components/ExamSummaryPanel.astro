@@ -1,0 +1,398 @@
+---
+// Dual-use component (per design):
+//   - variant="overlay": client-only "Quiz Summary" overlay during an attempt.
+//     Rendered hidden; attempt-controller.ts (Phase 4) toggles it open and
+//     reuses the navigator's already-known state (no fetch). The final submit
+//     action lives here, not in AttemptToolbar — REQ-006.
+//   - variant="results": static, server-rendered results panel — no JS.
+// No client script is added in this phase; only markup + data-* hooks.
+
+import type { ExamResultQuestion } from '../../../lib/api-types';
+
+export interface QuizSummaryQuestionState {
+  index: number;
+  answered: boolean;
+  flagged: boolean;
+}
+
+interface OverlayProps {
+  variant: 'overlay';
+  totalQuestions: number;
+  initialStates?: QuizSummaryQuestionState[];
+}
+
+interface ResultsProps {
+  variant: 'results';
+  score: number;
+  correctCount: number;
+  totalQuestions: number;
+  passScorePercent: number;
+  passed: boolean;
+  questions: ExamResultQuestion[];
+}
+
+export type Props = OverlayProps | ResultsProps;
+
+const props = Astro.props;
+const { variant, totalQuestions } = props;
+
+const overlayStates: QuizSummaryQuestionState[] =
+  variant === 'overlay'
+    ? (() => {
+        const byIndex = new Map((props.initialStates ?? []).map((s) => [s.index, s]));
+        return Array.from({ length: totalQuestions }, (_, i) => {
+          const index = i + 1;
+          return byIndex.get(index) ?? { index, answered: false, flagged: false };
+        });
+      })()
+    : [];
+---
+
+{variant === 'overlay' ? (
+  <div class="exam-summary" data-exam-summary-overlay hidden>
+    <div class="exam-summary__panel" role="dialog" aria-label="Resumen del examen">
+      <div class="exam-summary__header">
+        <h2 class="exam-summary__title">Resumen del examen</h2>
+        <button type="button" class="exam-summary__close" data-action="close-summary" aria-label="Cerrar resumen">
+          &times;
+        </button>
+      </div>
+
+      <ol class="exam-summary__grid">
+        {overlayStates.map((q) => (
+          <li>
+            <button
+              type="button"
+              class="exam-summary__jump"
+              data-question-index={q.index}
+              data-answered={q.answered}
+              data-flagged={q.flagged}
+            >
+              {q.index}
+            </button>
+          </li>
+        ))}
+      </ol>
+
+      <div class="exam-summary__actions">
+        <button type="button" class="exam-summary__secondary" data-action="close-summary">
+          Seguir respondiendo
+        </button>
+        <button type="button" class="exam-summary__submit" data-action="submit-exam">
+          Enviar examen
+        </button>
+      </div>
+    </div>
+  </div>
+) : (
+  <div class="exam-results">
+    <div class={`exam-results__badge ${props.passed ? 'is-pass' : 'is-fail'}`}>
+      {props.passed ? 'Aprobado' : 'No aprobado'}
+    </div>
+    <div class="exam-results__score">
+      <span class="exam-results__score-value">{props.score}%</span>
+      <span class="exam-results__score-detail">
+        {props.correctCount} de {props.totalQuestions} correctas · mínimo para aprobar {props.passScorePercent}%
+      </span>
+    </div>
+
+    <ol class="exam-results__questions">
+      {props.questions.map((q) => (
+        <li class={`exam-results__question ${q.isCorrect ? 'is-correct' : 'is-incorrect'}`}>
+          <div class="exam-results__question-top">
+            <span class="exam-results__question-num">Pregunta {q.order}</span>
+            <span class="exam-results__question-status">
+              {q.isCorrect ? '✓ Correcta' : '✗ Incorrecta'}
+            </span>
+          </div>
+          <p class="exam-results__question-prompt">{q.prompt}</p>
+          <ul class="exam-results__options">
+            {q.options.map((option) => (
+              <li
+                class={`exam-results__option ${option.isCorrect ? 'is-correct-option' : ''} ${
+                  option.id === q.selectedOptionId ? 'is-selected' : ''
+                }`}
+              >
+                {option.text}
+              </li>
+            ))}
+          </ul>
+          {q.explanation && <p class="exam-results__explanation">{q.explanation}</p>}
+        </li>
+      ))}
+    </ol>
+  </div>
+)}
+
+<style>
+  /* ── Overlay variant ─────────────────────────────────────── */
+  .exam-summary {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 200;
+    padding: 24px;
+  }
+
+  .exam-summary__panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    max-width: 520px;
+    max-height: 80vh;
+    overflow-y: auto;
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+  }
+
+  .exam-summary__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .exam-summary__title {
+    font-family: var(--font-sans);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-strong);
+    margin: 0;
+  }
+
+  .exam-summary__close {
+    font-family: var(--font-mono);
+    font-size: 20px;
+    line-height: 1;
+    color: var(--text-muted);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 4px 8px;
+  }
+
+  .exam-summary__close:hover {
+    color: var(--accent);
+  }
+
+  .exam-summary__grid {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
+    gap: 6px;
+    padding: 0;
+    margin: 0;
+  }
+
+  .exam-summary__jump {
+    width: 100%;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-muted);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .exam-summary__jump[data-answered='true'] {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-color: rgba(124, 240, 140, 0.3);
+  }
+
+  .exam-summary__jump[data-flagged='true'] {
+    border-color: #ffb454;
+    box-shadow: inset 0 0 0 1px #ffb454;
+  }
+
+  .exam-summary__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+
+  .exam-summary__secondary {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--text);
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 10px 16px;
+    cursor: pointer;
+  }
+
+  .exam-summary__secondary:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .exam-summary__submit {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent-on);
+    background: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: 4px;
+    padding: 10px 16px;
+    cursor: pointer;
+  }
+
+  .exam-summary__submit:hover {
+    filter: brightness(1.08);
+  }
+
+  /* ── Results variant ─────────────────────────────────────── */
+  .exam-results {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .exam-results__badge {
+    display: inline-flex;
+    align-self: flex-start;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 4px 10px;
+    border-radius: 4px;
+  }
+
+  .exam-results__badge.is-pass {
+    color: var(--accent);
+    background: var(--accent-soft);
+    border: 1px solid rgba(124, 240, 140, 0.3);
+  }
+
+  .exam-results__badge.is-fail {
+    color: #f85149;
+    background: rgba(248, 81, 73, 0.12);
+    border: 1px solid rgba(248, 81, 73, 0.25);
+  }
+
+  .exam-results__score {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .exam-results__score-value {
+    font-family: var(--font-sans);
+    font-size: 40px;
+    font-weight: 800;
+    color: var(--text-strong);
+    letter-spacing: -0.02em;
+  }
+
+  .exam-results__score-detail {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .exam-results__questions {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 0;
+    margin: 0;
+  }
+
+  .exam-results__question {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 20px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg-raised);
+  }
+
+  .exam-results__question.is-correct {
+    border-left: 3px solid var(--accent);
+  }
+
+  .exam-results__question.is-incorrect {
+    border-left: 3px solid #f85149;
+  }
+
+  .exam-results__question-top {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .exam-results__question.is-correct .exam-results__question-status {
+    color: var(--accent);
+  }
+
+  .exam-results__question.is-incorrect .exam-results__question-status {
+    color: #f85149;
+  }
+
+  .exam-results__question-prompt {
+    font-family: var(--font-sans);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-strong);
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  .exam-results__options {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 0;
+    margin: 0;
+  }
+
+  .exam-results__option {
+    font-size: 14px;
+    color: var(--text-muted);
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+  }
+
+  .exam-results__option.is-correct-option {
+    border-color: rgba(124, 240, 140, 0.3);
+    color: var(--accent);
+  }
+
+  .exam-results__option.is-selected {
+    font-weight: 600;
+  }
+
+  .exam-results__option.is-selected:not(.is-correct-option) {
+    border-color: rgba(248, 81, 73, 0.3);
+    color: #f85149;
+  }
+
+  .exam-results__explanation {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin: 0;
+    padding-top: 6px;
+    border-top: 1px dashed var(--border);
+  }
+</style>

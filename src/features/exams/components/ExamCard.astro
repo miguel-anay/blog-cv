@@ -1,0 +1,101 @@
+---
+import { formatHms } from '../lib/timer';
+
+export interface Props {
+  title: string;
+  description: string;
+  slug: string;
+  level: string;
+  questionCount: number;
+  timeLimitSeconds: number;
+  index?: number;
+}
+
+const { title, description, slug, level, questionCount, timeLimitSeconds, index } = Astro.props;
+const num = index != null ? `0x${index.toString(16).padStart(2, '0')}` : '';
+const href = `/exams/${slug}/`;
+
+const levelLabel: Record<string, string> = {
+  beginner: 'principiante',
+  intermediate: 'intermedio',
+  advanced: 'avanzado',
+};
+---
+
+<a href={href} class="exam-card">
+  <div class="exam-card__top">
+    <span class="exam-card__num">{num}</span>
+    <div class="exam-card__meta">
+      <span class="exam-card__level">{levelLabel[level] ?? level}</span>
+      <span class="exam-card__sep">·</span>
+      <span class="exam-card__questions">
+        {questionCount} {questionCount === 1 ? 'pregunta' : 'preguntas'}
+      </span>
+      <span class="exam-card__sep">·</span>
+      <span class="exam-card__time">{formatHms(timeLimitSeconds)}</span>
+    </div>
+  </div>
+  <h3 class="exam-card__title">{title}</h3>
+  <p class="exam-card__desc">{description}</p>
+</a>
+
+<style>
+  .exam-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 24px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    text-decoration: none;
+    color: inherit;
+    transition: background 0.12s, border-color 0.12s;
+  }
+  .exam-card:hover {
+    background: var(--bg-raised);
+    border-color: var(--accent);
+  }
+
+  .exam-card__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .exam-card__num {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-faint);
+  }
+
+  .exam-card__meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .exam-card__level { color: var(--accent); }
+  .exam-card__sep { color: var(--text-faint); }
+  .exam-card__time { color: var(--text-muted); }
+
+  .exam-card__title {
+    font-family: var(--font-sans);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-strong);
+    margin: 0;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+  }
+  .exam-card:hover .exam-card__title { color: var(--accent); }
+
+  .exam-card__desc {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin: 0;
+    line-height: 1.6;
+  }
+</style>

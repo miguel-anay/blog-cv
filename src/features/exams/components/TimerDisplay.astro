@@ -1,0 +1,94 @@
+---
+// Server-rendered initial timer state. attempt-controller.ts (Phase 4) reads
+// the `data-*` attributes below to seed its 1s local tick + ~20s status
+// resync (server always wins — see timer.ts). No client script is added here.
+
+import { computeRemainingSeconds, formatHms } from '../lib/timer';
+
+export interface Props {
+  timeLimitSeconds: number;
+  startedAtMs: number;
+  pausedSeconds: number;
+  pausedAtMs?: number | null;
+  attemptId: number;
+}
+
+const {
+  timeLimitSeconds,
+  startedAtMs,
+  pausedSeconds,
+  pausedAtMs = null,
+  attemptId,
+} = Astro.props;
+
+const remainingSeconds = computeRemainingSeconds({
+  timeLimitSeconds,
+  startedAtMs,
+  pausedAtMs,
+  pausedSeconds,
+  nowMs: Date.now(),
+});
+
+const progressPercent =
+  timeLimitSeconds > 0
+    ? Math.min(100, Math.max(0, ((timeLimitSeconds - remainingSeconds) / timeLimitSeconds) * 100))
+    : 0;
+---
+
+<div
+  class="timer-display"
+  data-timer
+  data-attempt-id={attemptId}
+  data-time-limit-seconds={timeLimitSeconds}
+  data-started-at-ms={startedAtMs}
+  data-paused-seconds={pausedSeconds}
+  data-paused-at-ms={pausedAtMs ?? ''}
+>
+  <div class="timer-display__bar">
+    <div class="timer-display__bar-fill" style={`width: ${progressPercent}%`} data-timer-bar-fill>
+    </div>
+  </div>
+  <span class="timer-display__text" data-timer-text>{formatHms(remainingSeconds)}</span>
+</div>
+
+<style>
+  .timer-display {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .timer-display__bar {
+    flex: 1;
+    height: 4px;
+    background: var(--border-dim);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .timer-display__bar-fill {
+    display: block;
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width 1s linear;
+  }
+
+  .timer-display__text {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-strong);
+    white-space: nowrap;
+    min-width: 72px;
+    text-align: right;
+  }
+
+  .timer-display[data-paused='true'] .timer-display__bar-fill {
+    background: var(--text-faint);
+  }
+
+  .timer-display[data-paused='true'] .timer-display__text {
+    color: var(--text-muted);
+  }
+</style>
