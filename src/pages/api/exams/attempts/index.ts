@@ -9,7 +9,12 @@ export const POST: APIRoute = async (context) => {
   const user = context.locals.user;
   if (!user) return jsonResponse({ error: 'Unauthorized' }, 401);
 
-  const form = await context.request.formData();
+  let form: FormData;
+  try {
+    form = await context.request.formData();
+  } catch {
+    return jsonResponse({ error: 'Invalid form body' }, 400);
+  }
   const rawExamId = form.get('examId');
   const examId = rawExamId != null ? Number(rawExamId) : NaN;
   if (!Number.isInteger(examId) || examId <= 0) {

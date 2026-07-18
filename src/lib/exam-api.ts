@@ -327,6 +327,7 @@ export interface SaveAnswerInput {
 export interface SaveAnswerResult {
   ok: boolean;
   expired: boolean;
+  paused?: boolean;
 }
 
 /** Upserts a single answer. If the time limit has already expired, auto-finalizes instead. */
@@ -340,18 +341,21 @@ export async function saveAnswer(
     const attempt = await getAttemptById(attemptId, userId);
     if (!attempt || attempt.submittedAt) return { ok: false, expired: false };
 
-    if (!attempt.pausedAt) {
-      const remaining = computeRemainingSeconds({
-        timeLimitSeconds: attempt.timeLimitSeconds,
-        startedAtMs: attempt.startedAt.getTime(),
-        pausedAtMs: null,
-        pausedSeconds: attempt.pausedSeconds,
-        nowMs: Date.now(),
-      });
-      if (remaining <= 0) {
-        await submitAttempt(attemptId, userId, { auto: true });
-        return { ok: false, expired: true };
-      }
+    // A paused attempt must be resumed before it can be written to — otherwise
+    // pausing would freeze the clock but not actually stop progress, letting a
+    // client keep answering indefinitely via direct API calls.
+    if (attempt.pausedAt) return { ok: false, expired: false, paused: true };
+
+    const remaining = computeRemainingSeconds({
+      timeLimitSeconds: attempt.timeLimitSeconds,
+      startedAtMs: attempt.startedAt.getTime(),
+      pausedAtMs: null,
+      pausedSeconds: attempt.pausedSeconds,
+      nowMs: Date.now(),
+    });
+    if (remaining <= 0) {
+      await submitAttempt(attemptId, userId, { auto: true });
+      return { ok: false, expired: true };
     }
 
     const existing = await db
