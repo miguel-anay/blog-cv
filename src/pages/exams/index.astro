@@ -1,0 +1,132 @@
+---
+import BaseHead from '../../components/seo/BaseHead.astro';
+import Header from '../../components/layout/Header.astro';
+import Footer from '../../components/layout/Footer.astro';
+import MagneticCursor from '../../components/MagneticCursor.astro';
+import ExamCard from '../../features/exams/components/ExamCard.astro';
+import { getExams } from '../../lib/exam-api';
+
+const exams = await getExams();
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <BaseHead
+      title="Certificaciones — Miguel Anay"
+      description={`${exams.length} exámenes de certificación sobre desarrollo de software, arquitectura y herramientas.`}
+    />
+  </head>
+  <body>
+    <MagneticCursor />
+    <Header />
+
+    <main>
+      <section class="page-head">
+        <div class="page-head__inner">
+          <nav class="page-crumb">
+            <span class="page-crumb__prompt">$</span>
+            <span class="page-crumb__cmd">cd</span>
+            <span>./exams</span>
+            <span class="page-crumb__cursor" aria-hidden="true"></span>
+          </nav>
+          <h1 class="page-title">
+            {exams.length} {exams.length === 1 ? 'examen' : 'exámenes'}.<br />
+            Certificate en <span class="accent">tiempo real</span>.
+          </h1>
+        </div>
+      </section>
+
+      <section class="exams-section">
+        <div class="exams-inner">
+          {exams.length === 0 ? (
+            <div class="empty">
+              <span class="empty__prompt">#</span>
+              <span>no hay exámenes publicados todavía.</span>
+            </div>
+          ) : (
+            <div class="exam-grid">
+              {exams.map((exam, i) => (
+                <ExamCard
+                  title={exam.title}
+                  description={exam.description}
+                  slug={exam.slug}
+                  level={exam.level}
+                  questionCount={exam.questionCount}
+                  timeLimitSeconds={exam.timeLimitSeconds}
+                  index={i + 1}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+    </main>
+
+    <Footer />
+
+    <style>
+      .page-head { border-bottom: 1px dashed var(--border); }
+      .page-head__inner {
+        max-width: var(--max-w);
+        margin: 0 auto;
+        padding: 72px var(--pad-x) 64px;
+      }
+      .page-crumb {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: var(--font-mono);
+        font-size: 13px;
+        color: var(--text);
+        margin-bottom: 28px;
+      }
+      .page-crumb__prompt { color: var(--accent); }
+      .page-crumb__cmd { color: var(--text-muted); }
+      .page-crumb__cursor {
+        width: 8px;
+        height: 14px;
+        background: var(--accent);
+        display: inline-block;
+        margin-left: 4px;
+        animation: blink 1s steps(2, end) infinite;
+      }
+      @keyframes blink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }
+
+      .page-title {
+        font-family: var(--font-sans);
+        font-size: clamp(36px, 5vw, 56px);
+        font-weight: 800;
+        line-height: 1.05;
+        letter-spacing: -0.035em;
+        color: var(--text-strong);
+        margin: 0;
+        max-width: 920px;
+      }
+      .accent { color: var(--accent); }
+
+      .exams-inner {
+        max-width: var(--max-w);
+        margin: 0 auto;
+        padding: 48px var(--pad-x) 80px;
+      }
+
+      .exam-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 20px;
+      }
+
+      .empty {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-family: var(--font-mono);
+        font-size: 14px;
+        color: var(--text-dim);
+        padding: 48px 0;
+      }
+      .empty__prompt { color: var(--accent); }
+    </style>
+  </body>
+</html>

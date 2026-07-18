@@ -1,0 +1,241 @@
+---
+import BaseHead from '../../components/seo/BaseHead.astro';
+import Header from '../../components/layout/Header.astro';
+import Footer from '../../components/layout/Footer.astro';
+import MagneticCursor from '../../components/MagneticCursor.astro';
+import { getExamBySlug, getAttemptHistory } from '../../lib/exam-api';
+import { formatHms } from '../../features/exams/lib/timer';
+
+const { slug } = Astro.params;
+if (!slug) return Astro.redirect('/exams');
+
+// Defensive — middleware already gates /exams, but a page-level check keeps
+// this page correct even if the gating prefix list ever changes (REQ-001).
+const user = Astro.locals.user;
+if (!user) return Astro.redirect('/login?redirect=' + encodeURIComponent(Astro.url.pathname));
+
+const exam = await getExamBySlug(slug);
+if (!exam) return new Response(null, { status: 404, statusText: 'Not Found' });
+
+const history = await getAttemptHistory(exam.id, user.id);
+
+const levelLabel: Record<string, string> = {
+  beginner: 'principiante',
+  intermediate: 'intermedio',
+  advanced: 'avanzado',
+};
+
+const fmt = (d: Date) =>
+  d.toLocaleDateString('es-PE', { year: 'numeric', month: '2-digit', day: '2-digit' });
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <BaseHead title={`${exam.title} — Certificaciones`} description={exam.description} />
+  </head>
+  <body>
+    <MagneticCursor />
+    <Header />
+
+    <main>
+      <section class="exam-head">
+        <div class="exam-head__inner">
+          <nav class="breadcrumb">
+            <a href="/exams" class="breadcrumb__back">← exámenes</a>
+          </nav>
+
+          <div class="exam-meta">
+            <span class="exam-level">{levelLabel[exam.level] ?? exam.level}</span>
+            <span class="exam-sep">·</span>
+            <span>{exam.questionCount} {exam.questionCount === 1 ? 'pregunta' : 'preguntas'}</span>
+            <span class="exam-sep">·</span>
+            <span>{formatHms(exam.timeLimitSeconds)}</span>
+            <span class="exam-sep">·</span>
+            <span>{exam.passScorePercent}% para aprobar</span>
+          </div>
+
+          <h1 class="exam-title">{exam.title}</h1>
+          <p class="exam-description">{exam.description}</p>
+
+          {exam.coverUrl && (
+            <img src={exam.coverUrl} alt={exam.title} class="exam-cover" loading="eager" />
+          )}
+
+          <form method="post" action="/api/exams/attempts" class="start-form">
+            <input type="hidden" name="examId" value={exam.id} />
+            <button type="submit" class="start-button">$ start exam</button>
+          </form>
+        </div>
+      </section>
+
+      <section class="history-section">
+        <div class="history-inner">
+          <h2 class="history-title"># tus intentos</h2>
+
+          {history.length === 0 ? (
+            <div class="empty">
+              <span class="empty__prompt">#</span>
+              <span>todavía no tenés intentos para este examen.</span>
+            </div>
+          ) : (
+            <ul class="history-list">
+              {history.map((attempt) => (
+                <li class="history-item">
+                  <span class="history-item__date">{fmt(attempt.startedAt)}</span>
+                  <span class="history-item__sep">·</span>
+                  {attempt.submittedAt ? (
+                    <>
+                      <span class="history-item__score">{attempt.score}%</span>
+                      <span class="history-item__detail">
+                        ({attempt.correctCount}/{attempt.totalQuestions} correctas)
+                      </span>
+                      {attempt.autoSubmitted && (
+                        <span class="history-item__auto">enviado automáticamente</span>
+                      )}
+                    </>
+                  ) : (
+                    <span class="history-item__pending">en progreso</span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </section>
+    </main>
+
+    <Footer />
+
+    <style>
+      .exam-head {
+        border-bottom: 1px dashed var(--border);
+        background: var(--bg-sunken);
+      }
+      .exam-head__inner {
+        max-width: var(--max-w);
+        margin: 0 auto;
+        padding: 56px var(--pad-x) 64px;
+      }
+
+      .breadcrumb { margin-bottom: 32px; }
+      .breadcrumb__back {
+        font-family: var(--font-mono);
+        font-size: 13px;
+        color: var(--text-muted);
+        text-decoration: none;
+      }
+      .breadcrumb__back:hover { color: var(--accent); }
+
+      .exam-meta {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        font-family: var(--font-mono);
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-bottom: 20px;
+      }
+      .exam-level { color: var(--accent); font-weight: 600; }
+      .exam-sep { color: var(--text-faint); }
+
+      .exam-title {
+        font-family: var(--font-sans);
+        font-size: clamp(32px, 4.5vw, 52px);
+        font-weight: 800;
+        line-height: 1.08;
+        letter-spacing: -0.03em;
+        color: var(--text-strong);
+        margin: 0 0 20px;
+        max-width: 860px;
+      }
+
+      .exam-description {
+        font-size: 17px;
+        color: var(--text-muted);
+        line-height: 1.65;
+        margin: 0;
+        max-width: 680px;
+      }
+
+      .exam-cover {
+        width: 100%;
+        max-width: 860px;
+        height: auto;
+        border-radius: 6px;
+        margin-top: 40px;
+        border: 1px solid var(--border);
+        object-fit: cover;
+      }
+
+      .start-form { margin-top: 32px; }
+      .start-button {
+        font-family: var(--font-mono);
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--bg);
+        background: var(--accent);
+        border: none;
+        border-radius: 6px;
+        padding: 14px 28px;
+        cursor: pointer;
+        transition: opacity 0.12s;
+      }
+      .start-button:hover { opacity: 0.85; }
+
+      .history-inner {
+        max-width: var(--max-w);
+        margin: 0 auto;
+        padding: 48px var(--pad-x) 96px;
+      }
+
+      .history-title {
+        font-family: var(--font-mono);
+        font-size: 13px;
+        color: var(--text-muted);
+        margin: 0 0 20px;
+        font-weight: 600;
+      }
+
+      .history-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .history-item {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        font-family: var(--font-mono);
+        font-size: 13px;
+        color: var(--text-muted);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 12px 16px;
+      }
+      .history-item__date { color: var(--text); }
+      .history-item__sep { color: var(--text-faint); }
+      .history-item__score { color: var(--accent); font-weight: 600; }
+      .history-item__detail { color: var(--text-muted); }
+      .history-item__pending { color: var(--text-dim); }
+      .history-item__auto { color: var(--text-faint); font-style: italic; }
+
+      .empty {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-family: var(--font-mono);
+        font-size: 14px;
+        color: var(--text-dim);
+        padding: 24px 0;
+      }
+      .empty__prompt { color: var(--accent); }
+    </style>
+  </body>
+</html>
