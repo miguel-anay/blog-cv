@@ -38,6 +38,7 @@ const progressPercent =
 <div
   class="timer-display"
   data-timer
+  data-paused={pausedAtMs != null ? 'true' : 'false'}
   data-attempt-id={attemptId}
   data-time-limit-seconds={timeLimitSeconds}
   data-started-at-ms={startedAtMs}
