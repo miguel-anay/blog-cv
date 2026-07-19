@@ -1,0 +1,32 @@
+{
+  "Examen de ejemplo": {
+    "_meta": {
+      "slug": "examen-de-ejemplo",
+      "description": "Descripción corta del examen, se muestra en el listado y en el detalle.",
+      "level": "intermediate",
+      "time_limit_seconds": 5400,
+      "pass_score_percent": 70,
+      "published_at": "2026-07-19T00:00:00"
+    },
+    "questions": [
+      {
+        "prompt": "Texto de la primera pregunta. Puede tener varios párrafos si hace falta.",
+        "explanation": "Explicación opcional — se muestra en la pantalla de resultados, después de enviar el examen.",
+        "options": [
+          { "text": "Opción A", "correct": false },
+          { "text": "Opción B (correcta)", "correct": true },
+          { "text": "Opción C", "correct": false },
+          { "text": "Opción D", "correct": false }
+        ]
+      },
+      {
+        "prompt": "Texto de la segunda pregunta.",
+        "options": [
+          { "text": "Opción A (correcta)", "correct": true },
+          { "text": "Opción B", "correct": false },
+          { "text": "Opción C", "correct": false }
+        ]
+      }
+    ]
+  }
+}
