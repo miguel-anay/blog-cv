@@ -6,7 +6,7 @@
       "level": "intermediate",
       "time_limit_seconds": 5400,
       "pass_score_percent": 70,
-      "published_at": "2026-07-19T00:00:00"
+      "published_at": null
     },
     "questions": [
       {
@@ -17,14 +17,6 @@
           { "text": "Opción B (correcta)", "correct": true },
           { "text": "Opción C", "correct": false },
           { "text": "Opción D", "correct": false }
-        ]
-      },
-      {
-        "prompt": "Texto de la segunda pregunta.",
-        "options": [
-          { "text": "Opción A (correcta)", "correct": true },
-          { "text": "Opción B", "correct": false },
-          { "text": "Opción C", "correct": false }
         ]
       }
     ]
