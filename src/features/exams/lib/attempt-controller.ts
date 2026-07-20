@@ -297,7 +297,10 @@ export function initAttemptController(): void {
 
   async function handlePause(): Promise<void> {
     try {
-      const res = await fetch(`/api/exams/attempts/${attemptId}/pause`, { method: 'POST' });
+      const res = await fetch(`/api/exams/attempts/${attemptId}/pause`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
       const data: { ok: boolean } = await res.json().catch(() => ({ ok: false }));
       if (!data.ok) return; // no-op: already paused/submitted server-side
       anchorRemaining = currentRemaining();
@@ -313,7 +316,10 @@ export function initAttemptController(): void {
 
   async function handleResume(): Promise<void> {
     try {
-      const res = await fetch(`/api/exams/attempts/${attemptId}/resume`, { method: 'POST' });
+      const res = await fetch(`/api/exams/attempts/${attemptId}/resume`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
       const data: ResumeResponse = await res.json().catch(() => ({ ok: false }));
       if (!data.ok) {
         // The server said no-op, which can mean "wasn't paused" — e.g. this
@@ -449,7 +455,10 @@ export function initAttemptController(): void {
 
   async function submitAttemptRequest(): Promise<'redirected' | 'paused' | 'error'> {
     try {
-      const res = await fetch(`/api/exams/attempts/${attemptId}/submit`, { method: 'POST' });
+      const res = await fetch(`/api/exams/attempts/${attemptId}/submit`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
       if (res.status === 409) return 'paused';
 
       const data: { redirect?: string } = await res.json().catch(() => ({}));
