@@ -17,7 +17,8 @@
     "test:unit:watch": "vitest",
     "test:unit:coverage": "vitest run --coverage",
     "lint": "npm run check",
-    "validate": "npm run type-check && npm run build"
+    "validate": "npm run type-check && npm run build",
+    "db:migrate": "node scripts/migrate.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.3.6",
