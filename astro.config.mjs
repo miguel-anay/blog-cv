@@ -25,6 +25,7 @@ export default defineConfig({
   security: {
     allowedDomains: [
       { protocol: 'https', hostname: 'miguel-anay.nom.pe' },
+      { protocol: 'https', hostname: 'www.miguel-anay.nom.pe' },
       { protocol: 'https', hostname: '*.vercel.app' },
     ],
   },
