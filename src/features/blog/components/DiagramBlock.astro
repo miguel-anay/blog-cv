@@ -1,0 +1,153 @@
+---
+// Renders a shared.diagram block: inline SVG + declarative GSAP steps[] timeline.
+// The SSR'd SVG is already the finished diagram; the hoisted script below only
+// plays a reveal animation on first viewport intersection. No-JS, reduced-motion,
+// off-screen and GSAP-load-failure all resolve to the same static SVG.
+export interface DiagramStep {
+  target: string;
+  from: Record<string, number | string>;
+  duration?: number;
+  delay?: number;
+  ease?: string;
+  stagger?: number;
+  position?: string | number;
+}
+
+export interface Props {
+  svg: string;
+  alternativeText?: string;
+  caption?: string;
+  steps?: DiagramStep[];
+}
+
+const { svg, alternativeText, caption, steps } = Astro.props;
+
+// Missing SVG Field Tolerance: render nothing rather than throw.
+if (!svg || typeof svg !== "string") {
+  return null;
+}
+
+const stepsJson = JSON.stringify(Array.isArray(steps) ? steps : []);
+---
+
+{
+  caption ? (
+    <figure
+      class="diagram-block"
+      data-diagram-root
+      data-diagram-steps={stepsJson}>
+      <div class="diagram-block-svg" set:html={svg} />
+      <figcaption>{caption}</figcaption>
+    </figure>
+  ) : (
+    <div
+      class="diagram-block"
+      data-diagram-root
+      data-diagram-steps={stepsJson}
+      aria-label={alternativeText}>
+      <div class="diagram-block-svg" set:html={svg} />
+    </div>
+  )
+}
+
+<style>
+  .diagram-block {
+    margin: 2rem 0;
+  }
+
+  .diagram-block-svg :global(svg) {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .diagram-block figcaption {
+    margin-top: 0.75rem;
+    font-size: 0.875rem;
+    color: rgb(107, 114, 128);
+    font-style: italic;
+    text-align: center;
+  }
+
+  :global(.dark) .diagram-block figcaption {
+    color: rgb(156, 163, 175);
+  }
+</style>
+
+<script>
+  // Timeline runner for all diagram roots on the page (bundled/deduped once by Astro).
+  type DiagramStepData = {
+    target: string;
+    from: Record<string, number | string>;
+    duration?: number;
+    delay?: number;
+    ease?: string;
+    stagger?: number;
+    position?: string | number;
+  };
+
+  async function playDiagram(root: Element, steps: DiagramStepData[]) {
+    let gsapModule;
+    try {
+      gsapModule = await import("gsap");
+    } catch {
+      // GSAP failed to load — SSR'd SVG already shows the final state.
+      return;
+    }
+    const gsap = gsapModule.gsap ?? gsapModule.default;
+    const tl = gsap.timeline();
+
+    for (const step of steps) {
+      if (!step || !step.target || !step.from) {
+        console.warn("DiagramBlock: skipping step missing target/from", step);
+        continue;
+      }
+      const els = root.querySelectorAll(step.target);
+      if (els.length === 0) {
+        console.warn(
+          `DiagramBlock: no elements matched selector "${step.target}"`
+        );
+        continue;
+      }
+      tl.from(
+        els,
+        {
+          ...step.from,
+          duration: step.duration ?? 0.6,
+          delay: step.delay ?? 0,
+          ease: step.ease ?? "power2.out",
+          stagger: step.stagger ?? 0,
+        },
+        step.position
+      );
+    }
+  }
+
+  document.querySelectorAll("[data-diagram-root]").forEach((root) => {
+    let steps: DiagramStepData[];
+    try {
+      const parsed = JSON.parse(root.getAttribute("data-diagram-steps") || "[]");
+      steps = Array.isArray(parsed) ? parsed : [];
+    } catch {
+      steps = [];
+    }
+
+    // No/malformed steps: nothing to animate, leave the static SVG as-is.
+    if (steps.length === 0) return;
+
+    // Reduced Motion Compliance: never import GSAP, never build the timeline.
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            observer.unobserve(root);
+            playDiagram(root, steps);
+          }
+        }
+      },
+      { threshold: 0.2 }
+    );
+    observer.observe(root);
+  });
+</script>

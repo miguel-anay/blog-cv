@@ -1,6 +1,7 @@
 ---
 // Renders article body blocks - used only in blog feature
 import type { TextNode } from "../../../lib/api-types";
+import DiagramBlock from "../../../features/blog/components/DiagramBlock.astro";
 
 export interface Props {
   blocks?: any[];
@@ -264,6 +265,16 @@ function isLinkNode(node: any): boolean {
                 </pre>
               </div>
             </div>
+          );
+
+        case "shared.diagram":
+          return (
+            <DiagramBlock
+              svg={block.svg}
+              alternativeText={block.alternativeText}
+              caption={block.caption}
+              steps={block.steps}
+            />
           );
 
         default:
