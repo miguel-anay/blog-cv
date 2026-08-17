@@ -1,0 +1,42 @@
+---
+// Decorative canvas for the homepage hero. Gates on reduced-motion and WebGL
+// support BEFORE the dynamic import, so the three.js chunk is never fetched
+// by users who can't or shouldn't run it. The ONLY importer of ../three.
+---
+
+<canvas class="hero-canvas" aria-hidden="true"></canvas>
+
+<style>
+  .hero-canvas {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+</style>
+
+<script>
+  const canvas = document.querySelector<HTMLCanvasElement>(".hero-canvas");
+
+  function hasWebGL(): boolean {
+    try {
+      const probe = document.createElement("canvas");
+      return !!(probe.getContext("webgl2") || probe.getContext("webgl"));
+    } catch {
+      return false;
+    }
+  }
+
+  if (canvas && !matchMedia("(prefers-reduced-motion: reduce)").matches && hasWebGL()) {
+    const load = () =>
+      import("../three")
+        .then((m) => m.init(canvas))
+        .catch(() => {});
+
+    if ("requestIdleCallback" in window) {
+      requestIdleCallback(load, { timeout: 2000 });
+    } else {
+      setTimeout(load, 300);
+    }
+  }
+</script>

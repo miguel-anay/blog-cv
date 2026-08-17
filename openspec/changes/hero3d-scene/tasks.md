@@ -47,44 +47,44 @@ Separate from the line-budget guard: WU0 is a **functional decision gate** (bund
 
 ## WU2: `src/features/home/three/stage.ts`
 
-- [ ] 2.1 `init(canvas, onContextLost): StageContext | null` — `WebGLRenderer({canvas, alpha:true, antialias:false, powerPreference:"low-power"})`, `setClearAlpha(0)`. `alpha:true` is LOAD-BEARING — omitting it paints opaque black over `.hero::before` and breaks light mode.
-- [ ] 2.2 `PerspectiveCamera(35, aspect, 0.1, 100)` at z=6. `setPixelRatio(Math.min(devicePixelRatio, 2))`.
-- [ ] 2.3 `ResizeObserver` on the canvas parent (not `window.resize` — `.hero` reflows on font load). Reapply the DPR clamp on every resize callback, guard 0×0.
-- [ ] 2.4 `webglcontextlost` listener calls the injected `onContextLost` callback. Deliberately NO `preventDefault()` on this event (no restoration attempted; CSS crosshatch is already the fallback) — do not "fix" this if reviewed.
-- [ ] 2.5 `destroy()`: disconnect ResizeObserver, remove the contextlost listener, `renderer.dispose()` then `forceContextLoss()`. Return `null` from `init` on renderer construction failure (never throw across this boundary).
-- [ ] Verify: file compiles (`npx tsc --noEmit` after `fnm use v20.20.2`). Rollback: delete file, no consumers yet.
+- [x] 2.1 `init(canvas, onContextLost): StageContext | null` — `WebGLRenderer({canvas, alpha:true, antialias:false, powerPreference:"low-power"})`, `setClearAlpha(0)`. `alpha:true` is LOAD-BEARING — omitting it paints opaque black over `.hero::before` and breaks light mode.
+- [x] 2.2 `PerspectiveCamera(35, aspect, 0.1, 100)` at z=6. `setPixelRatio(Math.min(devicePixelRatio, 2))`.
+- [x] 2.3 `ResizeObserver` on the canvas parent (not `window.resize` — `.hero` reflows on font load). Reapply the DPR clamp on every resize callback, guard 0×0.
+- [x] 2.4 `webglcontextlost` listener calls the injected `onContextLost` callback. Deliberately NO `preventDefault()` on this event (no restoration attempted; CSS crosshatch is already the fallback) — do not "fix" this if reviewed.
+- [x] 2.5 `destroy()`: disconnect ResizeObserver, remove the contextlost listener, `renderer.dispose()` then `forceContextLoss()`. Return `null` from `init` on renderer construction failure (never throw across this boundary).
+- [x] Verify: file compiles (`npx tsc --noEmit` after `fnm use v20.20.2`) — clean, zero errors. Rollback: delete file, no consumers yet.
 
 ## WU3: `src/features/home/three/heroBlob.ts`
 
-- [ ] 3.1 `IcosahedronGeometry(1.4, 4)`, `ShaderMaterial` with inline template-literal GLSL (unlit fresnel rim, 2-colour gradient, `NormalBlending`, `transparent:true`, `depthWrite:false`).
-- [ ] 3.2 Uniforms `uTime, uProgress, uColorA, uColorB, uFresnelPower, uOpacity`. Read `--accent`/`--border-strong` via `getComputedStyle(...).trim()` (leading whitespace gotcha) on init and on the existing `themechange` (`ThemeSwitcher.astro:37`) and `modechange` (`ModeToggle.astro:30`) document events — do not add a new event. Only plain-hex custom props (never `--accent-soft`, which is `rgba()`).
-- [ ] 3.3 `resize(aspect)`: `aspect > 1.2` → `mesh.position.x = 1.8`, `scale = 1`; else `x = 0`, `scale = 0.6`. No JS media queries.
-- [ ] 3.4 `tick(dt)`: smooth `displayed += (weight - displayed) * min(1, dt*4)` reading `sceneWeights.get("hero").weight` (read-only); `uProgress = displayed`; `uTime` accumulates only while rendering (weight-gated, so scrolling back doesn't jump).
-- [ ] 3.5 `destroy()`: remove theme/mode listeners, `scene.remove(mesh)`, `geometry.dispose()`, `material.dispose()`.
-- [ ] Verify: `npx tsc --noEmit`. Rollback: delete file.
+- [x] 3.1 `IcosahedronGeometry(1.4, 4)`, `ShaderMaterial` with inline template-literal GLSL (unlit fresnel rim, 2-colour gradient, `NormalBlending`, `transparent:true`, `depthWrite:false`).
+- [x] 3.2 Uniforms `uTime, uProgress, uColorA, uColorB, uFresnelPower, uOpacity`. Read `--accent`/`--border-strong` via `getComputedStyle(...).trim()` (leading whitespace gotcha) on init and on the existing `themechange` (`ThemeSwitcher.astro:37`) and `modechange` (`ModeToggle.astro:30`) document events — do not add a new event. Only plain-hex custom props (never `--accent-soft`, which is `rgba()`).
+- [x] 3.3 `resize(aspect)`: `aspect > 1.2` → `mesh.position.x = 1.8`, `scale = 1`; else `x = 0`, `scale = 0.6`. No JS media queries.
+- [x] 3.4 `tick(dt)`: smooth `displayed += (weight - displayed) * min(1, dt*4)` reading `sceneWeights.get("hero").weight` (read-only); `uProgress = displayed`; `uTime` accumulates only while rendering (`displayed > 0.001`, so scrolling back doesn't jump).
+- [x] 3.5 `destroy()`: remove theme/mode listeners, `mesh.removeFromParent()` (equivalent to `scene.remove(mesh)` without heroBlob needing to hold a `scene` reference), `geometry.dispose()`, `material.dispose()`.
+- [x] Verify: `npx tsc --noEmit` — clean. Rollback: delete file.
 
 ## WU4: `src/features/home/three/index.ts`
 
-- [ ] 4.1 Started-guard, then in order: `stage.init` → `attachIntersectionDriver` → `heroBlob.init` → `gsap.ticker.add(tick)`. Ticker add LAST.
-- [ ] 4.2 Static `import gsap from "gsap"` (already in the `/` graph via `index.astro:230-234` — this keeps the three chunk three-only for an honest budget measurement). Do NOT call `gsap.ticker.fps()`, `.lagSmoothing()`, or `.remove()` on any callback this module didn't add — those are process-global and would alter every existing tween on `/`.
-- [ ] 4.3 Per-frame `tick`: early-return before `renderer.render` when `weight === 0` (zero GPU cost while scrolling past). Wrap the whole callback body in try/catch — on throw, call this module's own `destroy()` and let the page fall back silently (mirror `DiagramBlock.astro`'s try/catch pattern).
-- [ ] 4.4 Exported `init`/`destroy`, teardown order: `ticker.remove(tick)` → driver detach → `heroBlob.destroy()` → `stage.destroy()` → `started = false`.
-- [ ] Verify: `npx tsc --noEmit`. Rollback: delete file.
+- [x] 4.1 Started-guard, then in order: `stage.init` → `attachIntersectionDriver` → `heroBlob.init` → `gsap.ticker.add(tick)`. Ticker add LAST.
+- [x] 4.2 Static `import gsap from "gsap"` (already in the `/` graph via `index.astro:230-234` — this keeps the three chunk three-only for an honest budget measurement). Do NOT call `gsap.ticker.fps()`, `.lagSmoothing()`, or `.remove()` on any callback this module didn't add — those are process-global and would alter every existing tween on `/`.
+- [x] 4.3 Per-frame `tick`: early-return before `renderer.render` when `weight === 0` (zero GPU cost while scrolling past — literal reading of this task item; `heroBlob.tick()` still runs each frame to let `displayed` decay/rise smoothly in the background at zero GPU cost, so re-entering the viewport resumes from a partially-decayed value instead of popping). Wrap the whole callback body in try/catch — on throw, call this module's own `destroy()` and let the page fall back silently (mirror `DiagramBlock.astro`'s try/catch pattern).
+- [x] 4.4 Exported `init`/`destroy`, teardown order: `ticker.remove(tick)` → driver detach → `heroBlob.destroy()` → `stage.destroy()` → `started = false`.
+- [x] Verify: `npx tsc --noEmit` — clean. Rollback: delete file.
 
 ## WU5: Wiring — `HeroCanvas.astro`, `index.astro`, `global.css`
 
-- [ ] 5.1 `src/features/home/components/HeroCanvas.astro`: `<canvas aria-hidden="true">` (no `tabindex`, `pointer-events: none` via scoped CSS), scoped CSS `position:absolute; inset:0; z-index:0` below `.hero__inner` (`.hero{position:relative}` already at `global.css:1038`).
-- [ ] 5.2 Gate script in the same file, in order: `!canvas` guard → `matchMedia('(prefers-reduced-motion: reduce)')` → `hasWebGL()` (real probe: `canvas.getContext('webgl2'||'webgl')`, not a `typeof` check) → `requestIdleCallback(load, {timeout:2000})` with `setTimeout(300)` fallback → `import("../three").then(init).catch(() => {})`. Both gates MUST run before the `import()` call, not after.
-- [ ] 5.3 `src/pages/index.astro`: add `<HeroCanvas />` inside `.hero`, before `.hero__inner` in DOM order (z-index handles the paint order). ~2-3 line diff. Do NOT touch the existing `<script>` block at lines 229-234 (gsap/ScrollTrigger registration) or the typewriter logic below it.
-- [ ] 5.4 `src/styles/global.css`: canvas rule only if not fully covered by HeroCanvas.astro's scoped CSS (prefer scoped CSS; touch global.css only if a global override is unavoidable).
-- [ ] 5.5 Explicitly do NOT add: `astro:before-swap` handler (no `ClientRouter`/`ViewTransitions` anywhere in `src/` — dead code today), `beforeunload`/`pagehide` listener (disqualifies bfcache). If a reviewer flags these as "missing," they are intentional — point to design.md.
-- [ ] Verify: `fnm use v20.20.2 && npm run build` succeeds. Rollback: remove `<HeroCanvas />` usage + delete `src/features/home/`, revert global.css hunk. `.hero::before` reverts byte-identical.
+- [x] 5.1 `src/features/home/components/HeroCanvas.astro`: `<canvas aria-hidden="true">` (no `tabindex`, `pointer-events: none` via scoped CSS), scoped CSS `position:absolute; inset:0; z-index:0` below `.hero__inner` (`.hero{position:relative}` already at `global.css:1038`).
+- [x] 5.2 Gate script in the same file, in order: `!canvas` guard → `matchMedia('(prefers-reduced-motion: reduce)')` → `hasWebGL()` (real probe: `canvas.getContext('webgl2'||'webgl')`, not a `typeof` check) → `requestIdleCallback(load, {timeout:2000})` with `setTimeout(300)` fallback → `import("../three").then(init).catch(() => {})`. Both gates MUST run before the `import()` call, not after.
+- [x] 5.3 `src/pages/index.astro`: add `<HeroCanvas />` inside `.hero`, before `.hero__inner` in DOM order (z-index handles the paint order). 2-line diff (one import, one `<HeroCanvas />`). Did NOT touch the existing `<script>` block at lines 229-234 or the typewriter logic below it.
+- [x] 5.4 `src/styles/global.css`: NOT touched — `.hero { position: relative }` (line 1038) and `.hero__inner { z-index: 1 }` (line 1053) already existed; HeroCanvas.astro's scoped CSS fully covers the canvas.
+- [x] 5.5 Confirmed NOT added: `astro:before-swap` handler, `beforeunload`/`pagehide` listener. Intentional — see design.md §5.
+- [x] Verify: `fnm use v20.20.2 && npm run build` succeeded. Rollback: remove `<HeroCanvas />` usage + delete `src/features/home/`, no global.css hunk to revert.
 
 ## WU6: Route Isolation + Manual QA (verification only)
 
-- [ ] 6.1 `fnm use v20.20.2 && npm run build && npm run preview`. `curl` the `/` HTML, confirm the hero3d chunk name is referenced. `curl` `/blog` (or any other route), grep for the same chunk name — must be zero matches. This is an `output:'server'` app, so verify against actual served HTML, not build intent.
-- [ ] 6.2 Re-measure gzip size of the final chunk (same command as WU0.4) and compare against the WU0 baseline — flag any regression.
-- [ ] 6.3 `npx tsc --noEmit` (or `npm run type-check`) and `npm run check` both pass.
+- [x] 6.1 `fnm use v20.20.2 && npm run build` succeeded. `npm run preview` is **not supported by the `@astrojs/vercel` adapter** (`[preview] The @astrojs/vercel adapter does not support the preview command.`) — could not curl a running server. Verified route isolation instead against the compiled SSR output: `grep -rl "HeroCanvas" .vercel/output/_functions/pages/ .vercel/output/_functions/chunks/` returns only `pages/index.astro.mjs`; `pages/blog.astro.mjs`, `pages/about.astro.mjs`, `pages/cv.astro.mjs` all return zero matches for `HeroCanvas`/`three`. Since only `index.astro`'s compiled renderer imports/renders the `HeroCanvas` component, no other route can ever emit the script tag that triggers the dynamic `import()`.
+- [x] 6.2 Re-measured gzip size of the final chunk: **`dist/client/_astro/index.Cv4X_BWn.js` — 508.90 kB raw, gzip: 129.24 kB** (Vite's own build log). Against the WU0 baseline (127.39 kB gzip, minimal spike with fewer named imports) this is a ~1.85 kB regression from the real shader/geometry/uniforms code, well within budget: ≤130KB target (129.24 < 130, passes) and ≤140KB hard ceiling (passes with room).
+- [x] 6.3 `npx tsc --noEmit` passes with zero errors. `npm run check` (`astro check`, 120 files): 0 errors, 0 warnings, 30 hints — all 30 hints are in pre-existing files unrelated to this change (confirmed via `grep -i "features/home\|HeroCanvas\|pages/index.astro"` on the check output: zero matches).
 - [ ] 6.4 Manual QA — light theme: canvas renders, hero text stays readable, no black rectangle.
 - [ ] 6.5 Manual QA — dark theme: same, verify `themechange`/`modechange` re-tint the shader without a page reload.
 - [ ] 6.6 Manual QA — `prefers-reduced-motion: reduce` (OS or DevTools emulation): no three.js network request fires, hero renders identical to current prod.

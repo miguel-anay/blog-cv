@@ -4,6 +4,7 @@ import Header from "../components/layout/Header.astro";
 import Footer from "../components/layout/Footer.astro";
 import MagneticCursor from "../components/MagneticCursor.astro";
 import MatrixIntro from "../components/MatrixIntro.astro";
+import HeroCanvas from "../features/home/components/HeroCanvas.astro";
 import BlogCard from "./blog/components/BlogCard.astro";
 import CategoryCard from "../components/CategoryCard.astro";
 import { getArticles, getCategories, getCategoryCounts, getSiteConfig } from "../lib/api";
@@ -52,6 +53,7 @@ const lastUpdated = allArticles[0]?.publishedAt
     <main>
       <!-- ── Hero ──────────────────────────────────────────── -->
       <section class="hero">
+        <HeroCanvas />
         <div class="hero__inner">
           <div class="eyebrow">
             <span class="status-dot" aria-hidden="true"></span>
