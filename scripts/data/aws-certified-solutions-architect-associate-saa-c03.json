@@ -1,0 +1,24 @@
+{
+  "AWS Certified Solutions Architect Associate (SAA-C03)": {
+    "_meta": {
+      "slug": "aws-certified-solutions-architect-associate-saa-c03",
+      "description": "Exámenes de práctica para la certificación AWS Certified Solutions Architect Associate SAA-C03",
+      "level": "intermediate",
+      "time_limit_seconds": 5400,
+      "pass_score_percent": 70,
+      "published_at": "2026-07-20T00:00:00.000Z"
+    },
+    "questions": [
+      {
+        "prompt": "Una empresa de logística planea automatizar su aplicación de gestión de pedidos. La empresa desea utilizar la transferencia de archivos SFTP para cargar documentos críticos para el negocio. Dado que los archivos son confidenciales, se requiere cifrado en reposo y se debe garantizar una alta disponibilidad. Además, cada archivo debe eliminarse automáticamente un mes después de su creación.\n\n¿Cuál de las siguientes opciones debería implementarse para satisfacer los requisitos de la empresa con los menores costos operativos?",
+        "explanation": "AWS Transfer Family + S3 es la opción totalmente administrada: no hay servidores que operar (descarta B), S3 ya cifra en reposo y tiene alta disponibilidad nativa, y las reglas de ciclo de vida de S3 sí pueden expirar/eliminar objetos automáticamente. La opción C es un distractor: el servidor SFTP de Transfer Family no tiene 'política de retención' propia. La opción D usa EFS, que además de tener mayor costo operativo (mount targets, EC2/VPC config), su ciclo de vida solo transiciona a Infrequent Access — no elimina archivos.",
+        "options": [
+          { "text": "Crea un bucket de Amazon S3 con cifrado habilitado. Inicia un punto final de AWS Transfer para SFTP para cargar archivos de forma segura al bucket de S3. Configura una regla de ciclo de vida de S3 para eliminar los archivos después de un mes.", "correct": true },
+          { "text": "Crea una instancia de Amazon EC2 e instala el servicio SFTP. Monta un sistema de archivos cifrado Amazon EFS en la instancia EC2 para almacenar los archivos subidos. Agrega una tarea programada (cron job) para eliminar los archivos con más de un mes de antigüedad.", "correct": false },
+          { "text": "Crea un bucket de Amazon S3 con cifrado habilitado. Configura AWS Transfer para SFTP para cargar archivos de forma segura al bucket de S3. Configura la política de retención en el servidor SFTP para eliminar los archivos después de un mes.", "correct": false },
+          { "text": "Cree un sistema de archivos elástico de Amazon (Amazon EFS) y habilite el cifrado. Configure AWS Transfer para SFTP para cargar archivos de forma segura al sistema de archivos EFS. Aplique una política de ciclo de vida de EFS para eliminar los archivos después de 30 días.", "correct": false }
+        ]
+      }
+    ]
+  }
+}
