@@ -40,3 +40,18 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 .vercel
+# Local AI runtime state
+.atl/
+.engram/
+.claude/commands/
+
+# Local scratch / drafts
+blog.md
+blog.pdf
+linkedin-ransomware.md
+scripts/_tmp_*.mjs
+
+# Test artifacts
+playwright-report/
+test-results/
+
