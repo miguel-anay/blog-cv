@@ -3,14 +3,24 @@
 // The SSR'd SVG is already the finished diagram; the hoisted script below only
 // plays a reveal animation on first viewport intersection. No-JS, reduced-motion,
 // off-screen and GSAP-load-failure all resolve to the same static SVG.
+// Dos clases de step:
+//   "reveal" (default, y lo que asumen los steps sin `kind`): tl.from() sobre el
+//   elemento que matchea `target`.
+//   "ball": `target` apunta al <g> de una arista; se crea un <circle> que la
+//   recorre con getPointAtLength(). Sirve para mostrar el flujo, no solo la
+//   aparicion de las cajas.
 export interface DiagramStep {
   target: string;
-  from: Record<string, number | string>;
+  kind?: "reveal" | "ball";
+  from?: Record<string, number | string>;
   duration?: number;
   delay?: number;
   ease?: string;
   stagger?: number;
   position?: string | number;
+  color?: string;
+  radius?: number;
+  reverse?: boolean;
 }
 
 export interface Props {
@@ -18,9 +28,11 @@ export interface Props {
   alternativeText?: string;
   caption?: string;
   steps?: DiagramStep[];
+  /** Repetir la animacion indefinidamente (se pausa fuera de viewport). */
+  loop?: boolean;
 }
 
-const { svg, alternativeText, caption, steps } = Astro.props;
+const { svg, alternativeText, caption, steps, loop } = Astro.props;
 
 // Missing SVG Field Tolerance: render nothing rather than throw.
 if (!svg || typeof svg !== "string") {
@@ -28,6 +40,7 @@ if (!svg || typeof svg !== "string") {
 }
 
 const stepsJson = JSON.stringify(Array.isArray(steps) ? steps : []);
+const loopAttr = loop ? "true" : null;
 ---
 
 {
@@ -35,17 +48,57 @@ const stepsJson = JSON.stringify(Array.isArray(steps) ? steps : []);
     <figure
       class="diagram-block"
       data-diagram-root
-      data-diagram-steps={stepsJson}>
-      <div class="diagram-block-svg" set:html={svg} />
+      data-diagram-steps={stepsJson}
+      data-diagram-loop={loopAttr}>
+      <button
+        type="button"
+        class="diagram-zoom"
+        data-diagram-zoom
+        aria-label="Ampliar diagrama">
+        <div class="diagram-block-svg" set:html={svg} />
+      </button>
       <figcaption>{caption}</figcaption>
+      <dialog
+        class="diagram-modal"
+        data-diagram-modal
+        aria-label={alternativeText ?? caption}>
+        <button
+          type="button"
+          class="diagram-modal-close"
+          data-diagram-close
+          aria-label="Cerrar diagrama">
+          ×
+        </button>
+        <div class="diagram-modal-body" data-diagram-modal-body />
+      </dialog>
     </figure>
   ) : (
     <div
       class="diagram-block"
       data-diagram-root
       data-diagram-steps={stepsJson}
+      data-diagram-loop={loopAttr}
       aria-label={alternativeText}>
-      <div class="diagram-block-svg" set:html={svg} />
+      <button
+        type="button"
+        class="diagram-zoom"
+        data-diagram-zoom
+        aria-label="Ampliar diagrama">
+        <div class="diagram-block-svg" set:html={svg} />
+      </button>
+      <dialog
+        class="diagram-modal"
+        data-diagram-modal
+        aria-label={alternativeText}>
+        <button
+          type="button"
+          class="diagram-modal-close"
+          data-diagram-close
+          aria-label="Cerrar diagrama">
+          ×
+        </button>
+        <div class="diagram-modal-body" data-diagram-modal-body />
+      </dialog>
     </div>
   )
 }
@@ -58,6 +111,132 @@ const stepsJson = JSON.stringify(Array.isArray(steps) ? steps : []);
   .diagram-block-svg :global(svg) {
     max-width: 100%;
     height: auto;
+  }
+
+  /* draw.io exporta TODOS los colores con light-dark(), que se resuelve por
+     color-scheme y por defecto sigue al sistema operativo. Este blog no usa
+     prefers-color-scheme: el tema vive en <html data-theme> + [data-mode].
+     Atamos color-scheme al toggle del sitio para que el diagrama (fondo, cajas,
+     textos) acompane el tema elegido y no el del SO. */
+  .diagram-block-svg :global(svg),
+  .diagram-modal-body :global(svg) {
+    color-scheme: dark;
+  }
+
+  :global([data-mode="light"]) .diagram-block-svg :global(svg),
+  :global([data-mode="light"]) .diagram-modal-body :global(svg) {
+    color-scheme: light;
+  }
+
+  /* El diagrama inline es un boton para que ampliar funcione con teclado. */
+  .diagram-zoom {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: zoom-in;
+    border-radius: 8px;
+  }
+
+  .diagram-zoom:focus-visible {
+    outline: 2px solid rgb(59, 130, 246);
+    outline-offset: 4px;
+  }
+
+  .diagram-modal {
+    width: min(96vw, 1800px);
+    max-width: 96vw;
+    max-height: 94vh;
+    padding: 1.75rem 1.25rem 1.25rem;
+    border: 0;
+    border-radius: 12px;
+    /* Canvas/CanvasText siguen a color-scheme, igual que el light-dark() que
+       usan los colores del SVG exportado por draw.io: asi el fondo del modal y
+       el diagrama nunca quedan en temas opuestos. */
+    background: var(--bg-raised, Canvas);
+    color: var(--fg, CanvasText);
+    overflow: auto;
+  }
+
+  .diagram-modal::backdrop {
+    background: rgb(0 0 0 / 0.72);
+  }
+
+  .diagram-modal-body :global(svg) {
+    width: 100%;
+    height: auto;
+    max-height: 86vh;
+  }
+
+  /* El blog fija el tema con html[data-theme] + html[data-mode], no con
+     prefers-color-scheme. Los colores del SVG de draw.io usan light-dark(), que
+     se resuelve por color-scheme, asi que hay que atarlo al tema de la pagina o
+     el diagrama sale oscuro sobre fondo claro (o al reves) cuando el SO no
+     coincide. El !important es necesario: el <svg> exportado trae
+     color-scheme en su atributo style inline, y solo !important lo gana. */
+  .diagram-block-svg :global(svg),
+  .diagram-modal-body :global(svg),
+  .diagram-modal {
+    color-scheme: dark !important;
+  }
+
+  :global(html[data-mode="light"]) .diagram-block-svg :global(svg),
+  :global(html[data-mode="light"]) .diagram-modal-body :global(svg),
+  :global(html[data-mode="light"]) .diagram-modal {
+    color-scheme: light !important;
+  }
+
+  /* En pantallas chicas escalar a lo ancho vuelve el texto ilegible: el canvas
+     mide ~1560px, en un telefono de 375 queda a 0.24x. Se fija un ancho minimo
+     legible y se deja paneando; el pinch-zoom del navegador sigue disponible. */
+  @media (max-width: 900px) {
+    .diagram-modal {
+      width: 100vw;
+      max-width: 100vw;
+      height: 100vh;
+      max-height: 100vh;
+      border-radius: 0;
+      padding: 2.5rem 0.5rem 0.5rem;
+    }
+
+    .diagram-modal-body {
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .diagram-modal-body :global(svg) {
+      width: auto;
+      min-width: 900px;
+      max-height: none;
+    }
+  }
+
+  .diagram-modal-close {
+    position: absolute;
+    top: 0.35rem;
+    right: 0.6rem;
+    width: 2rem;
+    height: 2rem;
+    line-height: 1;
+    font-size: 1.5rem;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: rgb(107, 114, 128);
+    cursor: pointer;
+  }
+
+  .diagram-modal-close:hover {
+    background: rgb(0 0 0 / 0.07);
+  }
+
+  :global(.dark) .diagram-modal-close {
+    color: rgb(156, 163, 175);
+  }
+
+  :global(.dark) .diagram-modal-close:hover {
+    background: rgb(255 255 255 / 0.1);
   }
 
   .diagram-block figcaption {
@@ -77,27 +256,131 @@ const stepsJson = JSON.stringify(Array.isArray(steps) ? steps : []);
   // Timeline runner for all diagram roots on the page (bundled/deduped once by Astro).
   type DiagramStepData = {
     target: string;
-    from: Record<string, number | string>;
+    kind?: "reveal" | "ball";
+    from?: Record<string, number | string>;
     duration?: number;
     delay?: number;
     ease?: string;
     stagger?: number;
     position?: string | number;
+    color?: string;
+    radius?: number;
+    reverse?: boolean;
   };
 
-  async function playDiagram(root: Element, steps: DiagramStepData[]) {
+  const SVGNS = "http://www.w3.org/2000/svg";
+
+  // De los <path> del <g> de una arista, el mas largo es la linea; los cortos son
+  // la punta de flecha. Se filtra por getTotalLength porque no todo <path> del
+  // arbol es un SVGGeometryElement.
+  function edgeLinePath(g: Element): SVGPathElement | null {
+    const paths = Array.from(g.querySelectorAll("path")).filter(
+      (p): p is SVGPathElement =>
+        typeof (p as SVGPathElement).getTotalLength === "function"
+    );
+    if (paths.length === 0) return null;
+    return paths.reduce((a, b) =>
+      b.getTotalLength() > a.getTotalLength() ? b : a
+    );
+  }
+
+  // Una pelota recorriendo la arista `el`. Devuelve false si la arista no tiene
+  // linea recorrible, para que el llamador pueda avisar y seguir.
+  function addBall(
+    tl: gsap.core.Timeline,
+    svgEl: SVGSVGElement,
+    el: Element,
+    step: DiagramStepData
+  ): boolean {
+    const path = edgeLinePath(el);
+    if (!path) return false;
+
+    const len = path.getTotalLength();
+    const pt = svgEl.createSVGPoint();
+    // Matriz path->raiz, perezosa: los <g> de draw.io tienen transforms propios,
+    // asi que getPointAtLength devuelve coordenadas del path, no del SVG raiz.
+    let m: DOMMatrix | null = null;
+
+    const ball = document.createElementNS(SVGNS, "circle");
+    ball.setAttribute("r", String(step.radius ?? 7));
+    ball.setAttribute("fill", step.color ?? "#333333");
+    ball.setAttribute("stroke", "#ffffff");
+    ball.setAttribute("stroke-width", "2");
+    ball.setAttribute("opacity", "0");
+    svgEl.appendChild(ball); // al final del raiz => siempre por encima
+
+    const proxy = { p: step.reverse ? 1 : 0 };
+    const place = () => {
+      if (!m) {
+        const rootCTM = svgEl.getScreenCTM();
+        const pathCTM = path.getScreenCTM();
+        if (!rootCTM || !pathCTM) return;
+        m = rootCTM.inverse().multiply(pathCTM);
+      }
+      const q = path.getPointAtLength(proxy.p * len);
+      pt.x = q.x;
+      pt.y = q.y;
+      const r = pt.matrixTransform(m);
+      ball.setAttribute("cx", String(r.x));
+      ball.setAttribute("cy", String(r.y));
+    };
+    place();
+
+    const pos = step.position ?? 0;
+    const dur = step.duration ?? 0.6;
+    const delay = step.delay ?? 0;
+
+    // immediateRender:false es obligatorio: un set() zero-duration se renderiza al
+    // crearse, asi que el opacity:1 y el opacity:0 se aplicarian ambos en t=0 y
+    // ganaria el ultimo — la pelota nunca se encenderia. (No se nota con un
+    // timeline pausado que se seekea, solo al reproducir hacia adelante.)
+    tl.set(ball, { opacity: 1, immediateRender: false }, pos);
+    tl.to(
+      proxy,
+      {
+        p: step.reverse ? 0 : 1,
+        duration: dur,
+        delay,
+        ease: step.ease ?? "power1.inOut",
+        immediateRender: false,
+        onUpdate: place,
+      },
+      pos
+    );
+    tl.set(
+      ball,
+      { opacity: 0, immediateRender: false },
+      typeof pos === "number" ? pos + delay + dur : `+=${delay + dur}`
+    );
+    return true;
+  }
+
+  type PlayOptions = {
+    loop?: boolean;
+  };
+
+  async function playDiagram(
+    root: Element,
+    steps: DiagramStepData[],
+    opts: PlayOptions = {}
+  ) {
     let gsapModule;
     try {
       gsapModule = await import("gsap");
     } catch {
       // GSAP failed to load — SSR'd SVG already shows the final state.
-      return;
+      return null;
     }
     const gsap = gsapModule.gsap ?? gsapModule.default;
-    const tl = gsap.timeline();
+    const tl = gsap.timeline(
+      opts.loop ? { repeat: -1, repeatDelay: 1.2 } : {}
+    );
+
+    const svgEl = root.querySelector("svg");
 
     for (const step of steps) {
-      if (!step || !step.target || !step.from) {
+      const isBall = step?.kind === "ball";
+      if (!step || !step.target || (!isBall && !step.from)) {
         console.warn("DiagramBlock: skipping step missing target/from", step);
         continue;
       }
@@ -108,6 +391,20 @@ const stepsJson = JSON.stringify(Array.isArray(steps) ? steps : []);
         );
         continue;
       }
+
+      if (isBall) {
+        if (!svgEl) {
+          console.warn("DiagramBlock: ball step but no <svg> in root", step);
+          continue;
+        }
+        if (!addBall(tl, svgEl, els[0], step)) {
+          console.warn(
+            `DiagramBlock: no traversable path in edge "${step.target}"`
+          );
+        }
+        continue;
+      }
+
       tl.from(
         els,
         {
@@ -120,6 +417,11 @@ const stepsJson = JSON.stringify(Array.isArray(steps) ? steps : []);
         step.position
       );
     }
+
+    // Envuelto a proposito: gsap.core.Timeline es thenable, asi que devolverlo
+    // pelado haria que `await playDiagram(...)` espere a que la animacion
+    // TERMINE en vez de recibir el timeline. Con repeat:-1 no termina nunca.
+    return { tl };
   }
 
   document.querySelectorAll("[data-diagram-root]").forEach((root) => {
@@ -131,18 +433,92 @@ const stepsJson = JSON.stringify(Array.isArray(steps) ? steps : []);
       steps = [];
     }
 
-    // No/malformed steps: nothing to animate, leave the static SVG as-is.
-    if (steps.length === 0) return;
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+    const loop = root.getAttribute("data-diagram-loop") === "true";
 
+    // ── Ampliar en modal ────────────────────────────────────────────────────
+    // El clic funciona siempre, tambien bajo reduced-motion y sin steps: ahi el
+    // valor es leer el diagrama en grande, no la animacion.
+    const zoom = root.querySelector("[data-diagram-zoom]");
+    const modal = root.querySelector("[data-diagram-modal]");
+    const modalBody = root.querySelector("[data-diagram-modal-body]");
+    // Copia limpia tomada ANTES de animar: el SVG inline termina con estilos
+    // inline de GSAP y los <circle> de las pelotas ya inyectados.
+    const pristine = root.querySelector("svg")?.cloneNode(true);
+
+    if (
+      zoom &&
+      modal instanceof HTMLDialogElement &&
+      modalBody &&
+      pristine
+    ) {
+      // El modal arranca con TODO visible (la copia limpia ya esta en su estado
+      // final) y encima corre solo las pelotas, en loop: se puede leer el
+      // diagrama y ver el flujo a la vez. Reproducir los reveals aca lo dejaria
+      // vacio 18s justo cuando se lo esta mirando.
+      let modalTl: Awaited<ReturnType<typeof playDiagram>> = null;
+
+      zoom.addEventListener("click", async () => {
+        modalBody.replaceChildren(pristine.cloneNode(true));
+        modal.showModal();
+        if (!reducedMotion && steps.some((s) => s?.kind === "ball")) {
+          modalTl = await playDiagram(modalBody, steps, { loop: true });
+          // Si lo cerraron mientras GSAP cargaba, no dejar el loop corriendo.
+          if (!modal.open) {
+            modalTl?.tl.kill();
+            modalTl = null;
+          }
+        }
+      });
+
+      root
+        .querySelector("[data-diagram-close]")
+        ?.addEventListener("click", () => modal.close());
+
+      // Clic en el backdrop cierra: el target es el propio <dialog> solo cuando
+      // se clickea fuera del contenido.
+      modal.addEventListener("click", (e) => {
+        if (e.target === modal) modal.close();
+      });
+
+      // Al cerrar: matar el loop y vaciar. Si no, queda un timeline infinito
+      // corriendo sobre una copia oculta, quemando frames para siempre.
+      modal.addEventListener("close", () => {
+        modalTl?.tl.kill();
+        modalTl = null;
+        modalBody.replaceChildren();
+      });
+    }
+
+    // ── Animacion inline al entrar en viewport ──────────────────────────────
+    if (steps.length === 0) return;
     // Reduced Motion Compliance: never import GSAP, never build the timeline.
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (reducedMotion) return;
+
+    let inlineTl: Awaited<ReturnType<typeof playDiagram>> = null;
+    let starting = false;
 
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
           if (entry.isIntersecting) {
-            observer.unobserve(root);
-            playDiagram(root, steps);
+            if (inlineTl) {
+              inlineTl.tl.play();
+            } else if (!starting) {
+              starting = true;
+              playDiagram(root, steps, { loop }).then((res) => {
+                inlineTl = res;
+                // Si salio de viewport mientras GSAP cargaba, no arrancar.
+                if (res && !entry.isIntersecting) res.tl.pause();
+              });
+            }
+            // Sin loop alcanza con reproducir una vez.
+            if (!loop) observer.unobserve(root);
+          } else if (inlineTl) {
+            // Un loop infinito fuera de pantalla es CPU quemada al pedo.
+            inlineTl.tl.pause();
           }
         }
       },
