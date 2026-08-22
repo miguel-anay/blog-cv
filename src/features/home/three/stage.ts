@@ -39,8 +39,11 @@ export const stage = {
     const parent = canvas.parentElement ?? canvas;
     const rect = parent.getBoundingClientRect();
     const aspect = rect.width > 0 && rect.height > 0 ? rect.width / rect.height : 1;
-    const camera = new PerspectiveCamera(35, aspect, 0.1, 100);
-    camera.position.z = 6;
+    // FOV/near/far match the reference portfolio's camera exactly; camera3d.ts
+    // drives position/lookAt every frame once the avatar loads, so this initial
+    // z is just the pre-first-tick placeholder (also used by heroBlob's no-avatar path).
+    const camera = new PerspectiveCamera(38, aspect, 0.01, 100);
+    camera.position.z = 10;
 
     const ctx: StageContext = { renderer, scene, camera };
     applySize(ctx, rect.width, rect.height);

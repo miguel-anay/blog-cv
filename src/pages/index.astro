@@ -3,7 +3,6 @@ import BaseHead from "../components/seo/BaseHead.astro";
 import Header from "../components/layout/Header.astro";
 import Footer from "../components/layout/Footer.astro";
 import MagneticCursor from "../components/MagneticCursor.astro";
-import MatrixIntro from "../components/MatrixIntro.astro";
 import HeroCanvas from "../features/home/components/HeroCanvas.astro";
 import BlogCard from "./blog/components/BlogCard.astro";
 import CategoryCard from "../components/CategoryCard.astro";
@@ -30,6 +29,21 @@ const categoriesWithCount = categories.map((category) => ({
   articleCount: counts[category.slug] ?? 0,
 }));
 
+// ponytail: placeholder skill list — no skills table on this page (cv-data.json
+// is unused seed data, not the live CV source, which lives in Turso). Swap for
+// a real query if this scene ships past the eval spike.
+const SKILLS = [
+  "astro",
+  "typescript",
+  "three.js",
+  "gsap",
+  "turso",
+  "vercel",
+  "react",
+  "node.js",
+  "docker",
+];
+
 const maxCount = Math.max(1, ...categoriesWithCount.map((c) => c.articleCount));
 const lastUpdated = allArticles[0]?.publishedAt
   ? new Date(allArticles[0].publishedAt).toLocaleDateString("es-PE", {
@@ -46,64 +60,98 @@ const lastUpdated = allArticles[0]?.publishedAt
     <BaseHead title={pageTitle} description={pageDescription} />
   </head>
   <body>
-    <MatrixIntro />
     <MagneticCursor />
     <Header />
 
     <main>
-      <!-- ── Hero ──────────────────────────────────────────── -->
-      <section class="hero">
-        <HeroCanvas />
-        <div class="hero__inner">
-          <div class="eyebrow">
-            <span class="status-dot" aria-hidden="true"></span>
-            <span>publicando · entrada {total}</span>
-            <span class="hero__meta-sep">·</span>
-            <span>actualizado {lastUpdated}</span>
-          </div>
-
-          <h1 class="hero__title">Soy Miguel Anay.<br />Forward Deployed<br />Engineer &amp;<br />especialista en<br />ecommerce</h1>
-
-          <p class="hero__lede">
-            Diario público de un ingeniero. Escribo sobre infraestructura,
-            patrones que uso en producción y los errores que cometo
-            desplegando proyectos reales. Sin tutoriales. Sin clickbait.
-          </p>
-
-          <div class="hero__cta">
-            <a href={`/blog/${featured?.slug ?? ""}/`} class="btn-primary">
-              <span aria-hidden="true">›</span> leer el último
-            </a>
-            <a href="/rss.xml" class="btn-ghost">$ subscribe --rss</a>
-          </div>
-
-          <div class="hero__stats">
-            <div class="stat">
-              <span class="stat__k">escritos</span>
-              <span class="stat__v">{total}</span>
-            </div>
-            <div class="stat">
-              <span class="stat__k">categorías</span>
-              <span class="stat__v">{categories.length}</span>
-            </div>
-            <div class="stat">
-              <span class="stat__k">última publicación</span>
-              <span class="stat__v">{lastUpdated}</span>
-            </div>
-            <div class="stat">
-              <span class="stat__k">stack</span>
-              <span class="stat__v">astro · turso · vercel</span>
-            </div>
-          </div>
+      <!-- ── Hero + skills, pinned desk scene behind both ────── -->
+      <div class="scene-stage">
+        <div class="scene-stage__pin" aria-hidden="true">
+          <HeroCanvas />
         </div>
-      </section>
+
+        <!-- ── HUD notes — pinned around the standing avatar by three/notes.ts.
+             A SIBLING of __content, not a child: __content fades out under the
+             notes, and a descendant would inherit that fade. Plain list in
+             normal flow when the 3D scene never runs. ── -->
+        <ul class="hud-notes">
+          <li class="hud-note">Ingeniero titulado UNI</li>
+          <li class="hud-note">DevOps</li>
+          <li class="hud-note">Ingeniero IA</li>
+          <li class="hud-note">Forward Deployed</li>
+        </ul>
+
+        <div class="scene-stage__content">
+          <section class="hero">
+            <div class="hero__inner">
+              <div class="eyebrow">
+                <span class="status-dot" aria-hidden="true"></span>
+                <span>publicando · entrada {total}</span>
+                <span class="hero__meta-sep">·</span>
+                <span>actualizado {lastUpdated}</span>
+              </div>
+
+              <h1 class="hero__title">Soy Miguel Anay.<br />Forward Deployed<br />Engineer &amp;<br />especialista en<br />ecommerce</h1>
+
+              <p class="hero__lede">
+                Diario público de un ingeniero. Escribo sobre infraestructura,
+                patrones que uso en producción y los errores que cometo
+                desplegando proyectos reales. Sin tutoriales. Sin clickbait.
+              </p>
+
+              <div class="hero__cta">
+                <a href={`/blog/${featured?.slug ?? ""}/`} class="btn-primary">
+                  <span aria-hidden="true">›</span> leer el último
+                </a>
+                <a href="/rss.xml" class="btn-ghost">$ subscribe --rss</a>
+              </div>
+
+              <div class="hero__stats">
+                <div class="stat">
+                  <span class="stat__k">escritos</span>
+                  <span class="stat__v">{total}</span>
+                </div>
+                <div class="stat">
+                  <span class="stat__k">categorías</span>
+                  <span class="stat__v">{categories.length}</span>
+                </div>
+                <div class="stat">
+                  <span class="stat__k">última publicación</span>
+                  <span class="stat__v">{lastUpdated}</span>
+                </div>
+                <div class="stat">
+                  <span class="stat__k">stack</span>
+                  <span class="stat__v">astro · turso · vercel</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ── Skills — reveals as the avatar stands up. Plain scroll +
+               CSS/GSAP reveal; never depends on the 3D scene loading. ── -->
+          <section class="section skills" id="skills">
+            <div class="section-head">
+              <div class="section-head__left">
+                <span class="section-head__num">§ 01</span>
+                <h2 class="section-head__title">stack</h2>
+              </div>
+              <span class="section-head__hint"># cat ./stack.txt</span>
+            </div>
+            <ul class="skills__list">
+              {SKILLS.map((skill) => (
+                <li class="skills__tag">{skill}</li>
+              ))}
+            </ul>
+          </section>
+        </div>
+      </div>
 
       <!-- ── Featured ──────────────────────────────────────── -->
       {featured && (
         <section class="section">
           <div class="section-head">
             <div class="section-head__left">
-              <span class="section-head__num">§ 01</span>
+              <span class="section-head__num">§ 02</span>
               <h2 class="section-head__title">destacado</h2>
             </div>
             <span class="section-head__hint"># cat ./posts/_featured.md</span>
@@ -148,7 +196,7 @@ const lastUpdated = allArticles[0]?.publishedAt
       <section class="section">
         <div class="section-head">
           <div class="section-head__left">
-            <span class="section-head__num">§ 02</span>
+            <span class="section-head__num">§ 03</span>
             <h2 class="section-head__title">escritos recientes</h2>
           </div>
           <span class="section-head__hint"># ls -lt posts/</span>
@@ -175,7 +223,7 @@ const lastUpdated = allArticles[0]?.publishedAt
         <section class="section">
           <div class="section-head">
             <div class="section-head__left">
-              <span class="section-head__num">§ 03</span>
+              <span class="section-head__num">§ 04</span>
               <h2 class="section-head__title">por tema</h2>
             </div>
             <span class="section-head__hint"># tree categories/</span>
@@ -334,22 +382,101 @@ const lastUpdated = allArticles[0]?.publishedAt
             },
           );
         });
+
+        // Skills tags — plain scroll reveal, independent of the 3D scene/sceneWeights.
+        // Reduced-motion users skip this matchMedia block entirely and just see
+        // the tags at their base (visible) CSS state.
+        ScrollTrigger.batch('.skills__tag', {
+          onEnter: els => gsap.from(els, { autoAlpha: 0, y: 16, stagger: 0.06, duration: 0.4 }),
+          start: 'top 90%',
+          once: true,
+        });
       });
     </script>
 
     <style>
+      /* Sticky-stage: pin the 3D canvas full-viewport while hero + skills
+         scroll over it in normal flow. Both children share one grid cell
+         (stacking without absolute positioning); the content child's
+         min-height drives how tall the pinned scroll distance is. */
+      .scene-stage {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+      /* STICKY, deliberately. The scene enters as ordinary page content and
+         travels 1:1 with the scroll until it reaches top:0, then latches and is
+         viewport-locked for the rest of the stage — so the opening genuinely
+         moves with the page, and the avatar can still land dead-centre later,
+         because its walk (phase 2) happens long after the latch.
+
+         The 1:1 lead-in equals the pin's distance from the top of the viewport
+         at rest, i.e. the header height (~108px). LEAD_IN below buys more of it
+         by starting the scene lower; set it to 0 to latch immediately.
+
+         `align-self: start` is load-bearing: a grid item is stretched to its
+         row by default, and a stretched item has no room to stick — it would
+         silently behave as `static`. */
+      .scene-stage__pin {
+        grid-area: 1 / 1;
+        align-self: start;
+        position: sticky;
+        top: 0;
+        /* LEAD_IN — how much 1:1 scroll travel before the scene latches. The
+           header already contributes ~108px; this buys more. Raising it makes
+           the opening track the text for longer, at the cost of the scene
+           sitting lower on first paint — past ~25vh the avatar drops below the
+           fold on a short viewport. */
+        margin-top: 0vh;
+        /* Full viewport, both axes. Height at anything under 100vh leaves a
+           band of page background below the scene once the pin is latched.
+           Width needs the 100vw + negative-margin break-out because the pin is
+           a grid item inside the page's --max-w (1440px) column: on a wider
+           screen `width: auto` stops at 1438px and the canvas gets white bars
+           down each side. calc(50% - 50vw) pulls it back to the viewport edge
+           from wherever the column starts. */
+        width: 100vw;
+        margin-left: calc(50% - 50vw);
+        /* svh, not vh: on mobile 100vh is the viewport with the URL bar HIDDEN,
+           so the bottom of the scene sits under the bar until the user scrolls.
+           svh is the smallest (bar visible) height, which never crops. vh first
+           for browsers without svh. */
+        height: 100vh;
+        height: 100svh;
+        overflow: hidden;
+        z-index: 0;
+        pointer-events: none;
+      }
+      .scene-stage__content {
+        grid-area: 1 / 1;
+        z-index: 1;
+        /* THE RUNWAY. The narrative ScrollTrigger runs "top top" -> "bottom
+           bottom", so progress 0..1 spans exactly this minus one viewport —
+           500vh here means 400vh of scroll for the whole beat. Every ramp in
+           three/ is expressed in that 0..1, so this single number sets the
+           pace of ALL of them: the stand, the turn, the walk, the camera
+           pullback, the label reveals and the hologram wipe. Raise it to slow
+           the scene down, at the cost of a longer page. Retiming one beat
+           against the others is a job for that beat's own constants
+           (WIPE_START/WIPE_END and friends in three/avatar.ts), not this. */
+        min-height: 500vh;
+        display: flex;
+        flex-direction: column;
+      }
       .hero {
         padding: var(--hero-pad-y) var(--pad-x);
         border-bottom: 1px dashed var(--border);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
       }
       .hero__inner {
         max-width: var(--max-w);
-        margin: 0 auto;
+        //margin: 0 auto;
       }
       .hero__meta-sep { color: var(--text-faint); margin: 0 4px; }
       .hero__title {
         font-family: var(--font-sans);
-        font-size: clamp(48px, 7vw, 82px);
+        font-size: clamp(32px, 8.5vw, 82px);
         font-weight: 800;
         line-height: 1.02;
         letter-spacing: -0.04em;
@@ -399,6 +526,85 @@ const lastUpdated = allArticles[0]?.publishedAt
         font-weight: 700;
         letter-spacing: -0.02em;
       }
+
+      .skills {
+        min-height: 180vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+      .skills__list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+      .skills__tag {
+        font-family: var(--font-mono);
+        font-size: 14px;
+        color: var(--text-strong);
+        background: var(--bg-raised);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 8px 14px;
+      }
+
+      /* HUD notes. In flow they are a plain list; three/notes.ts sets
+         data-projected on each and pins it to a world anchor, at which point
+         this hologram styling applies. Progressive enhancement, not a
+         fallback — the text is identical either way. The leader line sits at a
+         NEGATIVE offset so it hangs outside the box, not inside the border. */
+      .hud-notes {
+        list-style: none;
+        margin: 32px 0 0;
+        padding: 0 var(--pad-x);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .hud-note {
+        font-family: var(--font-mono);
+        font-size: 15px;
+        color: var(--text-strong);
+      }
+      .hud-note[data-projected] {
+        --hologram-line: #34bcfd;
+        white-space: nowrap;
+        font-size: clamp(15px, 1.25vw, 20px);
+        letter-spacing: 0.01em;
+        padding: 12px 20px;
+        border: 1px solid var(--hologram-line);
+        border-radius: 6px;
+        background: linear-gradient(to bottom, rgb(52 188 253 / 0.18), rgb(52 188 253 / 0.05));
+        backdrop-filter: blur(2px);
+        z-index: 2;
+      }
+      .hud-note[data-projected]::before,
+      .hud-note[data-projected]::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+      }
+      /* Leader line back toward the figure; which edge it leaves from depends
+         on which side of the avatar the note was anchored. */
+      .hud-note[data-projected]::before {
+        width: 22px;
+        border-top: 1px solid var(--hologram-line);
+        transform: translateY(-50%);
+      }
+      .hud-note[data-projected]::after {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: var(--hologram-line);
+        transform: translate(-50%, -50%);
+      }
+      .hud-note[data-side="left"]::before { left: -22px; }
+      .hud-note[data-side="left"]::after  { left: -22px; }
+      .hud-note[data-side="right"]::before { right: -22px; }
+      .hud-note[data-side="right"]::after  { right: -22px; transform: translate(50%, -50%); }
 
       .section-head__left {
         display: flex;
@@ -540,6 +746,132 @@ const lastUpdated = allArticles[0]?.publishedAt
         font-size: 11px;
         color: var(--text-dim);
         margin-top: 12px;
+      }
+
+      /* Reduced-motion: nothing animates (HeroCanvas.astro never loads the
+         3D chunk), so drop the artificial scroll padding — hero and skills
+         sit back-to-back at natural content height instead of forcing a
+         280vh scroll through empty space. */
+      @media (max-aspect-ratio: 6/5) {
+        /* Phone hero: headline in the top band, scene in the clear space under
+           it — the reference's mobile layout, where `.hero-content` is
+           `height: 46%` on mobile and `100%` only in landscape. The supporting
+           copy, the meta line and the buttons are dropped entirely: on a phone
+           they would land on top of the scene, and the reference ships nothing
+           but a headline there either. They stay in the markup for landscape
+           and for anyone without the 3D scene. */
+        .hero {
+          position: relative;
+          min-height: 100svh;
+          /* Headline pinned to the top; every pixel below it is scene. A fixed
+             percentage band was tried first and clipped the headline — a
+             percentage height needs a definite parent height to resolve
+             against, and `min-height` is not one. Letting the copy size itself
+             and pushing it to the top does the same job with nothing to break. */
+          padding-block: 24px 0;
+          align-items: flex-start;
+        }
+        .hero__inner {
+          position: relative;
+          padding-block: 0;
+        }
+        /* Portrait runs the whole beat at a shorter runway — 360vh on a phone is
+           roughly five screens of scrolling for one animation. */
+        .scene-stage__content {
+          min-height: 220vh;
+        }
+        .skills {
+          min-height: 0;
+        }
+        /* DOCKED, not projected. three/notes.ts stops positioning each note in
+           portrait and hands the whole list to this rule, which anchors it to
+           the bottom of the viewport at full width — the reference's mobile
+           treatment. There is no room beside the silhouette on a 390px screen,
+           and a leader line has nothing to point at, so the notes read as one
+           panel under the figure instead of four labels around it. */
+        .hud-notes:has(.hud-note[data-projected]) {
+          position: fixed;
+          left: var(--pad-x);
+          right: var(--pad-x);
+          /* Vertical placement is JS's, not CSS's — three/notes.ts translates
+             the panel to just under the figure's feet and clamps it inside the
+             canvas. A `bottom` here would anchor it to the VIEWPORT, and the
+             panel would sit on the page after the scene had scrolled away. */
+          top: 0;
+          margin: 0;
+          padding: 0;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 8px;
+          z-index: 3;
+        }
+        .hud-note[data-projected] {
+          /* Docked notes carry no leader line — ::before/::after are suppressed
+             below — so they need their own centred, wrapping box. */
+          white-space: normal;
+          text-align: center;
+          font-size: 13px;
+          padding: 10px 8px;
+        }
+        .hud-note[data-projected]::before,
+        .hud-note[data-projected]::after {
+          content: none;
+        }
+      }
+
+      /* Below ~420px two columns cannot hold the longest label on one line at a
+         readable size, so stop fighting it and stack. */
+      @media (max-width: 420px) {
+        .hud-notes:has(.hud-note[data-projected]) {
+          grid-template-columns: 1fr;
+          gap: 6px;
+        }
+        .hud-note[data-projected] {
+          padding: 8px 10px;
+        }
+      }
+
+      /* PHONE only: drop the supporting copy. It is a width decision, not an
+         orientation one — a tablet in portrait has room to keep all of it, and
+         hiding it there threw away content for no gain. Note the media `width`
+         and `innerWidth` disagree under mobile emulation (an iPad portrait
+         reports 820 to CSS and 933 to JS), so this threshold is deliberately
+         far from both. */
+      @media (max-aspect-ratio: 6/5) and (max-width: 600px) {
+        .hero__lede,
+        .hero .eyebrow,
+        .hero__cta,
+        .hero__stats {
+          display: none;
+        }
+      }
+
+      /* TABLET portrait: the scene sits behind the copy rather than beside it,
+         so a left-hugging column reads as misaligned against a centred figure.
+         Everything stays — this only re-centres. */
+      @media (max-aspect-ratio: 6/5) and (min-width: 601px) {
+        .hero {
+          justify-content: center;
+          align-items: center;
+        }
+        .hero__inner {
+          max-width: 760px;
+          margin-inline: auto;
+          text-align: center;
+        }
+        .hero .eyebrow,
+        .hero__cta,
+        .hero__stats {
+          justify-content: center;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .scene-stage__content,
+        .hero,
+        .skills {
+          min-height: 0;
+        }
       }
     </style>
   </body>

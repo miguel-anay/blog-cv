@@ -10,6 +10,16 @@
   .hero-canvas {
     position: absolute;
     inset: 0;
+    /* Explicit, and load-bearing. A <canvas>'s width/height ATTRIBUTES are CSS
+       presentational hints, so with no author rule setting a size they win over
+       `inset: 0` and the element lays out at its drawing-buffer size. stage.ts
+       sets those attributes to css-size x devicePixelRatio (setSize's third arg
+       is false, i.e. "do not touch style"), so on a DPR-2 phone the canvas laid
+       out at twice its box and the scene rendered cropped to the top-left
+       quarter. On a DPR-1 desktop the two happen to match, which is why this
+       never showed up there. */
+    width: 100%;
+    height: 100%;
     z-index: 0;
     pointer-events: none;
   }

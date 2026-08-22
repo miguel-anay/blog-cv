@@ -21,7 +21,7 @@
   --font-serif: 'Newsreader', Georgia, serif;
 
   /* Layout */
-  --max-w: 1180px;
+  --max-w: 1440px;
   --pad-x: 56px;
 
   /* Responsive spacing tokens */
@@ -952,7 +952,10 @@ hr {
 }
 
 /* Header: hide non-essential controls at tablet and below */
-@media (max-width: 768px) {
+/* 900, not 768: the full control cluster measures ~289px, which does not fit
+   beside the wordmark until well past 768 — an 820px tablet overflowed the page
+   horizontally by 113px with the old threshold. */
+@media (max-width: 900px) {
   .header-controls .theme-switcher,
   .header-controls .header-sep,
   .header-controls .kbd {
@@ -1039,20 +1042,26 @@ hr {
   position: relative;
 }
 
-.hero::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h1v24H0zm23 0h1v24h-1zM0 0v1h24V0zm0 23v1h24v-1z' fill='%23ffffff' fill-opacity='0.06'/%3E%3C/svg%3E");
-  mask-image: radial-gradient(ellipse 100% 80% at 50% 0%, black 40%, transparent 100%);
-  -webkit-mask-image: radial-gradient(ellipse 100% 80% at 50% 0%, black 40%, transparent 100%);
-  pointer-events: none;
-  z-index: 0;
-}
-
 .hero__inner {
   position: relative;
   z-index: 1;
+  /* Breathing room so the copy never sits flush against the viewport edge,
+     and never runs under the 3D scene on the right. */
+  padding: 30px;
+  max-width: 62%;
+}
+
+@media (max-width: 900px) {
+  :root {
+    /* 56px a side is a desktop gutter. On a 390px phone it left a 278px column,
+       which is why the hero headline was overflowing horizontally. */
+    --pad-x: 20px;
+  }
+  .hero__inner {
+    /* Narrow viewports put the scene behind the copy rather than beside it,
+       so the width cap would only squeeze the text for no gain. */
+    max-width: none;
+  }
 }
 
 /* ============================================================

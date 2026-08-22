@@ -55,3 +55,7 @@ scripts/_tmp_*.mjs
 playwright-report/
 test-results/
 
+# Third-party 3D models used ONLY for local evaluation.
+# Never commit and never deploy: these are licensed to their authors and
+# redistribution is not granted. Replace with own assets before shipping.
+public/models/_eval/
