@@ -2,5 +2,13 @@
   "buildCommand": "pnpm build",
   "installCommand": "pnpm install --frozen-lockfile",
   "framework": "astro",
-  "outputDirectory": "dist"
+  "outputDirectory": "dist",
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "www.miguel-anay.nom.pe" }],
+      "destination": "https://miguel-anay.nom.pe/:path*",
+      "permanent": true
+    }
+  ]
 }

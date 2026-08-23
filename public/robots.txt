@@ -14,4 +14,4 @@ User-agent: Googlebot-Image
 Allow: /
 
 # Sitemap location
-Sitemap: https://blog.miguel-anay.nom.pe/sitemap-index.xml
+Sitemap: https://miguel-anay.nom.pe/sitemap-index.xml

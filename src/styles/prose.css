@@ -134,6 +134,7 @@
   padding: 1px 6px;
   border-radius: 3px;
   color: var(--text);
+  overflow-wrap: anywhere;
 }
 
 .prose pre {
@@ -376,7 +377,10 @@
 
 @media (max-width: 900px) {
   .article-body__inner {
-    grid-template-columns: 1fr;
+    /* minmax(0, ...), not bare 1fr — a wide child (diagram SVG, unbroken
+       code line) would otherwise blow the track out to its content width
+       instead of shrinking, causing horizontal scroll on the whole page. */
+    grid-template-columns: minmax(0, 1fr);
   }
   .article-aside {
     position: static;

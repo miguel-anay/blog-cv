@@ -11,7 +11,7 @@ import react from '@astrojs/react';
 
 // https://astro.build/docs/guides/deploy/vercel/
 export default defineConfig({
-  site: 'https://blog.miguel-anay.nom.pe',
+  site: 'https://miguel-anay.nom.pe',
 
   output: 'server',
   adapter: vercel(),
@@ -20,8 +20,9 @@ export default defineConfig({
   // host is explicitly allowlisted here — otherwise Astro.url (and the
   // origin used by the built-in CSRF checkOrigin middleware) falls back to
   // "localhost", so no real browser Origin header can ever match behind
-  // Vercel. https://miguel-anay.nom.pe is the actual live custom domain
-  // (blog.miguel-anay.nom.pe in `site` above doesn't currently resolve).
+  // Vercel. miguel-anay.nom.pe (apex) is the canonical domain; www redirects
+  // to it at the Vercel domain level, so it's kept here only as a fallback
+  // for requests that reach the app before that redirect applies.
   security: {
     allowedDomains: [
       { protocol: 'https', hostname: 'miguel-anay.nom.pe' },
