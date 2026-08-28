@@ -15,13 +15,15 @@ const showSessions = isDiplomado && sessions.length > 0;
 
 <nav
   class="course-nav"
-  aria-label={isDiplomado ? 'Semanas del diplomado' : 'Secciones del curso'}
+  aria-label={isDiplomado ? 'Cursos del diplomado' : 'Secciones del curso'}
   data-mode={isDiplomado ? 'diplomado' : 'course'}
 >
-  <div class="course-nav__label">
-    <span class="course-nav__prompt">#</span>
-    <span>{showSessions ? 'sesiones' : isDiplomado ? 'semanas' : 'secciones'}</span>
-  </div>
+  <details class="course-nav__details" open>
+    <summary class="course-nav__label">
+      <span class="course-nav__prompt">#</span>
+      <span>{showSessions ? 'sesiones' : isDiplomado ? 'cursos' : 'secciones'}</span>
+      <span class="course-nav__chevron" aria-hidden="true">▾</span>
+    </summary>
 
   {showSessions ? (
     <ol class="course-nav__list">
@@ -53,9 +55,7 @@ const showSessions = isDiplomado && sessions.length > 0;
             data-section={`section-${section.id}`}
           >
             <span class="course-nav__num">{String(i + 1).padStart(2, '0')}</span>
-            <span class="course-nav__title">
-              {isDiplomado ? `Semana ${section.order}` : section.title}
-            </span>
+            <span class="course-nav__title">{section.title}</span>
             {section.resources.length > 0 && (
               <span class="course-nav__badge">{section.resources.length}</span>
             )}
@@ -64,6 +64,7 @@ const showSessions = isDiplomado && sessions.length > 0;
       ))}
     </ol>
   )}
+  </details>
 </nav>
 
 <script>
@@ -126,6 +127,8 @@ const showSessions = isDiplomado && sessions.length > 0;
     scrollbar-color: var(--border) transparent;
   }
 
+  .course-nav__details { display: contents; }
+
   .course-nav__label {
     display: flex;
     align-items: center;
@@ -137,8 +140,13 @@ const showSessions = isDiplomado && sessions.length > 0;
     letter-spacing: 0.08em;
     padding-bottom: 10px;
     border-bottom: 1px solid var(--border);
+    list-style: none;
+    cursor: default;
   }
+  .course-nav__label::-webkit-details-marker { display: none; }
   .course-nav__prompt { color: var(--accent); }
+
+  .course-nav__chevron { display: none; margin-left: auto; }
 
   .course-nav__list {
     list-style: none;
@@ -227,6 +235,32 @@ const showSessions = isDiplomado && sessions.length > 0;
     .course-nav[data-mode="course"] {
       max-height: 50vh;
       overflow-y: auto;
+    }
+
+    /* Collapsible listview */
+    .course-nav__details { display: block; }
+    .course-nav__label {
+      cursor: pointer;
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+    .course-nav__chevron {
+      display: inline-block;
+      transition: transform 0.15s;
+    }
+    .course-nav__details[open] .course-nav__chevron { transform: rotate(180deg); }
+    .course-nav__details[open] .course-nav__label {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+      margin-bottom: 4px;
+    }
+    .course-nav[data-mode="diplomado"] {
+      max-height: none;
+    }
+    .course-nav[data-mode="diplomado"] .course-nav__details[open] {
+      max-height: 50vh;
+      overflow-y: auto;
+      display: block;
     }
   }
 </style>

@@ -42,23 +42,29 @@ marked.setOptions({ gfm: true, breaks: true });
 
       {section.resources.length > 0 && (() => {
         const sessions = groupSessions(section.resources);
-        return sessions.length > 0 ? (
-          <div class="section__sessions">
-            {sessions.map((session) => (
-              <SessionBlock session={session} />
-            ))}
-          </div>
-        ) : (
-          <div class="section__resources">
-            <span class="section__resources-label">
-              <span class="section__resources-prompt">$</span> recursos
-            </span>
-            <div class="section__resources-list">
-              {section.resources.map((resource) => (
-                <ResourceItem resource={resource} anchorId={`resource-${resource.id}`} />
-              ))}
-            </div>
-          </div>
+        const ungrouped = section.resources.filter((r) => r.sessionNumber == null);
+        return (
+          <>
+            {sessions.length > 0 && (
+              <div class="section__sessions">
+                {sessions.map((session) => (
+                  <SessionBlock session={session} />
+                ))}
+              </div>
+            )}
+            {(sessions.length === 0 || ungrouped.length > 0) && (
+              <div class="section__resources">
+                <span class="section__resources-label">
+                  <span class="section__resources-prompt">$</span> recursos
+                </span>
+                <div class="section__resources-list">
+                  {(sessions.length > 0 ? ungrouped : section.resources).map((resource) => (
+                    <ResourceItem resource={resource} anchorId={`resource-${resource.id}`} />
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
         );
       })()}
     </div>
