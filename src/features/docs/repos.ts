@@ -14,10 +14,10 @@ export interface DocRepo {
 export const DOC_REPOS: DocRepo[] = [
   {
     owner: 'miguel-anay',
-    repo: 'career-ops',
-    title: 'career-ops',
-    description: 'AI-powered job search system built on Claude Code: skill modes, Go dashboard, PDF generation and batch processing.',
-    stack: 'claude-code · go · node',
+    repo: 'duck-kit',
+    title: 'duck',
+    description: 'Claude Code plugin that packages a workflow: one branch per task, a single gate to the remote, and a ticket that follows the work (Jira or GitHub Projects).',
+    stack: 'claude-code · node · git',
   },
 ];
 
