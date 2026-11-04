@@ -113,21 +113,6 @@ const loopAttr = loop ? "true" : null;
     height: auto;
   }
 
-  /* draw.io exporta TODOS los colores con light-dark(), que se resuelve por
-     color-scheme y por defecto sigue al sistema operativo. Este blog no usa
-     prefers-color-scheme: el tema vive en <html data-theme> + [data-mode].
-     Atamos color-scheme al toggle del sitio para que el diagrama (fondo, cajas,
-     textos) acompane el tema elegido y no el del SO. */
-  .diagram-block-svg :global(svg),
-  .diagram-modal-body :global(svg) {
-    color-scheme: dark;
-  }
-
-  :global([data-mode="light"]) .diagram-block-svg :global(svg),
-  :global([data-mode="light"]) .diagram-modal-body :global(svg) {
-    color-scheme: light;
-  }
-
   /* El diagrama inline es un boton para que ampliar funcione con teclado. */
   .diagram-zoom {
     display: block;
@@ -136,11 +121,11 @@ const loopAttr = loop ? "true" : null;
     border: 0;
     background: none;
     cursor: zoom-in;
-    border-radius: 8px;
+    border-radius: var(--radius-md);
   }
 
   .diagram-zoom:focus-visible {
-    outline: 2px solid rgb(59, 130, 246);
+    outline: 2px solid var(--accent-bright);
     outline-offset: 4px;
   }
 
@@ -149,13 +134,13 @@ const loopAttr = loop ? "true" : null;
     max-width: 96vw;
     max-height: 94vh;
     padding: 1.75rem 1.25rem 1.25rem;
-    border: 0;
-    border-radius: 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
     /* Canvas/CanvasText siguen a color-scheme, igual que el light-dark() que
        usan los colores del SVG exportado por draw.io: asi el fondo del modal y
        el diagrama nunca quedan en temas opuestos. */
     background: var(--bg-raised, Canvas);
-    color: var(--fg, CanvasText);
+    color: var(--text, CanvasText);
     overflow: auto;
   }
 
@@ -169,22 +154,23 @@ const loopAttr = loop ? "true" : null;
     max-height: 86vh;
   }
 
-  /* El blog fija el tema con html[data-theme] + html[data-mode], no con
-     prefers-color-scheme. Los colores del SVG de draw.io usan light-dark(), que
-     se resuelve por color-scheme, asi que hay que atarlo al tema de la pagina o
-     el diagrama sale oscuro sobre fondo claro (o al reves) cuando el SO no
-     coincide. El !important es necesario: el <svg> exportado trae
-     color-scheme en su atributo style inline, y solo !important lo gana. */
+  /* draw.io exporta TODOS los colores con light-dark(), que se resuelve por
+     color-scheme y por defecto sigue al sistema operativo. Este blog no usa
+     prefers-color-scheme: claro es el default (sin atributo) y oscuro es
+     html[data-mode="dark"]. Atamos color-scheme a ese toggle para que el
+     diagrama (fondo, cajas, textos) acompane el modo elegido y no el del SO.
+     El !important es necesario: el <svg> exportado trae color-scheme en su
+     atributo style inline, y solo !important lo gana. */
   .diagram-block-svg :global(svg),
   .diagram-modal-body :global(svg),
   .diagram-modal {
-    color-scheme: dark !important;
+    color-scheme: light !important;
   }
 
-  :global(html[data-mode="light"]) .diagram-block-svg :global(svg),
-  :global(html[data-mode="light"]) .diagram-modal-body :global(svg),
-  :global(html[data-mode="light"]) .diagram-modal {
-    color-scheme: light !important;
+  :global(html[data-mode="dark"]) .diagram-block-svg :global(svg),
+  :global(html[data-mode="dark"]) .diagram-modal-body :global(svg),
+  :global(html[data-mode="dark"]) .diagram-modal {
+    color-scheme: dark !important;
   }
 
   /* En pantallas chicas escalar a lo ancho vuelve el texto ilegible: el canvas
@@ -223,32 +209,20 @@ const loopAttr = loop ? "true" : null;
     border: 0;
     border-radius: 999px;
     background: transparent;
-    color: rgb(107, 114, 128);
+    color: var(--text-dim);
     cursor: pointer;
   }
 
   .diagram-modal-close:hover {
-    background: rgb(0 0 0 / 0.07);
-  }
-
-  :global(.dark) .diagram-modal-close {
-    color: rgb(156, 163, 175);
-  }
-
-  :global(.dark) .diagram-modal-close:hover {
-    background: rgb(255 255 255 / 0.1);
+    background: var(--bg-sunken);
+    color: var(--text-strong);
   }
 
   .diagram-block figcaption {
     margin-top: 0.75rem;
-    font-size: 0.875rem;
-    color: rgb(107, 114, 128);
-    font-style: italic;
+    font-size: var(--fs-caption);
+    color: var(--text-dim);
     text-align: center;
-  }
-
-  :global(.dark) .diagram-block figcaption {
-    color: rgb(156, 163, 175);
   }
 </style>
 

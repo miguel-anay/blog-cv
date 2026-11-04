@@ -26,9 +26,8 @@ const { data: articles, meta } = await getArticles({ page: pageNum, pageSize: 10
     <main>
       <section class="page-head">
         <div class="page-head__inner">
-          <h1 class="page-title">
-            Blog — <span class="accent">página {pageNum}</span>
-          </h1>
+          <p class="page-head__eyebrow">Blog</p>
+          <h1 class="page-head__title">Página {pageNum}</h1>
         </div>
       </section>
 
@@ -36,7 +35,7 @@ const { data: articles, meta } = await getArticles({ page: pageNum, pageSize: 10
         <div class="posts-inner">
           <div class="posts-head">
             <span class="posts-count">
-              página {meta.page} de {meta.pageCount} · {meta.total} escritos
+              Página {meta.page} de {meta.pageCount} · {meta.total} artículos
             </span>
           </div>
 
@@ -55,16 +54,16 @@ const { data: articles, meta } = await getArticles({ page: pageNum, pageSize: 10
           </ol>
 
           <nav class="pager" aria-label="Paginación">
-            <span class="pager__info">página {meta.page} de {meta.pageCount}</span>
+            <span class="pager__info">Página {meta.page} de {meta.pageCount}</span>
             <div class="pager__nav">
               {pageNum > 1 && (
                 <a href={pageNum === 2 ? "/blog" : `/blog/page/${pageNum - 1}`} class="pager__item">
-                  ← prev
+                  ← Anterior
                 </a>
               )}
               <span class="pager__active">{pageNum}</span>
               {pageNum < meta.pageCount && (
-                <a href={`/blog/page/${pageNum + 1}`} class="pager__item">next →</a>
+                <a href={`/blog/page/${pageNum + 1}`} class="pager__item">Siguiente →</a>
               )}
             </div>
           </nav>
@@ -75,64 +74,38 @@ const { data: articles, meta } = await getArticles({ page: pageNum, pageSize: 10
     <Footer />
 
     <style>
-      .page-head { border-bottom: 1px dashed var(--border); }
-      .page-head__inner { max-width: var(--max-w); margin: 0 auto; padding: 72px var(--pad-x) 64px; }
-      .page-title {
-        font-family: var(--font-sans);
-        font-size: clamp(36px, 5vw, 56px);
-        font-weight: 800;
-        line-height: 1.05;
-        letter-spacing: -0.035em;
-        color: var(--text-strong);
-        margin: 0;
-      }
-      .accent { color: var(--accent); }
-
-      .posts-inner { max-width: var(--max-w); margin: 0 auto; padding: 48px var(--pad-x) 80px; }
-      .posts-head {
-        display: flex;
-        justify-content: space-between;
-        align-items: baseline;
-        margin-bottom: 24px;
-        padding-bottom: 16px;
-        border-bottom: 1px solid var(--border);
-      }
-      .posts-count { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); }
+      .posts-inner { max-width: var(--max-w); margin: 0 auto; padding: 32px var(--pad-x) var(--section-pad-y); }
+      .posts-head { margin-bottom: 8px; }
+      .posts-count { font-size: var(--fs-caption); color: var(--text-dim); }
       .post-list { list-style: none; padding: 0; margin: 0; }
 
       .pager {
-        margin-top: 48px;
+        margin-top: 40px;
         padding-top: 24px;
-        border-top: 1px solid var(--border);
+        border-top: 1px solid var(--border-dim);
         display: flex;
         justify-content: space-between;
         align-items: center;
         flex-wrap: wrap;
         gap: 16px;
       }
-      .pager__info { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); }
-      .pager__nav {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        font-family: var(--font-mono);
-        font-size: 13px;
-      }
+      .pager__info { font-size: var(--fs-caption); color: var(--text-muted); }
+      .pager__nav { display: flex; align-items: center; gap: 4px; font-size: var(--fs-sm); }
       .pager__active {
-        color: var(--accent-on);
-        background: var(--accent);
-        padding: 6px 12px;
-        border-radius: 4px;
-        font-weight: 600;
+        color: var(--on-primary);
+        background: var(--primary);
+        padding: 4px 12px;
+        border-radius: var(--radius-full);
+        font-weight: 500;
       }
       .pager__item {
         color: var(--text);
-        padding: 6px 12px;
+        padding: 4px 12px;
         border: 1px solid var(--border);
-        border-radius: 4px;
+        border-radius: var(--radius-full);
         text-decoration: none;
       }
-      .pager__item:hover { border-color: var(--accent); color: var(--accent); }
+      .pager__item:hover { border-color: var(--border-strong); color: var(--text-strong); }
     </style>
   </body>
 </html>

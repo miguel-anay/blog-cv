@@ -15,23 +15,18 @@ const {
   description,
   pubDate,
   slug,
-  index,
-  postId,
   readMin = 5,
   categories,
 } = Astro.props;
 
-const num = postId ?? (index != null ? `0x${index.toString(16).padStart(2, "0")}` : "");
-
 const dateFmt = pubDate
-  ? pubDate.toLocaleDateString("es-PE", { year: "numeric", month: "2-digit", day: "2-digit" })
+  ? pubDate.toLocaleDateString("es-PE", { year: "numeric", month: "short", day: "numeric" })
   : "";
 
 const cat = categories && categories.length > 0 ? categories[0] : null;
 ---
 
 <a href={`/blog/${slug}/`} class="blog-card">
-  <div class="blog-card__num">{num}</div>
   <div class="blog-card__body">
     <div class="blog-card__meta">
       {cat && <span class="blog-card__cat">{cat.name}</span>}

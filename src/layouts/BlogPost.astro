@@ -23,18 +23,19 @@ const {
   updatedDate,
   heroImage,
   readMin = 6,
-  categorySlug,
-  categoryName,
-  author = { name: "Miguel Anay", initials: "MA", meta: "ingeniero · Lima, PE · @miguel-anay" },
+  categories,
+  categorySlug: categorySlugProp,
+  categoryName: categoryNameProp,
+  author = { name: "Miguel Anay", initials: "MA", meta: "Ingeniero · Lima, PE" },
   prev,
   next,
-  slug,
 } = Astro.props;
 
 const fmt = (d: Date | string | undefined) =>
-  d ? new Date(d).toLocaleDateString("es-PE", { year: "numeric", month: "2-digit", day: "2-digit" }) : "—";
+  d ? new Date(d).toLocaleDateString("es-PE", { year: "numeric", month: "long", day: "numeric" }) : "—";
 
-const slugNoExt = slug ?? title.toLowerCase().replace(/\s+/g, "-");
+const categorySlug = categorySlugProp ?? categories?.[0]?.slug;
+const categoryName = categoryNameProp ?? categories?.[0]?.name ?? categorySlug;
 ---
 
 <!doctype html>
@@ -50,53 +51,15 @@ const slugNoExt = slug ?? title.toLowerCase().replace(/\s+/g, "-");
       <!-- ── Article header ─────────────────────────────── -->
       <section class="article-header">
         <div class="article-header__inner">
-          <nav class="article-crumb" aria-label="ruta">
-            <a href="/">./</a>
-            <span class="article-crumb__sep">/</span>
-            <a href="/blog">blog</a>
+          <nav class="article-crumb" aria-label="Ruta">
+            <a href="/blog">Blog</a>
             {categorySlug && (
               <>
-                <span class="article-crumb__sep">/</span>
-                <a href={`/blog/category/${categorySlug}`} class="article-crumb__cat">{categorySlug}</a>
+                <span aria-hidden="true">/</span>
+                <a href={`/blog/category/${categorySlug}`} class="article-crumb__cat">{categoryName}</a>
               </>
             )}
-            <span class="article-crumb__sep">/</span>
-            <span class="article-crumb__active">{slugNoExt}.md</span>
           </nav>
-
-          <div class="article-frontmatter">
-            <span class="article-frontmatter__delim">---</span>
-            <div class="article-frontmatter__line">
-              <span class="article-frontmatter__key">title</span>
-              <span class="article-frontmatter__colon">:</span>
-              <span class="article-frontmatter__val">"{title}"</span>
-            </div>
-            {categorySlug && (
-              <div class="article-frontmatter__line">
-                <span class="article-frontmatter__key">category</span>
-                <span class="article-frontmatter__colon">:</span>
-                <span class="article-frontmatter__val">{categorySlug}</span>
-              </div>
-            )}
-            <div class="article-frontmatter__line">
-              <span class="article-frontmatter__key">published</span>
-              <span class="article-frontmatter__colon">:</span>
-              <span class="article-frontmatter__val">{fmt(pubDate)}</span>
-            </div>
-            {updatedDate && (
-              <div class="article-frontmatter__line">
-                <span class="article-frontmatter__key">updated</span>
-                <span class="article-frontmatter__colon">:</span>
-                <span class="article-frontmatter__val">{fmt(updatedDate)}</span>
-              </div>
-            )}
-            <div class="article-frontmatter__line">
-              <span class="article-frontmatter__key">read</span>
-              <span class="article-frontmatter__colon">:</span>
-              <span class="article-frontmatter__val">{readMin} min</span>
-            </div>
-            <span class="article-frontmatter__delim">---</span>
-          </div>
 
           <h1 class="article-title">{title}</h1>
           {description && <p class="article-dek">{description}</p>}
@@ -110,9 +73,15 @@ const slugNoExt = slug ?? title.toLowerCase().replace(/\s+/g, "-");
               </div>
             </div>
             <div class="article-byline__meta">
-              <span>{fmt(pubDate)}</span>
+              <time datetime={pubDate ? new Date(pubDate).toISOString() : undefined}>{fmt(pubDate)}</time>
               <span class="article-byline__sep">·</span>
-              <span>{readMin} min</span>
+              <span>{readMin} min de lectura</span>
+              {updatedDate && (
+                <>
+                  <span class="article-byline__sep">·</span>
+                  <span>Actualizado {fmt(updatedDate)}</span>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -127,17 +96,15 @@ const slugNoExt = slug ?? title.toLowerCase().replace(/\s+/g, "-");
 
           <aside class="article-aside">
             <div class="aside-box">
-              <div class="aside-box__h">
-                <span class="aside-box__h-mark">{`//`}</span> en esta página
-              </div>
+              <div class="aside-box__h">En esta página</div>
               <ol class="toc-list" id="toc-list">
-                <li>Cargando TOC...</li>
+                <li>Cargando…</li>
               </ol>
             </div>
             <div class="aside-box">
-              <div class="aside-box__h"># compartir</div>
-              <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(Astro.url.toString())}`} target="_blank" rel="noopener" class="aside-box__link">$ tweet</a>
-              <a href={Astro.url.toString()} class="aside-box__link" data-copy-url>$ copy url</a>
+              <div class="aside-box__h">Compartir</div>
+              <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(Astro.url.toString())}`} target="_blank" rel="noopener" class="aside-box__link">Compartir en X</a>
+              <a href={Astro.url.toString()} class="aside-box__link" data-copy-url>Copiar enlace</a>
             </div>
           </aside>
         </div>
@@ -149,13 +116,13 @@ const slugNoExt = slug ?? title.toLowerCase().replace(/\s+/g, "-");
           <div class="prevnext__inner">
             {prev ? (
               <a href={`/blog/${prev.slug}/`} class="prevnext__card">
-                <span class="prevnext__label">← prev</span>
+                <span class="prevnext__label">← Anterior</span>
                 <span class="prevnext__title">{prev.title}</span>
               </a>
             ) : <span></span>}
             {next ? (
               <a href={`/blog/${next.slug}/`} class="prevnext__card prevnext__card--next">
-                <span class="prevnext__label">next →</span>
+                <span class="prevnext__label">Siguiente →</span>
                 <span class="prevnext__title">{next.title}</span>
               </a>
             ) : <span></span>}
@@ -167,28 +134,13 @@ const slugNoExt = slug ?? title.toLowerCase().replace(/\s+/g, "-");
     <Footer />
 
     <style>
-      .article-crumb {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-family: var(--font-mono);
-        font-size: 12px;
-        color: var(--text-muted);
-        margin-bottom: 36px;
-        flex-wrap: wrap;
-      }
-      .article-crumb a { color: var(--text-muted); }
-      .article-crumb__cat { color: var(--accent); }
-      .article-crumb__sep { color: var(--text-faint); }
-      .article-crumb__active { color: var(--text); }
       .aside-box__link {
         display: block;
-        font-family: var(--font-mono);
-        font-size: 13px;
-        color: var(--text);
-        padding: 5px 0;
+        font-size: var(--fs-caption);
+        color: var(--text-muted);
+        padding: 4px 0;
       }
-      .aside-box__link:hover { color: var(--accent); }
+      .aside-box__link:hover { color: var(--text-strong); }
 
       @media (max-width: 767px) {
         .article-aside { display: none; }
@@ -250,7 +202,7 @@ const slugNoExt = slug ?? title.toLowerCase().replace(/\s+/g, "-");
             const url = (el as HTMLAnchorElement).href;
             navigator.clipboard.writeText(url).then(() => {
               const orig = el.textContent;
-              el.textContent = "✓ copiado";
+              el.textContent = "Copiado";
               setTimeout(() => { el.textContent = orig; }, 1500);
             });
           });
