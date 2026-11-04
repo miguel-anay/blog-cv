@@ -48,6 +48,12 @@ const next = pages[index + 1];
         <a href="/docs" class="docs-tree__back">← ./docs</a>
         <p class="docs-tree__repo"><span class="accent">~/</span>{repo.repo}</p>
 
+        <!-- Open by default (desktop, no-JS); the script below collapses it on small screens. -->
+        <details id="docs-tree-panel" class="docs-tree__panel" open>
+        <summary class="docs-tree__toggle">
+          <span class="accent">$</span> tree <span class="docs-tree__current">{current ?? 'README.md'}</span>
+        </summary>
+
         <div class="docs-search">
           <label class="docs-search__prompt" for="docs-search">/</label>
           <input id="docs-search" type="search" placeholder="search docs" autocomplete="off" />
@@ -72,6 +78,7 @@ const next = pages[index + 1];
             </li>
           ))}
         </ul>
+        </details>
       </aside>
 
       <article class="docs-body">
@@ -219,9 +226,22 @@ const next = pages[index + 1];
         .docs { grid-template-columns: minmax(0, 1fr); padding: 24px 16px 64px; gap: 24px; }
         .docs-tree { position: static; max-height: none; border-bottom: 1px dashed var(--border); padding-bottom: 16px; }
       }
+      .docs-tree__toggle { display: none; align-items: center; gap: 8px; cursor: pointer; list-style: none; padding: 10px 12px; border: 1px solid var(--border); background: var(--bg-sunken); color: var(--text-muted); }
+      .docs-tree__toggle::-webkit-details-marker { display: none; }
+      .docs-tree__toggle::after { content: '▾'; margin-left: auto; color: var(--text-dim); }
+      .docs-tree__panel[open] .docs-tree__toggle::after { content: '▴'; }
+      .docs-tree__current { color: var(--text-strong); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      @media (max-width: 760px) {
+        .docs-tree__toggle { display: flex; }
+        .docs-tree__panel[open] .docs-tree__toggle { margin-bottom: 16px; }
+      }
     </style>
 
     <script>
+      // Collapse the docs tree on small screens so the article comes first.
+      const panel = document.getElementById('docs-tree-panel') as HTMLDetailsElement | null;
+      if (panel && window.matchMedia('(max-width: 760px)').matches) panel.open = false;
+
       // Client-side search over /docs/search.json (loaded on first focus). "/" focuses the box.
       type Entry = { repo: string; title: string; url: string; headings: string[] };
       const input = document.getElementById('docs-search') as HTMLInputElement | null;
@@ -246,7 +266,7 @@ const next = pages[index + 1];
       input?.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') { input.value = ''; render(); input.blur(); } });
       document.addEventListener('keydown', (ev) => {
         const typing = ev.target instanceof HTMLInputElement || ev.target instanceof HTMLTextAreaElement;
-        if (ev.key === '/' && !typing) { ev.preventDefault(); input?.focus(); }
+        if (ev.key === '/' && !typing) { ev.preventDefault(); if (panel) panel.open = true; input?.focus(); }
       });
       document.addEventListener('click', (ev) => { if (list && !list.parentElement?.contains(ev.target as Node)) list.hidden = true; });
     </script>
