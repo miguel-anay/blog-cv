@@ -1,0 +1,85 @@
+---
+import BaseHead from '../../components/seo/BaseHead.astro';
+import Header from '../../components/layout/Header.astro';
+import Footer from '../../components/layout/Footer.astro';
+import { DOC_REPOS } from '../../features/docs/repos';
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <BaseHead title="Docs — Miguel Anay" description="Documentación de mis repositorios de GitHub, leída directo desde cada repo." />
+  </head>
+  <body>
+    <Header />
+
+    <main>
+      <section class="page-head">
+        <div class="page-head__inner">
+          <nav class="page-crumb">
+            <span class="accent">$</span>
+            <span class="muted">ls</span>
+            <span>./docs</span>
+            <span class="page-crumb__cursor" aria-hidden="true"></span>
+          </nav>
+          <h1 class="page-title">
+            {DOC_REPOS.length} {DOC_REPOS.length === 1 ? 'repositorio' : 'repositorios'}.<br />
+            Documentados desde su <span class="accent">propio código</span>.
+          </h1>
+        </div>
+      </section>
+
+      <section class="repos">
+        {DOC_REPOS.map((r) => (
+          <a href={`/docs/${r.repo}`} class="repo">
+            <span class="repo__path"><span class="accent">~/</span>{r.owner}/{r.repo}</span>
+            <span class="repo__title">{r.title}</span>
+            <span class="repo__desc">{r.description}</span>
+            <span class="repo__stack">{r.stack}</span>
+          </a>
+        ))}
+      </section>
+    </main>
+
+    <Footer />
+
+    <style>
+      .accent { color: var(--accent); }
+      .muted { color: var(--text-muted); }
+      .page-head { border-bottom: 1px dashed var(--border); }
+      .page-head__inner { max-width: var(--max-w); margin: 0 auto; padding: 72px var(--pad-x) 64px; }
+      .page-crumb { display: flex; align-items: center; gap: 10px; font-family: var(--font-mono); font-size: 13px; color: var(--text); margin-bottom: 28px; }
+      .page-crumb__cursor { width: 8px; height: 14px; background: var(--accent); display: inline-block; margin-left: 4px; animation: blink 1s steps(2, end) infinite; }
+      @keyframes blink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }
+      .page-title { font-family: var(--font-sans); font-size: clamp(36px, 5vw, 56px); font-weight: 800; line-height: 1.05; letter-spacing: -0.035em; color: var(--text-strong); margin: 0; max-width: 920px; }
+
+      .repos {
+        max-width: var(--max-w);
+        margin: 0 auto;
+        padding: 48px var(--pad-x) 80px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 20px;
+      }
+      .repo {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 24px;
+        border: 1px solid var(--border);
+        background: var(--bg-raised);
+        text-decoration: none;
+        transition: border-color 0.15s;
+      }
+      .repo:hover { border-color: var(--accent); }
+      .repo__path, .repo__stack { font-family: var(--font-mono); font-size: 12px; color: var(--text-dim); }
+      .repo__title { font-family: var(--font-sans); font-size: 22px; font-weight: 700; color: var(--text-strong); }
+      .repo__desc { color: var(--text-muted); line-height: 1.6; flex: 1; }
+
+      @media (max-width: 760px) {
+        .page-head__inner, .repos { padding-left: 16px; padding-right: 16px; }
+        .repos { grid-template-columns: minmax(0, 1fr); }
+      }
+    </style>
+  </body>
+</html>

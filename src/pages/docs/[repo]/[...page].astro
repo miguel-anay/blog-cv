@@ -1,0 +1,38 @@
+---
+// /docs/<repo>         → README.md
+// /docs/<repo>/<page>  → docs/<PAGE>.md
+import DocsShell from '../../../features/docs/components/DocsShell.astro';
+import { findDocRepo } from '../../../features/docs/repos';
+import { DEFAULT_BRANCH, docSlug, extractToc, getDocHtml, getLastModified, listDocFiles } from '../../../features/docs/lib/github-docs';
+
+const repo = findDocRepo(Astro.params.repo);
+if (!repo) return new Response(null, { status: 404, statusText: 'Not Found' });
+
+let docFiles: string[];
+let html: string | null;
+let lastModified: Date | null;
+let current: string | undefined;
+let sourcePath = 'README.md';
+
+try {
+  docFiles = await listDocFiles(repo.owner, repo.repo);
+  if (Astro.params.page) {
+    current = docFiles.find((f) => docSlug(f) === Astro.params.page);
+    if (!current) return new Response(null, { status: 404, statusText: 'Not Found' });
+    sourcePath = `docs/${current}`;
+  }
+  [html, lastModified] = await Promise.all([
+    getDocHtml({ owner: repo.owner, repo: repo.repo, branch: DEFAULT_BRANCH, path: sourcePath, docFiles }),
+    getLastModified(repo.owner, repo.repo, sourcePath),
+  ]);
+} catch (error) {
+  console.error('[docs] GitHub fetch failed:', error);
+  return new Response('Docs temporarily unavailable', { status: 502 });
+}
+if (html === null) return new Response(null, { status: 404, statusText: 'Not Found' });
+
+// ponytail: Vercel CDN cache instead of an app cache; edits on GitHub show up within 10 min.
+Astro.response.headers.set('Cache-Control', 'public, s-maxage=600, stale-while-revalidate=86400');
+---
+
+<DocsShell repo={repo} docFiles={docFiles} current={current} html={html} toc={extractToc(html)} sourcePath={sourcePath} lastModified={lastModified} />
