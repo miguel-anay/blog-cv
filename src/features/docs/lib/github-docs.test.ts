@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { docSlug, docTitle, rewriteDocHtml, extractToc, docPathsFromTree, buildTree } from './github-docs';
+import { docSlug, docTitle, rewriteDocHtml, extractToc, extractTitle, docPathsFromTree, buildTree } from './github-docs';
 
 describe('docPathsFromTree', () => {
   it('keeps markdown blobs under docs/, relative to docs/, including subfolders', () => {
@@ -88,6 +88,17 @@ describe('rewriteDocHtml', () => {
   it('leaves absolute, anchor and mail links untouched', () => {
     const html = '<a href="https://x.dev">a</a><a href="#top">b</a><a href="mailto:a@b.c">c</a><img src="https://camo.githubusercontent.com/i">';
     expect(rewriteDocHtml(html, ctx)).toBe(html);
+  });
+});
+
+describe('extractTitle', () => {
+  it('returns the text of the first h1, with tags and entities decoded', () => {
+    const html = '<div class="markdown-heading"><h1 class="heading-element">METODO — el <code>flujo</code> &amp; más</h1><a id="x"></a></div><h1>Second</h1>';
+    expect(extractTitle(html)).toBe('METODO — el flujo & más');
+  });
+
+  it('returns null when there is no h1', () => {
+    expect(extractTitle('<h2>Only h2</h2>')).toBeNull();
   });
 });
 
