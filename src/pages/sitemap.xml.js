@@ -1,3 +1,22 @@
+import { DOC_REPOS } from '../features/docs/repos';
+import { docSlug, listDocFiles } from '../features/docs/lib/github-docs';
+
+// Docs URLs: /docs, each repo intro and every docs/ page. A GitHub failure drops only that repo.
+async function docsPages() {
+  const perRepo = await Promise.all(
+    DOC_REPOS.map(async (r) => {
+      try {
+        const files = await listDocFiles(r.owner, r.repo);
+        return [`docs/${r.repo}`, ...files.map((f) => `docs/${r.repo}/${docSlug(f)}`)];
+      } catch (error) {
+        console.error(`[sitemap] docs listing failed for ${r.repo}:`, error);
+        return [`docs/${r.repo}`];
+      }
+    }),
+  );
+  return ['docs', ...perRepo.flat()];
+}
+
 export async function GET(context) {
   const site = context.site;
 
@@ -5,7 +24,8 @@ export async function GET(context) {
     '',
     'about',
     'blog',
-    'blog/categories'
+    'blog/categories',
+    ...(await docsPages()),
   ];
 
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>

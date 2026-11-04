@@ -1,0 +1,254 @@
+---
+// Docs page shell: file-tree sidebar · GitHub-rendered article · grep-style TOC.
+import BaseHead from '../../../components/seo/BaseHead.astro';
+import Header from '../../../components/layout/Header.astro';
+import Footer from '../../../components/layout/Footer.astro';
+import '../../../styles/prose.css';
+import { buildTree, docSlug, docTitle, type TocItem } from '../lib/github-docs';
+import type { DocRepo } from '../repos';
+
+interface Props {
+  repo: DocRepo;
+  /** Docs-relative markdown paths, in tree order. */
+  docFiles: string[];
+  /** Current docs-relative path, undefined for the README intro. */
+  current?: string;
+  html: string;
+  toc: TocItem[];
+  sourcePath: string;
+  lastModified: Date | null;
+}
+
+const { repo, docFiles, current, html, toc, sourcePath, lastModified } = Astro.props;
+const pageTitle = current ? docTitle(current) : 'Introduction';
+const base = `/docs/${repo.repo}`;
+const editUrl = `https://github.com/${repo.owner}/${repo.repo}/blob/HEAD/${sourcePath}`;
+const href = (path: string) => `${base}/${docSlug(path)}`;
+const tree = buildTree(docFiles);
+
+// Reading order for prev/next follows the sidebar tree.
+const pages = [{ href: base, label: 'README.md', active: !current }].concat(
+  tree.filter((r) => r.kind === 'file').map((r) => ({ href: href(r.path!), label: r.name, active: r.path === current })),
+);
+const index = pages.findIndex((p) => p.active);
+const prev = pages[index - 1];
+const next = pages[index + 1];
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <BaseHead title={`${pageTitle} — ${repo.title} docs`} description={repo.description} />
+  </head>
+  <body>
+    <Header />
+
+    <main class="docs">
+      <aside class="docs-tree" aria-label={`${repo.title} documentation`}>
+        <a href="/docs" class="docs-tree__back">← ./docs</a>
+        <p class="docs-tree__repo"><span class="accent">~/</span>{repo.repo}</p>
+
+        <div class="docs-search">
+          <label class="docs-search__prompt" for="docs-search">/</label>
+          <input id="docs-search" type="search" placeholder="search docs" autocomplete="off" />
+          <ul id="docs-search-results" class="docs-search__results" hidden></ul>
+        </div>
+
+        <ul>
+          <li>
+            <a href={base} class={!current ? 'is-active' : ''} aria-current={!current ? 'page' : undefined}>README.md</a>
+          </li>
+          {tree.length > 0 && <li class="docs-tree__dir">docs/</li>}
+          {tree.map((row) => (
+            <li>
+              <span class="docs-tree__branch" aria-hidden="true">{'    '.repeat(row.depth)}{row.last ? '└── ' : '├── '}</span>
+              {row.kind === 'dir' ? (
+                <span class="docs-tree__dir">{row.name}</span>
+              ) : (
+                <a href={href(row.path!)} class={row.path === current ? 'is-active' : ''} aria-current={row.path === current ? 'page' : undefined}>
+                  {row.name}
+                </a>
+              )}
+            </li>
+          ))}
+        </ul>
+      </aside>
+
+      <article class="docs-body">
+        <nav class="docs-crumb">
+          <span class="accent">$</span> <span class="muted">cat</span> {repo.repo}/{sourcePath}
+        </nav>
+        <div class="prose" set:html={html} />
+
+        <footer class="docs-foot">
+          <div class="docs-foot__meta">
+            <a href={editUrl} rel="noopener">edit on github ↗</a>
+            {lastModified && (
+              <span>last commit <time datetime={lastModified.toISOString()}>{lastModified.toISOString().slice(0, 10)}</time></span>
+            )}
+          </div>
+          <div class="docs-foot__pager">
+            {prev && <a href={prev.href}>← {prev.label}</a>}
+            {next && <a href={next.href} class="next">{next.label} →</a>}
+          </div>
+        </footer>
+      </article>
+
+      {toc.length > 0 && (
+        <aside class="docs-toc" aria-label="On this page">
+          <p class="docs-toc__cmd"><span class="accent">$</span> grep '^##' {current ?? 'README.md'}</p>
+          <ul>
+            {toc.map((t) => (
+              <li class={`d${t.depth}`}><a href={`#${t.id}`}>{t.text}</a></li>
+            ))}
+          </ul>
+        </aside>
+      )}
+    </main>
+
+    <Footer />
+
+    <style>
+      .docs {
+        max-width: var(--max-w);
+        margin: 0 auto;
+        padding: 48px var(--pad-x) 80px;
+        display: grid;
+        grid-template-columns: 240px minmax(0, 1fr) 220px;
+        gap: 48px;
+        align-items: start;
+      }
+      .accent { color: var(--accent); }
+      .muted { color: var(--text-muted); }
+
+      .docs-tree, .docs-toc {
+        position: sticky;
+        top: 96px;
+        font-family: var(--font-mono);
+        font-size: 13px;
+        max-height: calc(100vh - 120px);
+        overflow-y: auto;
+      }
+      .docs-tree ul, .docs-toc ul { list-style: none; margin: 0; padding: 0; }
+      .docs-tree__back { color: var(--text-dim); text-decoration: none; font-size: 12px; }
+      .docs-tree__back:hover { color: var(--accent); }
+      .docs-tree__repo { color: var(--text-strong); font-weight: 600; margin: 16px 0 10px; }
+      .docs-tree li { display: flex; align-items: baseline; line-height: 1.9; white-space: nowrap; }
+      .docs-tree__branch { color: var(--text-faint); white-space: pre; }
+      .docs-tree__dir { color: var(--text-muted); }
+      .docs-tree a { color: var(--text-muted); text-decoration: none; overflow: hidden; text-overflow: ellipsis; }
+      .docs-tree a:hover { color: var(--text-strong); }
+      .docs-tree a.is-active { color: var(--accent-on); background: var(--accent); padding: 0 6px; border-radius: 2px; }
+
+      .docs-crumb {
+        font-family: var(--font-mono);
+        font-size: 13px;
+        color: var(--text);
+        padding-bottom: 20px;
+        margin-bottom: 32px;
+        border-bottom: 1px dashed var(--border);
+      }
+
+      .docs-toc__cmd { color: var(--text-dim); margin: 0 0 12px; }
+      .docs-toc li { line-height: 1.7; }
+      .docs-toc li.d3 { padding-left: 14px; }
+      .docs-toc a { color: var(--text-muted); text-decoration: none; }
+      .docs-toc a:hover { color: var(--accent); }
+
+      .docs-foot {
+        margin-top: 64px;
+        padding-top: 20px;
+        border-top: 1px dashed var(--border);
+        font-family: var(--font-mono);
+        font-size: 13px;
+      }
+      .docs-foot a { color: var(--text-muted); text-decoration: none; }
+      .docs-foot a:hover { color: var(--accent); }
+      .docs-foot__pager { display: flex; justify-content: space-between; margin-top: 24px; }
+      .docs-foot__meta { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; color: var(--text-dim); }
+
+      .docs-search { position: relative; display: flex; align-items: center; gap: 8px; margin-bottom: 16px; padding: 6px 10px; border: 1px solid var(--border); background: var(--bg-sunken); }
+      .docs-search:focus-within { border-color: var(--accent); }
+      .docs-search__prompt { color: var(--accent); }
+      .docs-search input { flex: 1; min-width: 0; background: transparent; border: 0; outline: 0; color: var(--text); font: inherit; }
+      .docs-search__results { position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 10; background: var(--bg-overlay); border: 1px solid var(--border-strong); max-height: 320px; overflow-y: auto; }
+      .docs-search__results :global(li) { display: block; white-space: normal; line-height: 1.4; }
+      .docs-search__results :global(a) { display: block; padding: 8px 10px; color: var(--text); text-decoration: none; }
+      .docs-search__results :global(a):hover, .docs-search__results :global(a):focus { background: var(--accent-soft); color: var(--text-strong); outline: 0; }
+      .docs-search__results :global(small) { display: block; color: var(--text-dim); }
+      .docs-search__results :global(.empty) { padding: 8px 10px; color: var(--text-dim); }
+      .docs-foot__pager .next { margin-left: auto; }
+
+      /* GitHub-rendered markdown bits */
+      .docs-body :global(.markdown-heading) { position: relative; }
+      .docs-body :global(.anchor) { display: none; }
+      .docs-body :global(h1) { font-family: var(--font-sans); font-size: clamp(32px, 4vw, 44px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; color: var(--text-strong); margin: 0 0 24px; }
+      /* GitHub alerts: > [!NOTE] / [!TIP] / [!IMPORTANT] / [!WARNING] / [!CAUTION] */
+      .docs-body :global(.markdown-alert) { --alert: var(--link); border-left: 3px solid var(--alert); background: var(--bg-raised); padding: 12px 16px; margin: 24px 0; }
+      .docs-body :global(.markdown-alert-tip) { --alert: var(--accent); }
+      .docs-body :global(.markdown-alert-important) { --alert: #b88cf5; }
+      .docs-body :global(.markdown-alert-warning) { --alert: #e3b57a; }
+      .docs-body :global(.markdown-alert-caution) { --alert: #f07c7c; }
+      .docs-body :global(.markdown-alert-title) { display: flex; align-items: center; gap: 8px; margin: 0 0 6px; font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--alert); }
+      .docs-body :global(.markdown-alert-title svg) { fill: currentColor; }
+      .docs-body :global(.markdown-alert > :last-child) { margin-bottom: 0; }
+      .docs-body :global(.highlight pre),
+      .docs-body :global(pre) {
+        background: var(--bg-sunken);
+        border: 1px solid var(--border);
+        padding: 16px;
+        overflow-x: auto;
+        font-family: var(--font-mono);
+        font-size: 13px;
+      }
+      .docs-body :global(img) { max-width: 100%; height: auto; }
+      .docs-body :global(table) { display: block; overflow-x: auto; border-collapse: collapse; }
+      .docs-body :global(th), .docs-body :global(td) { border: 1px solid var(--border); padding: 6px 12px; }
+      /* GitHub syntax classes → site tokens */
+      .docs-body :global(.pl-c) { color: var(--text-dim); font-style: italic; }
+      .docs-body :global(.pl-k) { color: var(--accent); }
+      .docs-body :global(.pl-s), .docs-body :global(.pl-pds) { color: #e3b57a; }
+      .docs-body :global(.pl-c1), .docs-body :global(.pl-v) { color: var(--link); }
+      .docs-body :global(.pl-en), .docs-body :global(.pl-smi) { color: var(--text-strong); }
+
+      @media (max-width: 1100px) {
+        .docs { grid-template-columns: 200px minmax(0, 1fr); }
+        .docs-toc { display: none; }
+      }
+      @media (max-width: 760px) {
+        .docs { grid-template-columns: minmax(0, 1fr); padding: 24px 16px 64px; gap: 24px; }
+        .docs-tree { position: static; max-height: none; border-bottom: 1px dashed var(--border); padding-bottom: 16px; }
+      }
+    </style>
+
+    <script>
+      // Client-side search over /docs/search.json (loaded on first focus). "/" focuses the box.
+      type Entry = { repo: string; title: string; url: string; headings: string[] };
+      const input = document.getElementById('docs-search') as HTMLInputElement | null;
+      const list = document.getElementById('docs-search-results') as HTMLUListElement | null;
+      let index: Promise<Entry[]> | null = null;
+      const load = (): Promise<Entry[]> => (index ??= fetch('/docs/search.json').then((r) => (r.ok ? r.json() : [])).catch(() => []));
+      const esc = (s: string) => s.replace(/[&<>"]/g, (c) => `&${({ '&': 'amp', '<': 'lt', '>': 'gt', '"': 'quot' } as Record<string, string>)[c]};`);
+
+      async function render() {
+        if (!input || !list) return;
+        const q = input.value.trim().toLowerCase();
+        if (!q) { list.hidden = true; return; }
+        const hits = (await load()).filter((e) => `${e.repo} ${e.title} ${e.headings.join(' ')}`.toLowerCase().includes(q)).slice(0, 8);
+        list.innerHTML = hits.length
+          ? hits.map((e) => `<li><a href="${esc(e.url)}">${esc(e.title)}<small>${esc(e.repo)}</small></a></li>`).join('')
+          : '<li class="empty">no matches</li>';
+        list.hidden = false;
+      }
+
+      input?.addEventListener('focus', load);
+      input?.addEventListener('input', render);
+      input?.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') { input.value = ''; render(); input.blur(); } });
+      document.addEventListener('keydown', (ev) => {
+        const typing = ev.target instanceof HTMLInputElement || ev.target instanceof HTMLTextAreaElement;
+        if (ev.key === '/' && !typing) { ev.preventDefault(); input?.focus(); }
+      });
+      document.addEventListener('click', (ev) => { if (list && !list.parentElement?.contains(ev.target as Node)) list.hidden = true; });
+    </script>
+  </body>
+</html>
