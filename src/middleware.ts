@@ -35,8 +35,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
       createdAt: now,
       updatedAt: now,
     };
-    // ponytail: one idempotent insert per exam request; cache known ids if it ever shows up in latency.
-    await getDb().insert(userTable).values(guest).onConflictDoNothing();
+    // Only writes (starting or answering an attempt) need the row as a foreign key.
+    // Page views and crawlers just read history, which is empty for a new guest.
+    if (context.request.method !== 'GET' && context.request.method !== 'HEAD') {
+      await getDb().insert(userTable).values(guest).onConflictDoNothing();
+    }
     context.locals.user = guest;
   }
 
