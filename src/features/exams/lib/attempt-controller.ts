@@ -3,7 +3,7 @@
 //
 // Plain TS, no DB imports — statically imported via a top-level `<script>` tag
 // in the page (NEVER `define:vars`, which disables Vite bundling/imports —
-// see src/pages/login.astro for the mistake this project already made once).
+// the old login page hit this trap once).
 //
 // The server is always the source of truth for time and correctness (REQ-003).
 // This controller:

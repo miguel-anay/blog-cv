@@ -9,10 +9,10 @@ import { formatHms } from '../../features/exams/lib/timer';
 const { slug } = Astro.params;
 if (!slug) return Astro.redirect('/exams');
 
-// Defensive — middleware already gates /exams, but a page-level check keeps
+// Defensive — the middleware sets a guest user on /exams, but a page-level check keeps
 // this page correct even if the gating prefix list ever changes (REQ-001).
 const user = Astro.locals.user;
-if (!user) return Astro.redirect('/login?redirect=' + encodeURIComponent(Astro.url.pathname));
+if (!user) return new Response('Visitor id unavailable', { status: 500 });
 
 const exam = await getExamBySlug(slug);
 if (!exam) return new Response(null, { status: 404, statusText: 'Not Found' });
