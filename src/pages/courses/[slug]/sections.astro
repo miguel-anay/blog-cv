@@ -2,7 +2,6 @@
 import BaseHead from '../../../components/seo/BaseHead.astro';
 import Header from '../../../components/layout/Header.astro';
 import Footer from '../../../components/layout/Footer.astro';
-import MagneticCursor from '../../../components/MagneticCursor.astro';
 import SectionCard from '../../../features/courses/components/SectionCard.astro';
 import { getCourseBySlug } from '../../../lib/api';
 
@@ -24,18 +23,17 @@ const sections = course.sections ?? [];
     />
   </head>
   <body>
-    <MagneticCursor />
     <Header />
 
     <main>
       <section class="course-head">
         <div class="course-head__inner">
-          <nav class="breadcrumb">
-            <a href="/courses" class="breadcrumb__back">← cursos</a>
+          <nav class="breadcrumb" aria-label="Ruta">
+            <a href="/courses" class="breadcrumb__back">← Cursos</a>
           </nav>
 
           <div class="course-meta">
-            <span class="course-type">diplomado</span>
+            <span class="course-type">Diplomado</span>
             <span class="course-sep">·</span>
             <span>{sections.length} {sections.length === 1 ? 'sección' : 'secciones'}</span>
           </div>
@@ -50,10 +48,7 @@ const sections = course.sections ?? [];
       <section class="sections-section">
         <div class="sections-inner">
           {sections.length === 0 ? (
-            <div class="empty">
-              <span class="empty__prompt">#</span>
-              <span>este diplomado todavía no tiene secciones.</span>
-            </div>
+            <p class="empty">Este diplomado todavía no tiene secciones.</p>
           ) : (
             <div class="section-grid">
               {sections.map((section, i) => (
@@ -75,56 +70,57 @@ const sections = course.sections ?? [];
 
     <style>
       .course-head {
-        border-bottom: 1px dashed var(--border);
-        background: var(--bg-sunken);
+        border-bottom: 1px solid var(--border-dim);
       }
       .course-head__inner {
         max-width: var(--max-w);
         margin: 0 auto;
-        padding: 56px var(--pad-x) 64px;
+        padding: 40px var(--pad-x) 40px;
       }
 
-      .breadcrumb { margin-bottom: 32px; }
+      .breadcrumb { margin-bottom: 24px; }
       .breadcrumb__back {
-        font-family: var(--font-mono);
-        font-size: 13px;
+        font-size: var(--fs-sm);
+        font-weight: 500;
         color: var(--text-muted);
         text-decoration: none;
       }
-      .breadcrumb__back:hover { color: var(--accent); }
+      .breadcrumb__back:hover { color: var(--text-strong); }
 
       .course-meta {
         display: flex;
+        flex-wrap: wrap;
         align-items: center;
-        gap: 10px;
-        font-family: var(--font-mono);
-        font-size: 12px;
+        gap: 8px;
+        font-size: var(--fs-caption);
         color: var(--text-muted);
-        margin-bottom: 20px;
+        margin-bottom: 12px;
       }
       .course-type {
-        color: var(--accent);
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
+        font-size: var(--fs-micro);
+        font-weight: 500;
+        color: var(--text-muted);
+        background: var(--bg-sunken);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-full);
+        padding: 2px 10px;
       }
       .course-sep { color: var(--text-faint); }
 
       .course-title {
-        font-family: var(--font-sans);
-        font-size: clamp(32px, 4.5vw, 52px);
-        font-weight: 800;
-        line-height: 1.08;
-        letter-spacing: -0.03em;
+        font-size: var(--fs-h2);
+        font-weight: 600;
+        line-height: 1.2;
+        letter-spacing: -0.5px;
         color: var(--text-strong);
-        margin: 0 0 20px;
+        margin: 0 0 12px;
         max-width: 860px;
       }
 
       .course-description {
-        font-size: 17px;
+        font-size: var(--fs-lg);
         color: var(--text-muted);
-        line-height: 1.65;
+        line-height: 1.5;
         margin: 0;
         max-width: 680px;
       }
@@ -132,25 +128,21 @@ const sections = course.sections ?? [];
       .sections-inner {
         max-width: var(--max-w);
         margin: 0 auto;
-        padding: 48px var(--pad-x) 80px;
+        padding: 40px var(--pad-x) 80px;
       }
 
       .section-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-        gap: 20px;
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+        gap: 16px;
       }
 
       .empty {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        font-family: var(--font-mono);
-        font-size: 14px;
+        font-size: var(--fs-md);
         color: var(--text-dim);
         padding: 48px 0;
+        margin: 0;
       }
-      .empty__prompt { color: var(--accent); }
     </style>
   </body>
 </html>

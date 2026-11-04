@@ -133,7 +133,7 @@ const readCssColor = (name: string): string =>
 // The twin's tint. `--hologram` is an OPTIONAL override: define it in CSS to
 // colour the hologram on its own, otherwise it follows the site accent, which
 // is what kept the two in step before this existed. Read live (not cached) so
-// a theme swap repaints it — see the themechange listener below.
+// a theme swap repaints it — see the modechange listener below.
 const readHologramColor = (): string => readCssColor("--hologram") || readCssColor("--accent");
 
 function setWeight(action: AnimationAction, weight: number): void {
@@ -245,7 +245,6 @@ export const hologram = {
       material.uniforms.uColor.value.set(readHologramColor());
     };
     readPalette();
-    document.addEventListener("themechange", readPalette);
     document.addEventListener("modechange", readPalette);
 
     clonedRoot = cloned;
@@ -309,7 +308,6 @@ export const hologram = {
     lastHandledGestureId = 0;
 
     if (readPalette) {
-      document.removeEventListener("themechange", readPalette);
       document.removeEventListener("modechange", readPalette);
       readPalette = null;
     }

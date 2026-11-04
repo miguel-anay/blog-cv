@@ -63,20 +63,19 @@ const isActive = (href: string) => {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
-    background: transparent;
+    width: 32px;
+    height: 32px;
+    background: var(--bg);
     border: 1px solid var(--border);
-    border-radius: 4px;
-    color: var(--text-muted);
+    border-radius: var(--radius-full);
+    color: var(--text);
     cursor: pointer;
     padding: 0;
     transition: color 0.12s, border-color 0.12s;
   }
 
   .mobile-nav-toggle:hover {
-    color: var(--accent);
-    border-color: var(--accent);
+    border-color: var(--border-strong);
   }
 
   /* Drawer */
@@ -97,7 +96,7 @@ const isActive = (href: string) => {
     right: 0;
     bottom: 0;
     width: min(280px, 85vw);
-    background: var(--bg-raised);
+    background: var(--bg);
     border-left: 1px solid var(--border);
     display: flex;
     flex-direction: column;
@@ -116,7 +115,7 @@ const isActive = (href: string) => {
     content: "";
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.32);
     opacity: 0;
     transition: opacity 200ms ease;
   }
@@ -126,11 +125,11 @@ const isActive = (href: string) => {
   }
 
   .mobile-nav-drawer__link {
-    font-family: var(--font-mono);
-    font-size: 15px;
+    font-size: var(--fs-md);
+    font-weight: 500;
     color: var(--text-muted);
-    padding: 12px 8px;
-    border-radius: 4px;
+    padding: 12px;
+    border-radius: var(--radius-sm);
     text-decoration: none;
     transition: color 0.12s, background 0.12s;
   }
@@ -142,7 +141,7 @@ const isActive = (href: string) => {
 
   .mobile-nav-drawer__link.is-active {
     color: var(--text-strong);
-    font-weight: 600;
+    background: var(--bg-sunken);
   }
 </style>
 

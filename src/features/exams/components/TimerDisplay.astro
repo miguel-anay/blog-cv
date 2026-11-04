@@ -62,23 +62,24 @@ const progressPercent =
   .timer-display__bar {
     flex: 1;
     height: 4px;
-    background: var(--border-dim);
-    border-radius: 2px;
+    background: var(--bg-sunken);
+    border-radius: var(--radius-full);
     overflow: hidden;
   }
 
   .timer-display__bar-fill {
     display: block;
     height: 100%;
-    background: var(--accent);
-    border-radius: 2px;
+    background: var(--accent-bright);
+    border-radius: var(--radius-full);
     transition: width 1s linear;
   }
 
   .timer-display__text {
     font-family: var(--font-mono);
-    font-size: 14px;
-    font-weight: 600;
+    font-size: var(--fs-md);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
     color: var(--text-strong);
     white-space: nowrap;
     min-width: 72px;

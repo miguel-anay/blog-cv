@@ -116,20 +116,24 @@ const navigatorStates = questions.map((q, i) => ({
     position: sticky;
     top: 0;
     background: var(--bg);
-    padding: 4px 0 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-dim);
     z-index: 10;
   }
 
   .attempt-page__body {
     display: grid;
-    grid-template-columns: 220px 1fr;
-    gap: 32px;
+    grid-template-columns: 220px minmax(0, 1fr);
+    gap: 40px;
     align-items: start;
   }
 
   .attempt-page__nav {
     position: sticky;
-    top: 72px;
+    top: 80px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
   }
 
   .attempt-page__questions {
@@ -139,6 +143,7 @@ const navigatorStates = questions.map((q, i) => ({
   @media (max-width: 800px) {
     .attempt-page__body {
       grid-template-columns: 1fr;
+      gap: 24px;
     }
     .attempt-page__nav {
       position: static;

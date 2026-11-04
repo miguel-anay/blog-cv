@@ -40,43 +40,39 @@ const pageTitle = `Categorías - ${SITE_TITLE}`;
 ---
 
 <!doctype html>
-<html lang="en" class="min-h-screen">
+<html lang="es">
 	<head>
 		<BaseHead title={pageTitle} description="Explora artículos por categoría" />
 	</head>
-	<body class="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors">
+	<body>
 		<Header />
-		<main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-			<!-- Back link -->
-			<a
-				href="/blog"
-				class="inline-block mb-8 text-blue-600 dark:text-blue-400 hover:underline font-semibold"
-			>
-				← Volver al blog
-			</a>
+		<main>
+			<section class="page-head">
+				<div class="page-head__inner">
+					<p class="page-head__eyebrow"><a href="/blog">Blog</a></p>
+					<h1 class="page-head__title">Categorías</h1>
+					<p class="page-head__lead">Explora artículos por categoría.</p>
+				</div>
+			</section>
 
-			<!-- Page Header -->
-			<div class="text-center mb-12">
-				<h1 class="text-4xl md:text-5xl font-bold mb-4 text-gray-900 dark:text-white">
-					Categorías
-				</h1>
-				<p class="text-lg text-gray-600 dark:text-gray-400">
-					Explora artículos por categoría
-				</p>
-			</div>
-
-			<!-- Categories Grid: 3 columns on desktop, 1 on mobile -->
-			<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-				{categoriesWithCount.map((category, index) => (
-					<CategoryCard
-						name={category.name}
-						slug={category.slug}
-						description={category.description}
-						articleCount={category.articleCount}
-					/>
-				))}
+			<section class="cats">
+				<div class="cat-grid">
+					{categoriesWithCount.map((category) => (
+						<CategoryCard
+							name={category.name}
+							slug={category.slug}
+							description={category.description}
+							articleCount={category.articleCount}
+						/>
+					))}
+				</div>
 			</section>
 		</main>
 		<Footer />
+
+		<style>
+			.page-head__eyebrow a { color: inherit; }
+			.cats { max-width: var(--max-w); margin: 0 auto; padding: 32px var(--pad-x) var(--section-pad-y); }
+		</style>
 	</body>
 </html>

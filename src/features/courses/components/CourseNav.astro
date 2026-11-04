@@ -20,8 +20,7 @@ const showSessions = isDiplomado && sessions.length > 0;
 >
   <details class="course-nav__details" open>
     <summary class="course-nav__label">
-      <span class="course-nav__prompt">#</span>
-      <span>{showSessions ? 'sesiones' : isDiplomado ? 'cursos' : 'secciones'}</span>
+      <span>{showSessions ? 'Sesiones' : isDiplomado ? 'Cursos' : 'Secciones'}</span>
       <span class="course-nav__chevron" aria-hidden="true">▾</span>
     </summary>
 
@@ -34,7 +33,7 @@ const showSessions = isDiplomado && sessions.length > 0;
             class="course-nav__item"
             data-section={session.anchorId}
           >
-            <span class="course-nav__num">{String(session.number).padStart(2, '0')}</span>
+            <span class="course-nav__num">{session.number}</span>
             <span class="course-nav__title">{session.title}</span>
           </a>
         </li>
@@ -54,7 +53,7 @@ const showSessions = isDiplomado && sessions.length > 0;
             ]}
             data-section={`section-${section.id}`}
           >
-            <span class="course-nav__num">{String(i + 1).padStart(2, '0')}</span>
+            <span class="course-nav__num">{i + 1}</span>
             <span class="course-nav__title">{section.title}</span>
             {section.resources.length > 0 && (
               <span class="course-nav__badge">{section.resources.length}</span>
@@ -133,18 +132,15 @@ const showSessions = isDiplomado && sessions.length > 0;
     display: flex;
     align-items: center;
     gap: 8px;
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--text-dim);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
+    font-size: var(--fs-caption);
+    font-weight: 600;
+    color: var(--text-strong);
     padding-bottom: 10px;
     border-bottom: 1px solid var(--border);
     list-style: none;
     cursor: default;
   }
   .course-nav__label::-webkit-details-marker { display: none; }
-  .course-nav__prompt { color: var(--accent); }
 
   .course-nav__chevron { display: none; margin-left: auto; }
 
@@ -161,45 +157,45 @@ const showSessions = isDiplomado && sessions.length > 0;
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 8px 10px;
-    border-radius: 4px;
+    padding: 6px 10px;
+    border-radius: var(--radius-md);
     text-decoration: none;
     color: var(--text-muted);
-    font-family: var(--font-mono);
-    font-size: 12px;
+    font-size: var(--fs-sm);
     line-height: 1.4;
     transition: color 0.12s, background 0.12s;
-    border-left: 2px solid transparent;
   }
   .course-nav__item:hover {
-    color: var(--text);
-    background: var(--bg-raised);
+    color: var(--text-strong);
+    background: var(--bg-sunken);
   }
   .course-nav__item.is-active {
     color: var(--accent);
-    border-left-color: var(--accent);
+    font-weight: 500;
     background: var(--accent-soft);
   }
 
   .course-nav__num {
     color: var(--text-faint);
     flex-shrink: 0;
-    font-size: 10px;
+    min-width: 1.25em;
+    font-size: var(--fs-micro);
+    font-variant-numeric: tabular-nums;
   }
   .course-nav__item.is-active .course-nav__num { color: var(--accent); }
 
   .course-nav__title { flex: 1; }
 
   .course-nav__badge {
-    font-size: 10px;
-    background: var(--bg-overlay);
+    font-size: var(--fs-micro);
+    background: var(--bg-sunken);
+    border: 1px solid var(--border);
     color: var(--text-dim);
-    padding: 1px 5px;
-    border-radius: 8px;
+    padding: 0 6px;
+    border-radius: var(--radius-full);
     flex-shrink: 0;
   }
   .course-nav__item.is-active .course-nav__badge {
-    background: rgba(124, 240, 140, 0.15);
     color: var(--accent);
   }
 
@@ -213,10 +209,11 @@ const showSessions = isDiplomado && sessions.length > 0;
       max-height: 50vh;
       overflow-y: auto;
       flex-direction: column;
-      background: var(--bg-raised);
+      background: var(--bg);
       border-bottom: 1px solid var(--border);
       border-radius: 0;
       gap: 4px;
+      padding: 12px 0;
     }
 
     .course-nav[data-mode="diplomado"] .course-nav__list {
@@ -226,9 +223,6 @@ const showSessions = isDiplomado && sessions.length > 0;
 
     .course-nav[data-mode="diplomado"] .course-nav__item {
       white-space: normal;
-      border-left: 2px solid transparent;
-      border-bottom: none;
-      border-radius: 4px;
     }
 
     /* Regular course: compact vertical list */

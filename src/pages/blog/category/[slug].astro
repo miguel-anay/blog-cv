@@ -41,44 +41,38 @@ const last = dates[dates.length - 1] ? dates[dates.length - 1].toISOString().sli
     <Header />
 
     <main>
-      <section class="cat-hero">
-        <div class="cat-hero__inner">
-          <nav class="page-crumb">
-            <a href="/">./</a>
-            <span class="page-crumb__sep">/</span>
-            <a href="/blog">blog</a>
-            <span class="page-crumb__sep">/</span>
-            <a href="/blog/categories">category</a>
-            <span class="page-crumb__sep">/</span>
-            <span class="page-crumb__active">{category.slug}</span>
+      <section class="page-head">
+        <div class="page-head__inner">
+          <nav class="crumbs" aria-label="Ruta">
+            <a href="/blog">Blog</a>
+            <span aria-hidden="true">/</span>
+            <a href="/blog/categories">Categorías</a>
           </nav>
 
-          <h1 class="cat-title">
-            <span class="cat-title__hash">#</span> {category.slug}
-          </h1>
-          {category.description && <p class="cat-desc">{category.description}</p>}
+          <h1 class="page-head__title">{category.name}</h1>
+          {category.description && <p class="page-head__lead">{category.description}</p>}
 
-          <div class="cat-stats">
+          <dl class="cat-stats">
             <div class="stat">
-              <span class="stat__k">escritos</span>
-              <span class="stat__v">{posts.length}</span>
+              <dt class="stat__k">Artículos</dt>
+              <dd class="stat__v">{posts.length}</dd>
             </div>
             <div class="stat">
-              <span class="stat__k">primero</span>
-              <span class="stat__v">{first}</span>
+              <dt class="stat__k">Primero</dt>
+              <dd class="stat__v">{first}</dd>
             </div>
             <div class="stat">
-              <span class="stat__k">último</span>
-              <span class="stat__v">{last}</span>
+              <dt class="stat__k">Último</dt>
+              <dd class="stat__v">{last}</dd>
             </div>
-          </div>
+          </dl>
         </div>
       </section>
 
       <section class="posts">
         <div class="posts-inner">
           <div class="posts-head">
-            <span class="posts-count">Todos los escritos en <strong>{category.slug}</strong></span>
+            <span class="posts-count">Todos los artículos de {category.name}</span>
           </div>
 
           {posts.length > 0 ? (
@@ -96,10 +90,7 @@ const last = dates[dates.length - 1] ? dates[dates.length - 1].toISOString().sli
               ))}
             </ol>
           ) : (
-            <p class="cat-empty">
-              <span class="cat-empty__comment">{`// ls --empty`}</span><br />
-              Aún no hay escritos en esta categoría.
-            </p>
+            <p class="cat-empty">Aún no hay artículos en esta categoría.</p>
           )}
         </div>
       </section>
@@ -108,86 +99,47 @@ const last = dates[dates.length - 1] ? dates[dates.length - 1].toISOString().sli
     <Footer />
 
     <style>
-      .cat-hero { border-bottom: 1px dashed var(--border); background: var(--bg-sunken); }
-      .cat-hero__inner { max-width: var(--max-w); margin: 0 auto; padding: 64px var(--pad-x); }
-
-      .page-crumb {
+      .crumbs {
         display: flex;
-        gap: 8px;
-        font-family: var(--font-mono);
-        font-size: 12px;
-        color: var(--text-muted);
-        margin-bottom: 32px;
         flex-wrap: wrap;
+        gap: 6px;
+        font-size: var(--fs-caption);
+        color: var(--text-faint);
+        margin-bottom: 12px;
       }
-      .page-crumb a { color: var(--text-muted); }
-      .page-crumb__sep { color: var(--text-faint); }
-      .page-crumb__active { color: var(--accent); }
-
-      .cat-title {
-        font-family: var(--font-sans);
-        font-size: clamp(48px, 7vw, 72px);
-        font-weight: 800;
-        letter-spacing: -0.04em;
-        color: var(--text-strong);
-        margin: 0;
-      }
-      .cat-title__hash { color: var(--text-dim); font-weight: 400; }
-      .cat-desc {
-        font-family: var(--font-sans);
-        font-size: 18px;
-        line-height: 1.55;
-        color: var(--text-muted);
-        max-width: 680px;
-        margin: 24px 0 0;
-      }
+      .crumbs a { color: var(--text-muted); }
+      .crumbs a:hover { color: var(--text-strong); }
 
       .cat-stats {
-        margin-top: 40px;
-        padding-top: 24px;
-        border-top: 1px solid var(--border);
+        margin: 24px 0 0;
         display: flex;
-        gap: 64px;
+        gap: 12px;
         flex-wrap: wrap;
       }
-      .stat { display: flex; flex-direction: column; gap: 6px; }
-      .stat__k {
-        font-family: var(--font-mono);
-        font-size: 11px;
-        color: var(--text-dim);
-        letter-spacing: 0.04em;
-      }
-      .stat__v {
-        font-family: var(--font-mono);
-        font-size: 20px;
-        color: var(--text-strong);
-        font-weight: 600;
-      }
-
-      .posts-inner { max-width: var(--max-w); margin: 0 auto; padding: 56px var(--pad-x) 80px; }
-      .posts-head {
+      .stat {
         display: flex;
-        justify-content: space-between;
-        align-items: baseline;
-        margin-bottom: 16px;
-        padding-bottom: 20px;
-        border-bottom: 1px solid var(--border);
+        flex-direction: column;
+        gap: 4px;
+        padding: 12px 16px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        background: var(--bg-raised);
+        min-width: 120px;
       }
-      .posts-count {
-        font-family: var(--font-mono);
-        font-size: 13px;
-        color: var(--text);
-      }
-      .posts-count strong { color: var(--accent); font-weight: 500; }
+      .stat__k { font-size: var(--fs-micro); color: var(--text-dim); margin: 0; }
+      .stat__v { font-size: var(--fs-md); font-weight: 600; color: var(--text-strong); margin: 0; }
+
+      .posts-inner { max-width: var(--max-w); margin: 0 auto; padding: 32px var(--pad-x) var(--section-pad-y); }
+      .posts-head { margin-bottom: 8px; }
+      .posts-count { font-size: var(--fs-caption); color: var(--text-dim); }
       .post-list { list-style: none; padding: 0; margin: 0; }
 
       .cat-empty {
-        font-family: var(--font-mono);
         color: var(--text-muted);
         padding: 48px 0;
-        font-size: 14px;
+        font-size: var(--fs-sm);
+        margin: 0;
       }
-      .cat-empty__comment { color: var(--text-dim); }
     </style>
   </body>
 </html>

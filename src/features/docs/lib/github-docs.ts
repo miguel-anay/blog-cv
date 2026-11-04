@@ -105,6 +105,12 @@ export function rewriteDocHtml(html: string, ctx: DocContext): string {
 const decodeEntities = (s: string) =>
   s.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&');
 
+/** Text of the first h1 (the document's own title), or null. */
+export function extractTitle(html: string): string | null {
+  const m = /<h1[^>]*>([\s\S]*?)<\/h1>/.exec(html);
+  return m ? decodeEntities(m[1].replace(/<[^>]+>/g, '')).trim() : null;
+}
+
 /** h2/h3 headings of GitHub-rendered HTML (run after rewriteDocHtml so ids are clean). */
 export function extractToc(html: string): TocItem[] {
   const re = /<h([23])[^>]*>([\s\S]*?)<\/h\1>\s*<a id="([^"]+)"/g;

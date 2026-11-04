@@ -6,37 +6,39 @@
   class="mode-toggle"
   data-mode-toggle
   aria-label="Cambiar modo claro / oscuro"
-  title="modo claro / oscuro"
+  title="Modo claro / oscuro"
 >
-  <span data-mode-icon>☾</span>
+  <span data-mode-icon aria-hidden="true">☾</span>
 </button>
 
 <script>
   (function () {
-    const STORAGE_KEY = 'blog-mode';
-    const DEFAULT = 'dark';
+    // Same key and default as the no-flash script in BaseHead.astro.
+    const STORAGE_KEY = 'site-mode';
 
     function getCurrent() {
-      return document.documentElement.getAttribute('data-mode') || DEFAULT;
+      return document.documentElement.getAttribute('data-mode') === 'dark' ? 'dark' : 'light';
+    }
+
+    function render(mode: string) {
+      document.querySelectorAll<HTMLElement>('[data-mode-icon]').forEach((el) => {
+        el.textContent = mode === 'dark' ? '☀' : '☾';
+      });
     }
 
     function applyMode(mode: string) {
-      if (mode !== 'dark' && mode !== 'light') mode = DEFAULT;
-      document.documentElement.setAttribute('data-mode', mode);
+      if (mode === 'dark') document.documentElement.setAttribute('data-mode', 'dark');
+      else document.documentElement.removeAttribute('data-mode');
+      // Persist only explicit choices, so the default can change later.
       try { localStorage.setItem(STORAGE_KEY, mode); } catch {}
-      document.querySelectorAll<HTMLElement>('[data-mode-icon]').forEach((el) => {
-        el.textContent = mode === 'dark' ? '☾' : '☀';
-      });
+      render(mode);
       document.dispatchEvent(new CustomEvent('modechange', { detail: { mode } }));
     }
 
-    applyMode(getCurrent());
+    render(getCurrent());
 
     document.querySelectorAll<HTMLButtonElement>('[data-mode-toggle]').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const next = getCurrent() === 'dark' ? 'light' : 'dark';
-        applyMode(next);
-      });
+      btn.addEventListener('click', () => applyMode(getCurrent() === 'dark' ? 'light' : 'dark'));
     });
   })();
 </script>

@@ -63,7 +63,7 @@ const promptId = `question-${questionId}-prompt`;
   .question-card {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 16px;
   }
 
   /* Author `display` always wins over the UA stylesheet's `[hidden] { display: none }`,
@@ -74,16 +74,15 @@ const promptId = `question-${questionId}-prompt`;
   }
 
   .question-card__meta {
-    font-family: var(--font-mono);
-    font-size: 12px;
+    font-size: var(--fs-caption);
+    font-weight: 500;
     color: var(--text-muted);
     margin: 0;
   }
 
   .question-card__prompt {
-    font-family: var(--font-sans);
-    font-size: 20px;
-    font-weight: 700;
+    font-size: var(--fs-h4);
+    font-weight: 600;
     color: var(--text-strong);
     margin: 0;
     line-height: 1.4;
@@ -93,10 +92,11 @@ const promptId = `question-${questionId}-prompt`;
   .question-card__options {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
     border: 0;
     padding: 0;
     margin: 0;
+    min-width: 0;
   }
 
   .question-card__option {
@@ -105,27 +105,29 @@ const promptId = `question-${questionId}-prompt`;
     gap: 12px;
     padding: 14px 16px;
     border: 1px solid var(--border);
-    border-radius: 6px;
-    background: var(--bg-raised);
+    border-radius: var(--radius-lg);
+    background: var(--bg);
     color: var(--text);
-    font-size: 15px;
+    font-size: var(--fs-md);
     line-height: 1.5;
     cursor: pointer;
     transition: background 0.12s, border-color 0.12s;
   }
 
   .question-card__option:hover {
-    border-color: var(--accent);
+    border-color: var(--border-strong);
   }
 
   .question-card__option:has(input:checked) {
-    border-color: var(--accent);
+    border-color: var(--accent-bright);
     background: var(--accent-soft);
   }
 
   .question-card__option input {
-    margin-top: 3px;
+    margin-top: 4px;
     accent-color: var(--accent);
     flex-shrink: 0;
   }
+
+  .question-card__option span { min-width: 0; overflow-wrap: anywhere; }
 </style>
