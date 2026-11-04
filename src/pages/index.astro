@@ -84,12 +84,12 @@ const lastUpdated = allArticles[0]?.publishedAt
             <div class="hero__inner">
               <div class="eyebrow">
                 <span class="status-dot" aria-hidden="true"></span>
-                <span>publicando · entrada {total}</span>
+                <span>{total} artículos publicados</span>
                 <span class="hero__meta-sep">·</span>
                 <span>actualizado {lastUpdated}</span>
               </div>
 
-              <h1 class="hero__title">Soy Miguel Anay.<br />Forward Deployed<br />Engineer &amp;<br />especialista en<br />ecommerce</h1>
+              <h1 class="hero__title">Soy Miguel Anay.<br />Forward Deployed Engineer y especialista en ecommerce</h1>
 
               <p class="hero__lede">
                 Diario público de un ingeniero. Escribo sobre infraestructura,
@@ -99,9 +99,9 @@ const lastUpdated = allArticles[0]?.publishedAt
 
               <div class="hero__cta">
                 <a href={`/blog/${featured?.slug ?? ""}/`} class="btn-primary">
-                  <span aria-hidden="true">›</span> leer el último
+                  Leer el último artículo
                 </a>
-                <a href="/rss.xml" class="btn-ghost">$ subscribe --rss</a>
+                <a href="/rss.xml" class="btn-ghost">Suscribirse por RSS</a>
               </div>
 
               <div class="hero__stats">
@@ -129,11 +129,7 @@ const lastUpdated = allArticles[0]?.publishedAt
                CSS/GSAP reveal; never depends on the 3D scene loading. ── -->
           <section class="section skills" id="skills">
             <div class="section-head">
-              <div class="section-head__left">
-                <span class="section-head__num">§ 01</span>
-                <h2 class="section-head__title">stack</h2>
-              </div>
-              <span class="section-head__hint"># cat ./stack.txt</span>
+              <h2 class="section-head__title">Stack</h2>
             </div>
             <ul class="skills__list">
               {SKILLS.map((skill) => (
@@ -148,38 +144,22 @@ const lastUpdated = allArticles[0]?.publishedAt
       {featured && (
         <section class="section">
           <div class="section-head">
-            <div class="section-head__left">
-              <span class="section-head__num">§ 02</span>
-              <h2 class="section-head__title">destacado</h2>
-            </div>
-            <span class="section-head__hint"># cat ./posts/_featured.md</span>
-            <span></span>
+            <h2 class="section-head__title">Destacado</h2>
           </div>
 
           <a href={`/blog/${featured.slug}/`} class="featured">
             <div class="featured__l">
-              <div class="article-frontmatter">
-                <span class="article-frontmatter__delim">---</span>
-                <div class="article-frontmatter__line">
-                  <span class="article-frontmatter__key">category</span>
-                  <span class="article-frontmatter__colon">:</span>
-                  <span class="article-frontmatter__val">{featured.categories?.[0]?.slug || "—"}</span>
-                </div>
-                <div class="article-frontmatter__line">
-                  <span class="article-frontmatter__key">published</span>
-                  <span class="article-frontmatter__colon">:</span>
-                  <span class="article-frontmatter__val">
-                    {new Date(featured.publishedAt ?? '').toLocaleDateString("es-PE", { year: "numeric", month: "2-digit", day: "2-digit" })}
-                  </span>
-                </div>
-                <span class="article-frontmatter__delim">---</span>
+              <div class="featured__meta">
+                {featured.categories?.[0]?.name && (
+                  <span class="featured__tag">{featured.categories[0].name}</span>
+                )}
+                <time datetime={featured.publishedAt ?? undefined}>
+                  {new Date(featured.publishedAt ?? '').toLocaleDateString("es-PE", { year: "numeric", month: "long", day: "numeric" })}
+                </time>
               </div>
               <h2 class="featured__title">{featured.title}</h2>
               <p class="featured__desc">{featured.description}</p>
-              <div class="featured__more">
-                <span aria-hidden="true">›</span>
-                <span>continuar leyendo</span>
-              </div>
+              <span class="featured__more">Continuar leyendo →</span>
             </div>
             {featured.coverUrl && (
               <div class="featured__r">
@@ -193,12 +173,8 @@ const lastUpdated = allArticles[0]?.publishedAt
       <!-- ── Recientes ─────────────────────────────────────── -->
       <section class="section">
         <div class="section-head">
-          <div class="section-head__left">
-            <span class="section-head__num">§ 03</span>
-            <h2 class="section-head__title">escritos recientes</h2>
-          </div>
-          <span class="section-head__hint"># ls -lt posts/</span>
-          <a href="/blog" class="section-head__link">ver archivo →</a>
+          <h2 class="section-head__title">Artículos recientes</h2>
+          <a href="/blog" class="section-head__link">Ver archivo →</a>
         </div>
 
         <ol class="post-list">
@@ -220,12 +196,8 @@ const lastUpdated = allArticles[0]?.publishedAt
       {categoriesWithCount.length > 0 && (
         <section class="section">
           <div class="section-head">
-            <div class="section-head__left">
-              <span class="section-head__num">§ 04</span>
-              <h2 class="section-head__title">por tema</h2>
-            </div>
-            <span class="section-head__hint"># tree categories/</span>
-            <a href="/blog/categories" class="section-head__link">todas →</a>
+            <h2 class="section-head__title">Por tema</h2>
+            <a href="/blog/categories" class="section-head__link">Ver todas →</a>
           </div>
           <div class="cat-grid">
             {categoriesWithCount.slice(0, 8).map((category: any) => (
@@ -241,32 +213,29 @@ const lastUpdated = allArticles[0]?.publishedAt
       )}
 
       <!-- ── Newsletter CTA ────────────────────────────────── -->
-      <section class="cta-newsletter">
-        <div class="cta-newsletter__inner">
+      <section class="section">
+        <div class="cta-newsletter">
           <div class="cta-newsletter__l">
-            <div class="cta-newsletter__kicker">{`// newsletter mensual`}</div>
-            <h2 class="cta-newsletter__title">
-              Una carta al mes —<br />
-              de mi <span class="accent">terminal</span> al tuyo.
-            </h2>
+            <span class="cta-newsletter__kicker">Newsletter mensual</span>
+            <h2 class="cta-newsletter__title">Una carta al mes, directo a tu correo.</h2>
             <p class="cta-newsletter__desc">
-              Lo que aprendí, lo que rompí, y lo que voy a intentar el mes
-              siguiente. Sin spam. Cancelas con un clic.
+              Lo que aprendí, lo que rompí y lo que voy a intentar el mes
+              siguiente. Sin spam.
             </p>
           </div>
           <form class="cta-newsletter__r" action="/newsletter/subscribe" method="post">
-            <div class="cta-newsletter__prompt">$ subscribe</div>
             <div class="cta-newsletter__form">
               <input
+                aria-label="Correo electrónico"
                 type="email"
                 name="email"
                 placeholder="tu@correo.com"
                 required
                 class="cta-newsletter__input"
               />
-              <button type="submit" class="cta-newsletter__btn" aria-label="Suscribirse">→</button>
+              <button type="submit" class="btn-primary cta-newsletter__btn">Suscribirse</button>
             </div>
-            <div class="cta-newsletter__fine">$ sin tracking · cancelas con un clic</div>
+            <p class="cta-newsletter__fine">Sin tracking. Cancelas con un clic.</p>
           </form>
         </div>
       </section>
@@ -281,61 +250,23 @@ const lastUpdated = allArticles[0]?.publishedAt
 
       registerPlugins();
 
-      const heroTitle = document.querySelector<HTMLElement>('.hero__title');
       const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-      // ── Hero typewriter — reads text from SSR HTML, retypes it ──
-      if (heroTitle && !reducedMotion) {
-        // Extract lines from rendered HTML (br = line separator)
-        const lines: string[] = [];
-        heroTitle.childNodes.forEach(node => {
-          if (node.nodeType === Node.TEXT_NODE) {
-            const t = node.textContent?.trim();
-            if (t) lines.push(t);
+      if (!reducedMotion) {
+        gsap.from('.hero .eyebrow, .hero__title, .hero__lede', { autoAlpha: 0, y: 12, stagger: 0.08, duration: 0.45 });
+        gsap.from('.hero__cta a', { autoAlpha: 0, y: 12, stagger: 0.08, duration: 0.35, delay: 0.2 });
+        document.querySelectorAll<HTMLElement>('.stat__v').forEach(el => {
+          const raw = el.textContent ?? '';
+          const parsed = parseFloat(raw);
+          if (!isNaN(parsed) && String(parsed) === raw.trim()) {
+            const proxy = { val: 0 };
+            el.textContent = '0';
+            gsap.to(proxy, {
+              val: parsed, delay: 0.3, duration: 1.2, ease: 'power2.out',
+              onUpdate() { el.textContent = Math.round(proxy.val).toString(); },
+            });
           }
         });
-
-        // Lock height before clearing to prevent CLS during retype
-        heroTitle.style.minHeight = heroTitle.offsetHeight + 'px';
-
-        // Clear and retype
-        heroTitle.innerHTML = '';
-        let lineIdx = 0;
-        let charIdx = 0;
-
-        const onDone = () => {
-          gsap.from('.eyebrow', { autoAlpha: 0, duration: 0.3, delay: 0.05 });
-          gsap.from('.hero__cta a', { autoAlpha: 0, y: 14, stagger: 0.08, duration: 0.35, delay: 0.15 });
-          document.querySelectorAll<HTMLElement>('.stat__v').forEach(el => {
-            const raw = el.textContent ?? '';
-            const parsed = parseFloat(raw);
-            if (!isNaN(parsed) && String(parsed) === raw.trim()) {
-              const proxy = { val: 0 };
-              el.textContent = '0';
-              gsap.to(proxy, {
-                val: parsed, delay: 0.3, duration: 1.2, ease: 'power2.out',
-                onUpdate() { el.textContent = Math.round(proxy.val).toString(); },
-              });
-            }
-          });
-        };
-
-        const type = () => {
-          if (lineIdx >= lines.length) { onDone(); return; }
-          const line = lines[lineIdx];
-          if (charIdx === 0 && lineIdx > 0) heroTitle.appendChild(document.createElement('br'));
-          if (charIdx < line.length) {
-            const last = heroTitle.lastChild;
-            if (last?.nodeType === Node.TEXT_NODE) last.textContent += line[charIdx];
-            else heroTitle.appendChild(document.createTextNode(line[charIdx]));
-            charIdx++;
-            setTimeout(type, 22);
-          } else {
-            lineIdx++; charIdx = 0;
-            setTimeout(type, 80);
-          }
-        };
-        type();
       }
 
       gsap.matchMedia().add('(prefers-reduced-motion: no-preference)', () => {
@@ -462,67 +393,60 @@ const lastUpdated = allArticles[0]?.publishedAt
       }
       .hero {
         padding: var(--hero-pad-y) var(--pad-x);
-        border-bottom: 1px dashed var(--border);
         min-height: 100vh;
         display: flex;
         align-items: center;
       }
       .hero__inner {
         max-width: var(--max-w);
-        //margin: 0 auto;
       }
-      .hero__meta-sep { color: var(--text-faint); margin: 0 4px; }
+      .hero__meta-sep { color: var(--text-faint); }
       .hero__title {
         font-family: var(--font-sans);
-        font-size: clamp(32px, 8.5vw, 82px);
-        font-weight: 800;
-        line-height: 1.02;
-        letter-spacing: -0.04em;
+        font-size: clamp(32px, 6vw, var(--fs-h1));
+        font-weight: 600;
+        line-height: 1.15;
+        letter-spacing: -0.025em;
         color: var(--text-strong);
-        margin: 40px 0 0;
-        max-width: 980px;
+        margin: 24px 0 0;
+        max-width: 720px;
+        text-wrap: balance;
       }
-      .accent { color: var(--accent); }
       .hero__lede {
-        font-family: var(--font-sans);
-        font-size: 19px;
+        font-size: var(--fs-lg);
         line-height: 1.55;
         color: var(--text-muted);
-        max-width: 640px;
-        margin: 36px 0 0;
+        max-width: 580px;
+        margin: 20px 0 0;
       }
       .hero__cta {
-        margin-top: 40px;
+        margin-top: 32px;
         display: flex;
         gap: 12px;
         align-items: center;
         flex-wrap: wrap;
       }
       .hero__stats {
-        margin-top: 80px;
-        padding-top: 36px;
+        margin-top: 56px;
+        padding-top: 24px;
         border-top: 1px solid var(--border);
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        gap: 32px;
-        max-width: 900px;
+        gap: 24px;
+        max-width: 720px;
       }
       @media (max-width: 768px) {
         .hero__stats { grid-template-columns: repeat(2, 1fr); }
       }
-      .stat { display: flex; flex-direction: column; gap: 8px; }
+      .stat { display: flex; flex-direction: column; gap: 4px; }
       .stat__k {
-        font-family: var(--font-mono);
-        font-size: 11px;
+        font-size: var(--fs-caption);
         color: var(--text-dim);
-        letter-spacing: 0.06em;
       }
       .stat__v {
-        font-family: var(--font-mono);
-        font-size: 24px;
+        font-size: var(--fs-md);
         color: var(--text-strong);
-        font-weight: 700;
-        letter-spacing: -0.02em;
+        font-weight: 600;
       }
 
       .skills {
@@ -537,16 +461,16 @@ const lastUpdated = allArticles[0]?.publishedAt
         padding: 0;
         display: flex;
         flex-wrap: wrap;
-        gap: 12px;
+        gap: 8px;
       }
       .skills__tag {
-        font-family: var(--font-mono);
-        font-size: 14px;
+        font-size: var(--fs-sm);
+        font-weight: 500;
         color: var(--text-strong);
-        background: var(--bg-raised);
+        background: var(--bg);
         border: 1px solid var(--border);
-        border-radius: 4px;
-        padding: 8px 14px;
+        border-radius: var(--radius-full);
+        padding: 6px 14px;
       }
 
       /* HUD notes. In flow they are a plain list; three/notes.ts sets
@@ -563,20 +487,19 @@ const lastUpdated = allArticles[0]?.publishedAt
         gap: 10px;
       }
       .hud-note {
-        font-family: var(--font-mono);
-        font-size: 15px;
+        font-size: var(--fs-sm);
+        font-weight: 500;
         color: var(--text-strong);
       }
       .hud-note[data-projected] {
-        --hologram-line: #34bcfd;
+        --hologram-line: var(--hologram);
         white-space: nowrap;
-        font-size: clamp(15px, 1.25vw, 20px);
-        letter-spacing: 0.01em;
-        padding: 12px 20px;
+        font-size: var(--fs-sm);
+        padding: 8px 16px;
         border: 1px solid var(--hologram-line);
-        border-radius: 6px;
-        background: linear-gradient(to bottom, rgb(52 188 253 / 0.18), rgb(52 188 253 / 0.05));
-        backdrop-filter: blur(2px);
+        border-radius: var(--radius-full);
+        background: color-mix(in srgb, var(--bg) 70%, var(--hologram) 12%);
+        backdrop-filter: blur(4px);
         z-index: 2;
       }
       .hud-note[data-projected]::before,
@@ -593,8 +516,8 @@ const lastUpdated = allArticles[0]?.publishedAt
         transform: translateY(-50%);
       }
       .hud-note[data-projected]::after {
-        width: 9px;
-        height: 9px;
+        width: 7px;
+        height: 7px;
         border-radius: 50%;
         background: var(--hologram-line);
         transform: translate(-50%, -50%);
@@ -604,12 +527,6 @@ const lastUpdated = allArticles[0]?.publishedAt
       .hud-note[data-side="right"]::before { right: -22px; }
       .hud-note[data-side="right"]::after  { right: -22px; transform: translate(50%, -50%); }
 
-      .section-head__left {
-        display: flex;
-        align-items: baseline;
-        gap: 16px;
-      }
-
       .post-list {
         list-style: none;
         padding: 0;
@@ -618,132 +535,132 @@ const lastUpdated = allArticles[0]?.publishedAt
 
       .featured {
         display: grid;
-        grid-template-columns: 1fr 1.05fr;
-        gap: 48px;
+        grid-template-columns: 1fr 1fr;
+        gap: 32px;
+        padding: 24px;
         text-decoration: none;
         color: inherit;
-        align-items: start;
+        align-items: center;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        transition: border-color 0.15s ease;
       }
+      .featured:hover { border-color: var(--border-strong); }
       @media (max-width: 900px) {
-        .featured { grid-template-columns: 1fr; }
+        .featured { grid-template-columns: 1fr; padding: 20px; }
       }
-      .featured__l { padding-top: 8px; }
+      .featured__meta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        font-size: var(--fs-caption);
+        color: var(--text-dim);
+        margin-bottom: 12px;
+      }
+      .featured__tag {
+        font-weight: 500;
+        color: var(--accent);
+        background: var(--accent-soft);
+        border-radius: var(--radius-full);
+        padding: 2px 10px;
+      }
       .featured__title {
-        font-family: var(--font-sans);
-        font-size: 40px;
-        font-weight: 700;
-        line-height: 1.1;
-        letter-spacing: -0.025em;
+        font-size: var(--fs-h3);
+        font-weight: 600;
+        line-height: 1.2;
+        letter-spacing: -0.02em;
         color: var(--text-strong);
-        margin: 0 0 20px;
+        margin: 0 0 12px;
       }
       .featured__desc {
-        font-family: var(--font-sans);
-        font-size: 17px;
-        line-height: 1.6;
+        font-size: var(--fs-md);
+        line-height: 1.55;
         color: var(--text-muted);
-        margin: 0 0 32px;
+        margin: 0 0 20px;
         max-width: 540px;
       }
       .featured__more {
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        font-family: var(--font-mono);
-        font-size: 14px;
-        color: var(--accent);
-        border-bottom: 1px solid var(--accent);
-        padding-bottom: 3px;
+        font-size: var(--fs-sm);
+        font-weight: 500;
+        color: var(--text-strong);
       }
+      .featured:hover .featured__more { color: var(--accent); }
       .featured__r {
         overflow: hidden;
-        border-radius: 6px;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border);
       }
       .featured__r img {
+        display: block;
         width: 100%;
         height: auto;
-        border-radius: 6px;
-        border: 1px solid var(--border);
       }
 
       .cta-newsletter {
-        background: var(--bg-sunken);
-        border-bottom: 1px dashed var(--border);
-      }
-      .cta-newsletter__inner {
-        max-width: var(--max-w);
-        margin: 0 auto;
-        padding: var(--section-pad-y) var(--pad-x);
         display: grid;
         grid-template-columns: 1.1fr 1fr;
-        gap: 64px;
+        gap: 32px;
         align-items: center;
+        padding: 32px;
+        background: var(--bg-sunken);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
       }
       @media (max-width: 900px) {
-        .cta-newsletter__inner { grid-template-columns: 1fr; }
+        .cta-newsletter { grid-template-columns: 1fr; padding: 24px 20px; }
       }
       .cta-newsletter__kicker {
-        font-family: var(--font-mono);
-        font-size: 12px;
-        color: var(--text-dim);
-        margin-bottom: 16px;
+        display: block;
+        font-size: var(--fs-caption);
+        font-weight: 500;
+        color: var(--accent);
+        margin-bottom: 8px;
       }
       .cta-newsletter__title {
-        font-family: var(--font-sans);
-        font-size: clamp(32px, 4vw, 44px);
-        font-weight: 800;
-        line-height: 1.05;
-        letter-spacing: -0.03em;
+        font-size: var(--fs-h4);
+        font-weight: 600;
+        line-height: 1.25;
+        letter-spacing: -0.01em;
         color: var(--text-strong);
-        margin: 0 0 20px;
+        margin: 0 0 8px;
       }
       .cta-newsletter__desc {
-        font-family: var(--font-sans);
-        font-size: 16px;
-        line-height: 1.6;
+        font-size: var(--fs-sm);
+        line-height: 1.55;
         color: var(--text-muted);
         margin: 0;
         max-width: 460px;
       }
-      .cta-newsletter__prompt {
-        font-family: var(--font-mono);
-        font-size: 13px;
-        color: var(--accent);
-        margin-bottom: 12px;
-      }
       .cta-newsletter__form {
         display: flex;
-        background: var(--bg-raised);
-        border: 1px solid var(--border);
-        border-radius: 4px;
-        overflow: hidden;
+        gap: 8px;
       }
       .cta-newsletter__input {
         flex: 1;
-        padding: 14px 18px;
-        font-family: var(--font-mono);
-        font-size: 14px;
+        min-width: 0;
+        height: 40px;
+        padding: 0 12px;
+        font-family: var(--font-sans);
+        font-size: var(--fs-sm);
         color: var(--text);
-        background: transparent;
-        border: 0;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
         outline: 0;
+        transition: border-color 0.15s ease;
       }
+      .cta-newsletter__input:focus { border-color: var(--accent-bright); }
       .cta-newsletter__input::placeholder { color: var(--text-dim); }
       .cta-newsletter__btn {
-        background: var(--accent);
-        color: var(--accent-on);
-        border: 0;
-        padding: 0 22px;
-        font-family: var(--font-mono);
-        font-size: 18px;
+        height: 40px;
         cursor: pointer;
-        font-weight: 600;
       }
       .cta-newsletter__fine {
-        font-family: var(--font-mono);
-        font-size: 11px;
+        font-size: var(--fs-micro);
         color: var(--text-dim);
-        margin-top: 12px;
+        margin: 8px 0 0;
       }
 
       /* Reduced-motion: nothing animates (HeroCanvas.astro never loads the

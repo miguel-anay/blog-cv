@@ -67,8 +67,7 @@ export const heroBlob = {
       material.uniforms.uColorB.value.set(readCssColor("--border-strong"));
     };
     readPalette();
-    document.addEventListener("themechange", readPalette); // ThemeSwitcher.astro:37
-    document.addEventListener("modechange", readPalette); // ModeToggle.astro:30
+    document.addEventListener("modechange", readPalette); // ModeToggle.astro
 
     displayed = 0;
     time = 0;
@@ -93,7 +92,6 @@ export const heroBlob = {
 
   destroy(): void {
     if (readPalette) {
-      document.removeEventListener("themechange", readPalette);
       document.removeEventListener("modechange", readPalette);
       readPalette = null;
     }
