@@ -39,8 +39,8 @@ const fmt = (d: Date) =>
     <main>
       <section class="exam-head">
         <div class="exam-head__inner">
-          <nav class="breadcrumb">
-            <a href="/exams" class="breadcrumb__back">← exámenes</a>
+          <nav class="breadcrumb" aria-label="Ruta">
+            <a href="/exams" class="breadcrumb__back">← Exámenes</a>
           </nav>
 
           <div class="exam-meta">
@@ -62,20 +62,17 @@ const fmt = (d: Date) =>
 
           <form method="post" action="/api/exams/attempts" class="start-form">
             <input type="hidden" name="examId" value={exam.id} />
-            <button type="submit" class="start-button">$ start exam</button>
+            <button type="submit" class="btn-accent start-button">Comenzar examen</button>
           </form>
         </div>
       </section>
 
       <section class="history-section">
         <div class="history-inner">
-          <h2 class="history-title"># tus intentos</h2>
+          <h2 class="history-title">Tus intentos</h2>
 
           {history.length === 0 ? (
-            <div class="empty">
-              <span class="empty__prompt">#</span>
-              <span>todavía no tenés intentos para este examen.</span>
-            </div>
+            <p class="empty">Todavía no tenés intentos para este examen.</p>
           ) : (
             <ul class="history-list">
               {history.map((attempt) => (
@@ -89,11 +86,11 @@ const fmt = (d: Date) =>
                         ({attempt.correctCount}/{attempt.totalQuestions} correctas)
                       </span>
                       {attempt.autoSubmitted && (
-                        <span class="history-item__auto">enviado automáticamente</span>
+                        <span class="history-item__auto">Enviado automáticamente</span>
                       )}
                     </>
                   ) : (
-                    <span class="history-item__pending">en progreso</span>
+                    <span class="history-item__pending">En progreso</span>
                   )}
                 </li>
               ))}
@@ -107,52 +104,57 @@ const fmt = (d: Date) =>
 
     <style>
       .exam-head {
-        border-bottom: 1px dashed var(--border);
-        background: var(--bg-sunken);
+        border-bottom: 1px solid var(--border-dim);
       }
       .exam-head__inner {
         max-width: var(--max-w);
         margin: 0 auto;
-        padding: 56px var(--pad-x) 64px;
+        padding: 40px var(--pad-x) 48px;
       }
 
-      .breadcrumb { margin-bottom: 32px; }
+      .breadcrumb { margin-bottom: 24px; }
       .breadcrumb__back {
-        font-family: var(--font-mono);
-        font-size: 13px;
+        font-size: var(--fs-sm);
+        font-weight: 500;
         color: var(--text-muted);
         text-decoration: none;
       }
-      .breadcrumb__back:hover { color: var(--accent); }
+      .breadcrumb__back:hover { color: var(--text-strong); }
 
       .exam-meta {
         display: flex;
         align-items: center;
         flex-wrap: wrap;
-        gap: 10px;
-        font-family: var(--font-mono);
-        font-size: 12px;
+        gap: 8px;
+        font-size: var(--fs-caption);
         color: var(--text-muted);
-        margin-bottom: 20px;
+        margin-bottom: 12px;
       }
-      .exam-level { color: var(--accent); font-weight: 600; }
+      .exam-level {
+        font-size: var(--fs-micro);
+        font-weight: 500;
+        color: var(--text-muted);
+        background: var(--bg-sunken);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-full);
+        padding: 2px 10px;
+      }
       .exam-sep { color: var(--text-faint); }
 
       .exam-title {
-        font-family: var(--font-sans);
-        font-size: clamp(32px, 4.5vw, 52px);
-        font-weight: 800;
-        line-height: 1.08;
-        letter-spacing: -0.03em;
+        font-size: var(--fs-h2);
+        font-weight: 600;
+        line-height: 1.2;
+        letter-spacing: -0.5px;
         color: var(--text-strong);
-        margin: 0 0 20px;
+        margin: 0 0 12px;
         max-width: 860px;
       }
 
       .exam-description {
-        font-size: 17px;
+        font-size: var(--fs-lg);
         color: var(--text-muted);
-        line-height: 1.65;
+        line-height: 1.5;
         margin: 0;
         max-width: 680px;
       }
@@ -161,39 +163,33 @@ const fmt = (d: Date) =>
         width: 100%;
         max-width: 860px;
         height: auto;
-        border-radius: 6px;
-        margin-top: 40px;
+        border-radius: var(--radius-lg);
+        margin-top: 32px;
         border: 1px solid var(--border);
         object-fit: cover;
       }
 
-      .start-form { margin-top: 32px; }
+      .start-form { margin-top: 28px; }
       .start-button {
-        font-family: var(--font-mono);
-        font-size: 14px;
-        font-weight: 600;
-        color: var(--bg);
-        background: var(--accent);
         border: none;
-        border-radius: 6px;
-        padding: 14px 28px;
         cursor: pointer;
-        transition: opacity 0.12s;
+        font-family: inherit;
+        transition: opacity 0.15s ease;
       }
-      .start-button:hover { opacity: 0.85; }
+      .start-button:hover { opacity: 0.88; }
 
       .history-inner {
         max-width: var(--max-w);
         margin: 0 auto;
-        padding: 48px var(--pad-x) 96px;
+        padding: 40px var(--pad-x) 96px;
       }
 
       .history-title {
-        font-family: var(--font-mono);
-        font-size: 13px;
-        color: var(--text-muted);
-        margin: 0 0 20px;
+        font-size: var(--fs-h4);
         font-weight: 600;
+        letter-spacing: -0.01em;
+        color: var(--text-strong);
+        margin: 0 0 16px;
       }
 
       .history-list {
@@ -202,7 +198,8 @@ const fmt = (d: Date) =>
         padding: 0;
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 8px;
+        max-width: 720px;
       }
 
       .history-item {
@@ -210,30 +207,25 @@ const fmt = (d: Date) =>
         align-items: center;
         flex-wrap: wrap;
         gap: 8px;
-        font-family: var(--font-mono);
-        font-size: 13px;
+        font-size: var(--fs-sm);
         color: var(--text-muted);
         border: 1px solid var(--border);
-        border-radius: 6px;
+        border-radius: var(--radius-lg);
         padding: 12px 16px;
       }
-      .history-item__date { color: var(--text); }
+      .history-item__date { color: var(--text-strong); font-variant-numeric: tabular-nums; }
       .history-item__sep { color: var(--text-faint); }
-      .history-item__score { color: var(--accent); font-weight: 600; }
+      .history-item__score { color: var(--text-strong); font-weight: 600; }
       .history-item__detail { color: var(--text-muted); }
       .history-item__pending { color: var(--text-dim); }
-      .history-item__auto { color: var(--text-faint); font-style: italic; }
+      .history-item__auto { color: var(--text-dim); font-size: var(--fs-caption); }
 
       .empty {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        font-family: var(--font-mono);
-        font-size: 14px;
+        font-size: var(--fs-md);
         color: var(--text-dim);
-        padding: 24px 0;
+        padding: 8px 0;
+        margin: 0;
       }
-      .empty__prompt { color: var(--accent); }
     </style>
   </body>
 </html>

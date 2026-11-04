@@ -58,7 +58,7 @@ if (!result) return new Response(null, { status: 404, statusText: 'Not Found' })
       questions={result.questions}
     />
 
-    <a href={`/exams/${slug}`} class="results-page__back">← Volver al examen</a>
+    <a href={`/exams/${slug}`} class="btn-ghost results-page__back">← Volver al examen</a>
   </div>
 </QuizShell>
 
@@ -72,34 +72,26 @@ if (!result) return new Response(null, { status: 404, statusText: 'Not Found' })
   .results-page__header {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 8px;
   }
 
   .results-page__eyebrow {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--text-muted);
+    font-size: var(--fs-caption);
+    font-weight: 500;
+    color: var(--accent);
     margin: 0;
   }
 
   .results-page__title {
-    font-family: var(--font-sans);
-    font-size: 28px;
-    font-weight: 800;
+    font-size: var(--fs-h3);
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -0.5px;
     color: var(--text-strong);
     margin: 0;
   }
 
   .results-page__back {
     align-self: flex-start;
-    font-family: var(--font-mono);
-    font-size: 13px;
-    color: var(--text-muted);
-  }
-
-  .results-page__back:hover {
-    color: var(--accent);
   }
 </style>

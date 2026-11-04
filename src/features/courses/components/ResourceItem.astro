@@ -18,7 +18,7 @@ function getVideoEmbed(url: string): string | null {
 
 const embedUrl = resource.type === 'video' ? getVideoEmbed(resource.url) : null;
 
-const badge = resource.type === 'github' ? 'gh' : resource.type === 'video' ? 'â–¶' : 'â†—';
+const badge = resource.type === 'github' ? 'GitHub' : resource.type === 'video' ? 'Video' : 'Enlace';
 ---
 
 <div class="resource" id={anchorId ?? undefined}>
@@ -51,8 +51,8 @@ const badge = resource.type === 'github' ? 'gh' : resource.type === 'video' ? 'â
     gap: 12px;
     padding: 14px 16px;
     border: 1px solid var(--border);
-    border-radius: 4px;
-    background: var(--bg-raised);
+    border-radius: var(--radius-lg);
+    background: var(--bg);
     scroll-margin-top: 100px;
   }
 
@@ -60,7 +60,7 @@ const badge = resource.type === 'github' ? 'gh' : resource.type === 'video' ? 'â
     position: relative;
     width: 100%;
     padding-bottom: 56.25%;
-    border-radius: 3px;
+    border-radius: var(--radius-md);
     overflow: hidden;
     background: #000;
   }
@@ -79,46 +79,37 @@ const badge = resource.type === 'github' ? 'gh' : resource.type === 'video' ? 'â
   }
 
   .resource__badge {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    font-weight: 600;
-    padding: 3px 7px;
-    border-radius: 3px;
+    font-size: var(--fs-micro);
+    font-weight: 500;
+    padding: 1px 8px;
+    border-radius: var(--radius-full);
     white-space: nowrap;
     flex-shrink: 0;
-    margin-top: 2px;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-  .resource__badge--github {
-    background: rgba(139, 148, 158, 0.15);
-    color: #8b949e;
-    border: 1px solid rgba(139, 148, 158, 0.25);
-  }
-  .resource__badge--video {
-    background: rgba(248, 81, 73, 0.12);
-    color: #f85149;
-    border: 1px solid rgba(248, 81, 73, 0.2);
+    margin-top: 1px;
+    background: var(--bg-sunken);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
   }
   .resource__badge--link {
     background: var(--accent-soft);
     color: var(--accent);
-    border: 1px solid rgba(124, 240, 140, 0.2);
+    border-color: transparent;
   }
 
-  .resource__info { display: flex; flex-direction: column; gap: 4px; }
+  .resource__info { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 
   .resource__title {
-    font-family: var(--font-mono);
-    font-size: 13px;
-    color: var(--text);
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    color: var(--text-strong);
     text-decoration: none;
     line-height: 1.4;
+    overflow-wrap: anywhere;
   }
-  .resource__title:hover { color: var(--accent); }
+  .resource__title:hover { color: var(--link); }
 
   .resource__desc {
-    font-size: 12px;
+    font-size: var(--fs-caption);
     color: var(--text-muted);
     margin: 0;
     line-height: 1.5;

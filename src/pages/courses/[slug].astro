@@ -51,8 +51,8 @@ const sessions = groupSessions(activeSection?.resources ?? []);
     <main>
       <section class="course-head">
         <div class="course-head__inner">
-          <nav class="breadcrumb">
-            <a href="/courses" class="breadcrumb__back">← cursos</a>
+          <nav class="breadcrumb" aria-label="Ruta">
+            <a href="/courses" class="breadcrumb__back">← Cursos</a>
           </nav>
 
           <div class="course-meta">
@@ -92,10 +92,7 @@ const sessions = groupSessions(activeSection?.resources ?? []);
 
           <article class="course-main">
             {(course.sections?.length ?? 0) === 0 ? (
-              <div class="empty">
-                <span class="empty__prompt">#</span>
-                <span>este curso todavía no tiene secciones.</span>
-              </div>
+              <p class="empty">Este curso todavía no tiene secciones.</p>
             ) : (
               <SectionList
                 sections={course.sections!}
@@ -111,51 +108,57 @@ const sessions = groupSessions(activeSection?.resources ?? []);
 
     <style>
       .course-head {
-        border-bottom: 1px dashed var(--border);
-        background: var(--bg-sunken);
+        border-bottom: 1px solid var(--border-dim);
       }
       .course-head__inner {
         max-width: var(--max-w);
         margin: 0 auto;
-        padding: 56px var(--pad-x) 64px;
+        padding: 40px var(--pad-x) 40px;
       }
 
-      .breadcrumb { margin-bottom: 32px; }
+      .breadcrumb { margin-bottom: 24px; }
       .breadcrumb__back {
-        font-family: var(--font-mono);
-        font-size: 13px;
+        font-size: var(--fs-sm);
+        font-weight: 500;
         color: var(--text-muted);
         text-decoration: none;
       }
-      .breadcrumb__back:hover { color: var(--accent); }
+      .breadcrumb__back:hover { color: var(--text-strong); }
 
       .course-meta {
         display: flex;
+        flex-wrap: wrap;
         align-items: center;
-        gap: 10px;
-        font-family: var(--font-mono);
-        font-size: 12px;
+        gap: 8px;
+        font-size: var(--fs-caption);
         color: var(--text-muted);
-        margin-bottom: 20px;
+        margin-bottom: 12px;
       }
-      .course-level { color: var(--accent); font-weight: 600; }
+      .course-level {
+        font-size: var(--fs-micro);
+        font-weight: 500;
+        color: var(--text-muted);
+        background: var(--bg-sunken);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-full);
+        padding: 2px 10px;
+      }
       .course-sep { color: var(--text-faint); }
 
       .course-title {
-        font-family: var(--font-sans);
-        font-size: clamp(32px, 4.5vw, 52px);
-        font-weight: 800;
-        line-height: 1.08;
-        letter-spacing: -0.03em;
+        font-size: var(--fs-h2);
+        font-weight: 600;
+        line-height: 1.2;
+        letter-spacing: -0.5px;
         color: var(--text-strong);
-        margin: 0 0 20px;
+        margin: 0 0 12px;
         max-width: 860px;
       }
 
       .course-description {
-        font-size: 17px;
+        font-size: var(--fs-lg);
         color: var(--text-muted);
-        line-height: 1.65;
+        line-height: 1.5;
         margin: 0;
         max-width: 680px;
       }
@@ -164,8 +167,8 @@ const sessions = groupSessions(activeSection?.resources ?? []);
         width: 100%;
         max-width: 860px;
         height: auto;
-        border-radius: 6px;
-        margin-top: 40px;
+        border-radius: var(--radius-lg);
+        margin-top: 32px;
         border: 1px solid var(--border);
         object-fit: cover;
       }
@@ -176,10 +179,10 @@ const sessions = groupSessions(activeSection?.resources ?? []);
       .course-body__inner {
         max-width: var(--max-w);
         margin: 0 auto;
-        padding: 48px var(--pad-x) 96px;
+        padding: 40px var(--pad-x) 96px;
         display: grid;
-        grid-template-columns: 240px 1fr;
-        gap: 56px;
+        grid-template-columns: 240px minmax(0, 1fr);
+        gap: 48px;
         align-items: start;
       }
 
@@ -190,15 +193,11 @@ const sessions = groupSessions(activeSection?.resources ?? []);
       .course-main { min-width: 0; }
 
       .empty {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        font-family: var(--font-mono);
-        font-size: 14px;
+        font-size: var(--fs-md);
         color: var(--text-dim);
         padding: 48px 0;
+        margin: 0;
       }
-      .empty__prompt { color: var(--accent); }
 
       @media (max-width: 768px) {
         .course-body__inner {
@@ -208,9 +207,9 @@ const sessions = groupSessions(activeSection?.resources ?? []);
         }
         .course-sidebar {
           border: 1px solid var(--border);
-          border-radius: 6px;
+          border-radius: var(--radius-lg);
           padding: 16px;
-          background: var(--bg-raised);
+          background: var(--bg);
         }
         aside[data-diplomado] {
           position: sticky;

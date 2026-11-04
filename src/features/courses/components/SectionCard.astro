@@ -8,12 +8,12 @@ export interface Props {
 }
 
 const { title, description, resourceCount, href, index } = Astro.props;
-const num = index != null ? String(index).padStart(2, '0') : '';
+const label = index != null ? `Sección ${index}` : '';
 ---
 
 <a href={href} class="section-card">
   <div class="section-card__top">
-    {num && <span class="section-card__num">{num}</span>}
+    {label && <span class="section-card__num">{label}</span>}
     <span class="section-card__count">
       {resourceCount} {resourceCount === 1 ? 'recurso' : 'recursos'}
     </span>
@@ -28,15 +28,16 @@ const num = index != null ? String(index).padStart(2, '0') : '';
     flex-direction: column;
     gap: 10px;
     padding: 24px;
+    background: var(--bg);
     border: 1px solid var(--border);
-    border-radius: 6px;
+    border-radius: var(--radius-lg);
     text-decoration: none;
     color: inherit;
-    transition: background 0.12s, border-color 0.12s;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
   }
   .section-card:hover {
-    background: var(--bg-raised);
-    border-color: var(--accent);
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-subtle);
   }
 
   .section-card__top {
@@ -44,36 +45,31 @@ const num = index != null ? String(index).padStart(2, '0') : '';
     align-items: center;
     justify-content: space-between;
     gap: 12px;
+    font-size: var(--fs-caption);
   }
 
   .section-card__num {
-    font-family: var(--font-mono);
-    font-size: 11px;
+    font-weight: 500;
     color: var(--accent);
-    font-weight: 600;
   }
 
   .section-card__count {
-    font-family: var(--font-mono);
-    font-size: 11px;
     color: var(--text-muted);
   }
 
   .section-card__title {
-    font-family: var(--font-sans);
-    font-size: 18px;
-    font-weight: 700;
+    font-size: var(--fs-h5);
+    font-weight: 600;
+    line-height: 1.35;
+    letter-spacing: -0.01em;
     color: var(--text-strong);
     margin: 0;
-    line-height: 1.3;
-    letter-spacing: -0.015em;
   }
-  .section-card:hover .section-card__title { color: var(--accent); }
 
   .section-card__desc {
-    font-size: 14px;
+    font-size: var(--fs-sm);
+    line-height: 1.55;
     color: var(--text-muted);
     margin: 0;
-    line-height: 1.6;
   }
 </style>

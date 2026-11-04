@@ -37,12 +37,16 @@ const { totalQuestions } = Astro.props;
 
 <style>
   .attempt-toolbar {
+    --flag: #b45309;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     flex-wrap: wrap;
     padding: 16px 0;
     border-top: 1px solid var(--border);
+  }
+  :global(html[data-mode='dark']) .attempt-toolbar {
+    --flag: #fbbf24;
   }
 
   .attempt-toolbar__spacer {
@@ -53,53 +57,61 @@ const { totalQuestions } = Astro.props;
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    font-family: var(--font-mono);
-    font-size: 13px;
-    color: var(--text);
-    background: transparent;
-    padding: 10px 16px;
-    border-radius: 4px;
+    font-family: inherit;
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    line-height: 1.3;
+    color: var(--text-strong);
+    background: var(--bg);
+    padding: 9px 18px;
+    border-radius: var(--radius-full);
     border: 1px solid var(--border);
     cursor: pointer;
-    transition: border-color 0.12s, color 0.12s, background 0.12s;
+    transition: border-color 0.15s, color 0.15s, opacity 0.15s;
   }
 
   .attempt-toolbar__btn:hover {
-    border-color: var(--accent);
-    color: var(--accent);
+    border-color: var(--border-strong);
+  }
+
+  .attempt-toolbar__btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 
   .attempt-toolbar__btn[aria-pressed='true'] {
-    border-color: #ffb454;
-    color: #ffb454;
+    border-color: var(--flag);
+    color: var(--flag);
   }
 
   .attempt-toolbar__btn--primary {
-    background: var(--accent);
-    color: var(--accent-on);
-    border-color: var(--accent);
-    font-weight: 600;
+    background: var(--primary);
+    color: var(--on-primary);
+    border-color: var(--primary);
   }
 
   .attempt-toolbar__btn--primary:hover {
-    filter: brightness(1.08);
-    color: var(--accent-on);
+    opacity: 0.86;
+    border-color: var(--primary);
   }
 
   .attempt-toolbar__btn--accent {
-    border-color: var(--accent);
-    color: var(--accent);
+    background: var(--accent-bright);
+    color: var(--accent-on);
+    border-color: var(--accent-bright);
+  }
+
+  .attempt-toolbar__btn--accent:hover {
+    opacity: 0.88;
+    border-color: var(--accent-bright);
   }
 
   .attempt-toolbar__icon {
-    font-size: 12px;
+    font-size: var(--fs-micro);
     line-height: 1;
   }
 
   @media (max-width: 600px) {
-    .attempt-toolbar {
-      gap: 8px;
-    }
     .attempt-toolbar__spacer {
       display: none;
     }

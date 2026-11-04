@@ -1,7 +1,9 @@
 ---
-// Minimal-chrome layout for exam attempts and results — no Header/Footer/MagneticCursor.
-// Keeps the reader focused on the timer and questions instead of site navigation.
+// Minimal-chrome layout for exam attempts and results — no site Header/Footer.
+// A slim top bar (brand + mode toggle) keeps the reader focused on the timer
+// and questions instead of site navigation.
 import BaseHead from '../components/seo/BaseHead.astro';
+import ModeToggle from '../components/ModeToggle.astro';
 
 interface Props {
   title: string;
@@ -17,6 +19,16 @@ const { title, description } = Astro.props;
     <BaseHead title={title} description={description} />
   </head>
   <body class="quiz-shell">
+    <header class="quiz-shell__bar">
+      <div class="quiz-shell__bar-inner">
+        <a href="/exams" class="brand" aria-label="Volver a certificaciones">
+          <span class="brand__mark" aria-hidden="true"></span>
+          <span class="brand__name">Miguel Anay</span>
+        </a>
+        <ModeToggle />
+      </div>
+    </header>
+
     <main class="quiz-shell__main">
       <slot />
     </main>
@@ -24,11 +36,24 @@ const { title, description } = Astro.props;
     <style>
       .quiz-shell {
         min-height: 100vh;
+        background: var(--bg);
+      }
+      .quiz-shell__bar {
+        border-bottom: 1px solid var(--border-dim);
+      }
+      .quiz-shell__bar-inner {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 12px var(--pad-x);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
       }
       .quiz-shell__main {
-        max-width: var(--max-w);
+        max-width: 960px;
         margin: 0 auto;
-        padding: 32px var(--pad-x) 64px;
+        padding: 24px var(--pad-x) 64px;
       }
     </style>
   </body>
