@@ -7,7 +7,7 @@ const { slug, attemptId: attemptIdParam } = Astro.params;
 if (!slug) return Astro.redirect('/exams');
 
 const user = Astro.locals.user;
-if (!user) return Astro.redirect('/login?redirect=' + encodeURIComponent(Astro.url.pathname));
+if (!user) return new Response('Visitor id unavailable', { status: 500 });
 
 const attemptId = Number(attemptIdParam);
 if (!Number.isInteger(attemptId) || attemptId <= 0) {

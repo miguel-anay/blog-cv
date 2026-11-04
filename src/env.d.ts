@@ -2,7 +2,7 @@
 
 declare namespace App {
   interface Locals {
-    user: import('./lib/auth').Session['user'] | null;
-    session: import('./lib/auth').Session['session'] | null;
+    /** Anonymous guest visitor, set by the middleware on /exams routes only. */
+    user: typeof import('./lib/schema').user.$inferSelect | null;
   }
 }
