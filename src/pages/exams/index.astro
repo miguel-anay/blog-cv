@@ -2,7 +2,6 @@
 import BaseHead from '../../components/seo/BaseHead.astro';
 import Header from '../../components/layout/Header.astro';
 import Footer from '../../components/layout/Footer.astro';
-import MagneticCursor from '../../components/MagneticCursor.astro';
 import ExamCard from '../../features/exams/components/ExamCard.astro';
 import { getExams } from '../../lib/exam-api';
 
@@ -18,7 +17,6 @@ const exams = await getExams();
     />
   </head>
   <body>
-    <MagneticCursor />
     <Header />
 
     <main>

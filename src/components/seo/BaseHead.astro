@@ -48,25 +48,17 @@ const {
 <link rel="alternate" type="application/rss+xml" title={SITE_TITLE} href={new URL("rss.xml", Astro.site)} />
 
 <!--
-  No-flash theme bootstrap.
-  Runs synchronously before <body> paints. Reads prefs from localStorage,
-  defaults to (dark · green · min), and sets data-* attrs on <html> so
-  CSS variables resolve correctly on first paint.
+  No-flash color-mode bootstrap.
+  Runs synchronously before <body> paints: light by default, data-mode="dark"
+  on <html> only when the visitor chose dark (localStorage 'site-mode').
 -->
 <script is:inline>
   (function () {
+    // Light by default (Mintlify); dark only when the visitor chose it.
     try {
-      const theme = localStorage.getItem('blog-theme') || 'min';
-      const mode = localStorage.getItem('blog-mode') || 'dark';
-      const accent = localStorage.getItem('blog-accent') || 'green';
-      const root = document.documentElement;
-      root.setAttribute('data-theme', ['term', 'ide', 'min'].includes(theme) ? theme : 'min');
-      root.setAttribute('data-mode', mode === 'light' ? 'light' : 'dark');
-      root.setAttribute('data-accent', ['green', 'amber', 'cyan', 'magenta'].includes(accent) ? accent : 'green');
-    } catch (e) {
-      document.documentElement.setAttribute('data-theme', 'min');
-      document.documentElement.setAttribute('data-mode', 'dark');
-      document.documentElement.setAttribute('data-accent', 'green');
-    }
+      if (localStorage.getItem('site-mode') === 'dark') {
+        document.documentElement.setAttribute('data-mode', 'dark');
+      }
+    } catch (e) {}
   })();
 </script>

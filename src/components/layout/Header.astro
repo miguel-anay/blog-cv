@@ -1,9 +1,6 @@
 ---
 import { SITE_TITLE } from "../../lib/constants";
-import ThemeSwitcher from "../ThemeSwitcher.astro";
 import ModeToggle from "../ModeToggle.astro";
-import TermChrome from "../TermChrome.astro";
-import IdeShell from "../IdeShell.astro";
 import MobileNav from "./MobileNav.astro";
 
 const currentPath = Astro.url.pathname;
@@ -13,133 +10,33 @@ const isActive = (href: string) => {
 };
 
 const nav = [
-  { href: "/",        label: "./" },
-  { href: "/blog",    label: "./blog" },
-  { href: "/courses", label: "./courses" },
-  { href: "/docs",    label: "./docs" },
-  { href: "/exams",   label: "./exams" },
-  { href: "/about",   label: "./about" },
-  { href: "/cv",      label: "./cv" },
+  { href: "/blog",    label: "Blog" },
+  { href: "/docs",    label: "Docs" },
+  { href: "/courses", label: "Cursos" },
+  { href: "/exams",   label: "Exámenes" },
+  { href: "/about",   label: "Sobre mí" },
+  { href: "/cv",      label: "CV" },
 ];
 ---
-
-<TermChrome />
-<IdeShell />
 
 <header class="site-header">
   <div class="site-header__inner">
     <a href="/" class="brand" aria-label={`${SITE_TITLE} — inicio`}>
-      <span class="brand__prompt">$</span>
-      <span class="brand__name">miguel-anay</span>
-      <span class="brand__cursor" aria-hidden="true"></span>
+      <span class="brand__mark" aria-hidden="true"></span>
+      <span class="brand__name">Miguel Anay</span>
     </a>
 
     <nav class="site-nav" aria-label="Navegación principal">
-      <span class="nav-pill" aria-hidden="true"></span>
       {nav.map((item) => (
-        <a href={item.href} class={isActive(item.href) ? "is-active" : ""}>
+        <a href={item.href} class={isActive(item.href) ? "is-active" : ""} aria-current={isActive(item.href) ? "page" : undefined}>
           {item.label}
         </a>
       ))}
     </nav>
 
     <div class="header-controls">
-      <ThemeSwitcher showLabel={true} />
-      <span class="header-sep" aria-hidden="true"></span>
-      <span class="kbd" title="Atajo (próximamente)">⌘K</span>
-      <span class="header-sep" aria-hidden="true"></span>
       <ModeToggle />
       <MobileNav nav={nav} currentPath={currentPath} />
     </div>
   </div>
 </header>
-
-<script>
-  import gsap from "gsap";
-
-  function initNavPill() {
-    const nav = document.querySelector<HTMLElement>(".site-nav");
-    const pillMaybe = nav?.querySelector<HTMLElement>(".nav-pill");
-    if (!nav || !pillMaybe) return;
-    const pill: HTMLElement = pillMaybe;
-
-    const links = Array.from(nav.querySelectorAll<HTMLAnchorElement>("a"));
-    const activeLink = links.find((a) => a.classList.contains("is-active")) ?? links[0];
-
-    // Snap pill to active link on page load (no animation, always instant)
-    function snapToEl(el: HTMLElement) {
-      const navRect = nav!.getBoundingClientRect();
-      const elRect = el.getBoundingClientRect();
-      gsap.set(pill, {
-        x: elRect.left - navRect.left,
-        width: elRect.width,
-        height: elRect.height,
-      });
-    }
-
-    if (activeLink) {
-      snapToEl(activeLink);
-    }
-
-    const mm = gsap.matchMedia();
-
-    mm.add({ ok: "(prefers-reduced-motion: no-preference)" }, () => {
-      // Animated pill on link hover
-      links.forEach((link) => {
-        link.addEventListener("mouseenter", () => {
-          const navRect = nav!.getBoundingClientRect();
-          const linkRect = link.getBoundingClientRect();
-          gsap.to(pill, {
-            x: linkRect.left - navRect.left,
-            width: linkRect.width,
-            duration: 0.25,
-            ease: "power3.out",
-          });
-        });
-      });
-
-      // Return to active link on nav mouseleave
-      nav.addEventListener("mouseleave", () => {
-        if (activeLink) {
-          const navRect = nav!.getBoundingClientRect();
-          const elRect = activeLink.getBoundingClientRect();
-          gsap.to(pill, {
-            x: elRect.left - navRect.left,
-            width: elRect.width,
-            duration: 0.25,
-            ease: "power3.out",
-          });
-        }
-      });
-
-      // Re-snap on resize (no animation for resize)
-      const ro = new ResizeObserver(() => {
-        if (activeLink) snapToEl(activeLink);
-      });
-      ro.observe(nav);
-
-      return () => {
-        ro.disconnect();
-      };
-    });
-
-    // Under reduced motion: still snap on hover (just no animation)
-    mm.add("(prefers-reduced-motion: reduce)", () => {
-      links.forEach((link) => {
-        link.addEventListener("mouseenter", () => {
-          snapToEl(link);
-        });
-      });
-      nav.addEventListener("mouseleave", () => {
-        if (activeLink) snapToEl(activeLink);
-      });
-    });
-  }
-
-  // Init after DOM is ready
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initNavPill);
-  } else {
-    initNavPill();
-  }
-</script>
