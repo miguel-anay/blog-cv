@@ -431,9 +431,13 @@ const lastUpdated = allArticles[0]?.publishedAt
         padding-top: 24px;
         border-top: 1px solid var(--border);
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 24px;
-        max-width: 720px;
+        /* auto columns keep the row as wide as its content, so it never runs
+           under the 3D scene on the right */
+        grid-template-columns: repeat(4, auto);
+        justify-content: start;
+        gap: 40px;
+        width: fit-content;
+        max-width: 100%;
       }
       @media (max-width: 768px) {
         .hero__stats { grid-template-columns: repeat(2, 1fr); }
@@ -609,7 +613,7 @@ const lastUpdated = allArticles[0]?.publishedAt
         border-radius: var(--radius-lg);
       }
       @media (max-width: 900px) {
-        .cta-newsletter { grid-template-columns: 1fr; padding: 24px 20px; }
+        .cta-newsletter { grid-template-columns: minmax(0, 1fr); padding: 24px 20px; }
       }
       .cta-newsletter__kicker {
         display: block;

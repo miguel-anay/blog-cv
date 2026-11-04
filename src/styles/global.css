@@ -506,11 +506,13 @@ hr {
   padding: 10px 20px;
   border-radius: var(--radius-full);
   border: 1px solid var(--primary);
-  transition: opacity 0.15s ease;
+  /* Never transition opacity here: GSAP fades these buttons in, and a CSS
+     opacity transition makes it settle on the wrong end value. */
+  transition: background-color 0.15s ease;
 }
 
 .btn-primary:hover {
-  opacity: 0.86;
+  background: color-mix(in srgb, var(--primary) 82%, var(--bg));
   color: var(--on-primary);
 }
 

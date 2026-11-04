@@ -31,6 +31,8 @@ const {
   next,
 } = Astro.props;
 
+// Articles can arrive with an unparseable updatedAt: show the date only when it is real.
+const validUpdated = updatedDate && !Number.isNaN(new Date(updatedDate).getTime()) ? updatedDate : undefined;
 const fmt = (d: Date | string | undefined) =>
   d ? new Date(d).toLocaleDateString("es-PE", { year: "numeric", month: "long", day: "numeric" }) : "—";
 
@@ -76,10 +78,10 @@ const categoryName = categoryNameProp ?? categories?.[0]?.name ?? categorySlug;
               <time datetime={pubDate ? new Date(pubDate).toISOString() : undefined}>{fmt(pubDate)}</time>
               <span class="article-byline__sep">·</span>
               <span>{readMin} min de lectura</span>
-              {updatedDate && (
+              {validUpdated && (
                 <>
                   <span class="article-byline__sep">·</span>
-                  <span>Actualizado {fmt(updatedDate)}</span>
+                  <span>Actualizado {fmt(validUpdated)}</span>
                 </>
               )}
             </div>
