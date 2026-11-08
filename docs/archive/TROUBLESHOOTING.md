@@ -1,3 +1,5 @@
+> Archivado 2026-11-08: describe el stack anterior (Strapi + AWS S3/CloudFront). Ver docs/TECH-DESIGN.md.
+
 # Troubleshooting
 
 ## Error: "Collection blog does not exist or is empty"

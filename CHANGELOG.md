@@ -9,7 +9,13 @@ Las decisiones detrás de cada cambio están en [`docs/adr/`](docs/adr/README.md
 
 - Sección `/docs`, que publica la documentación de repos de GitHub (#30). Documenta duck-kit (#31).
   Ver [ADR 0001](docs/adr/0001-docs-desde-github.md).
-- Carpeta `docs/adr/` y este changelog.
+- Cadena documental en `docs/`: PRD, Design, Technical Design, ADRs, Seguridad y Deploy, más `BACKLOG.md`
+  y este changelog. Índice en [`docs/README.md`](docs/README.md).
+
+### Cambiado (documentación)
+
+- `CLAUDE.md`, `README.md` y la guía de despliegue describen el stack actual (Astro SSR, Turso, Vercel).
+  Los documentos del stack anterior pasaron a `docs/archive/`.
 
 ### Cambiado
 

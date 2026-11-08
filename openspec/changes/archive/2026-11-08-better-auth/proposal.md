@@ -1,3 +1,5 @@
+> Archivado 2026-11-08: el código de este cambio se eliminó (sin login, ver docs/adr/0002-sin-login.md).
+
 # Proposal: better-auth
 
 **Change**: better-auth

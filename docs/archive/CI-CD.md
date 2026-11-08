@@ -1,3 +1,5 @@
+> Archivado 2026-11-08: describe el stack anterior (Strapi + AWS S3/CloudFront). Ver docs/TECH-DESIGN.md.
+
 # CI/CD Setup Documentation
 
 This document describes the Continuous Integration and Continuous Deployment (CI/CD) pipeline for the Callous Cluster Astro blog project.

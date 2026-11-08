@@ -1,3 +1,5 @@
+> Archivado 2026-11-08: describe el stack anterior (Strapi + AWS S3/CloudFront). Ver docs/TECH-DESIGN.md.
+
 # User Stories — Completadas
 
 ## US-006: Blog Loading & Single-Column Layout
