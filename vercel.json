@@ -6,9 +6,19 @@
   "redirects": [
     {
       "source": "/:path*",
-      "has": [{ "type": "host", "value": "www.miguel-anay.nom.pe" }],
+      "has": [
+        {
+          "type": "host",
+          "value": "www.miguel-anay.nom.pe"
+        }
+      ],
       "destination": "https://miguel-anay.nom.pe/:path*",
       "permanent": true
     }
-  ]
+  ],
+  "git": {
+    "deploymentEnabled": {
+      "main": false
+    }
+  }
 }
