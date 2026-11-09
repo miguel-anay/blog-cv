@@ -9,7 +9,7 @@ on:
 jobs:
   validate:
     name: Typecheck + Tests + Build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04 # ponytail: Playwright 1.60 has no chromium for ubuntu 26.04; back to latest when supported
     env:
       TURSO_URL: ${{ secrets.TURSO_URL }}
       TURSO_TOKEN: ${{ secrets.TURSO_TOKEN }}
