@@ -209,7 +209,7 @@ Resumen; el protocolo completo está en [DEPLOY.md](DEPLOY.md).
 
 - `vercel.json`: `pnpm install --frozen-lockfile`, `pnpm build`, framework `astro`, y redirección permanente
   de `www.miguel-anay.nom.pe` al dominio sin `www`.
-- CI (`ci.yml`) valida con `pnpm astro check` y `pnpm build`; en `main` aplica migraciones
+- CI (`ci.yml`) valida con `pnpm astro check`, `pnpm test:unit`, `pnpm test` (Playwright) y `pnpm build`; en `main` aplica migraciones
   (`pnpm db:migrate`) y publica con `vercel deploy --prod`.
 - Variables: `TURSO_URL`, `TURSO_TOKEN`, `GITHUB_TOKEN` (opcional), en Production y Preview. No llegan al
   cliente (RNF2).
@@ -231,7 +231,7 @@ Resumen; el protocolo completo está en [DEPLOY.md](DEPLOY.md).
 | RNF2 | Credenciales solo como variables de entorno del servidor (`import.meta.env` sin prefijo `PUBLIC_`) | `lib/db.ts`, [SECURITY.md](SECURITY.md) |
 | RNF3 | Lista `DOC_REPOS` y `findDocRepo` | `features/docs/repos.ts`, [SECURITY.md](SECURITY.md) |
 | RNF4 | Errores de GitHub devueltos como 502 solo en `/docs` | §5.3, §7 |
-| RNF5 | `ci.yml`: `astro check` + `build` en cada PR; las pruebas unitarias y E2E se corren a mano (**brecha**, ver abajo) | [DEPLOY.md](DEPLOY.md) |
+| RNF5 | `ci.yml`: `astro check`, Vitest, Playwright y `build` en cada PR | [DEPLOY.md](DEPLOY.md) |
 
 **Nota sobre RF2.** El RSS lee la colección `blog` de Astro, cuyo loader (`src/content.config.ts`) consulta
 Turso con `getArticles({ pageSize: 100 })`; esa colección se carga al construir, así que un artículo nuevo
@@ -239,8 +239,7 @@ aparece en el RSS en el siguiente despliegue y solo entran los 100 más reciente
 fijas (`/`, `about`, `blog`, `blog/categories`) y las páginas de `/docs`; no enumera artículos ni cursos. Es una
 diferencia con O2 ("sin build") para el RSS, registrada para el [BACKLOG](../BACKLOG.md).
 
-**Brecha en RNF5.** El PRD pide type check, tests y build. `ci.yml` hoy corre type check y build, pero no
-ejecuta `pnpm test:unit` ni Playwright. Está registrado para el [BACKLOG](../BACKLOG.md).
+**RNF5.** El PRD pide type check, tests y build. Desde #36, `ci.yml` corre los tres en cada PR.
 
 ## 11. Decisiones
 

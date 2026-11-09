@@ -39,7 +39,7 @@ Vercel y de los secrets de GitHub. Ninguna lleva prefijo `PUBLIC_`, así que no 
 ## 3. Flujo de despliegue
 
 1. Rama `feat/…`, `fix/…`, etc. y pull request contra `main`.
-2. CI corre `astro check` y `build` (§6). Vercel publica un preview.
+2. CI corre `astro check`, Vitest, Playwright y `build` (§6). Vercel publica un preview.
 3. Se revisa el preview (§5) y se hace merge.
 4. En el push a `main`, CI vuelve a validar y, si pasa, el job `deploy`:
    1. `pnpm db:migrate` aplica contra Turso las migraciones SQL pendientes de `src/lib/migrations/`
@@ -103,13 +103,15 @@ Un solo workflow, `CI`.
 | Campo | Valor |
 |---|---|
 | Disparadores | `push` a `main` y `pull_request` hacia `main` |
-| Runner / Node | `ubuntu-latest`, Node 22, pnpm instalado con `npm install -g pnpm` |
+| Runner / Node | `ubuntu-24.04` en `validate` (Playwright 1.60 no soporta Chromium en 26.04), `ubuntu-latest` en `deploy`; Node 22, pnpm instalado con `npm install -g pnpm` |
 
-**Job `validate` (Typecheck + Build)** — en push y PR:
+**Job `validate` (Typecheck + Tests + Build)** — en push y PR, con `TURSO_URL` y `TURSO_TOKEN` desde secrets:
 
 1. `pnpm install --frozen-lockfile`
 2. `pnpm astro check`
-3. `pnpm build`, con `TURSO_URL` y `TURSO_TOKEN` desde secrets (el build consulta la base para el RSS).
+3. `pnpm test:unit` (Vitest)
+4. `pnpm exec playwright install --with-deps chromium` y `pnpm test` (E2E en 4 viewports)
+5. `pnpm build` (el build consulta la base para el RSS).
 
 **Job `deploy` (Deploy to Vercel)** — `needs: validate`, solo en `push` a `main`:
 
@@ -120,18 +122,14 @@ Un solo workflow, `CI`.
 
 Secrets de GitHub usados: `TURSO_URL`, `TURSO_TOKEN`, `VERCEL_TOKEN`.
 
-**Qué no hace hoy** (brechas conocidas, ver [BACKLOG](../BACKLOG.md)):
-
-- No ejecuta `pnpm test:unit` ni Playwright, aunque [RNF5](PRD.md) pide tests en CI.
-- El paso de build aún exporta secrets `BETTER_AUTH_*`, `GOOGLE_*`, `FACEBOOK_*` y `LINKEDIN_*` que el código
-  ya no lee.
-- Si la integración Git de Vercel también publica `main`, producción se despliega dos veces (una por Vercel y
-  otra por este job). Conviene desactivar uno de los dos caminos.
+**Un solo camino a producción.** `vercel.json` tiene `git.deploymentEnabled.main: false`: la integración Git
+de Vercel ya no publica `main` y solo arma previews de los PR. Producción sale únicamente de este job, después
+de las migraciones. Hasta #36 se desplegaba dos veces por merge.
 
 Correr lo mismo en local antes de abrir el PR:
 
 ```bash
-pnpm install --frozen-lockfile && pnpm check && pnpm test:unit && pnpm build
+pnpm install --frozen-lockfile && pnpm check && pnpm test:unit && pnpm test && pnpm build
 ```
 
 ## 7. Archivos del stack anterior

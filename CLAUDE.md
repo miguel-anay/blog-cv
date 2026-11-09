@@ -20,7 +20,8 @@ pnpm test                # Playwright E2E (tests/e2e, dev server on :4322)
 pnpm db:migrate          # apply pending src/lib/migrations/*.sql to Turso (idempotent)
 ```
 
-Before a PR: `pnpm check && pnpm test:unit && pnpm build`. CI only runs `astro check` + `build`.
+Before a PR: `pnpm check && pnpm test:unit && pnpm test && pnpm build` (CI runs the same). Production deploys
+only from CI after migrations (`vercel.json` disables Vercel's Git deploy of `main`).
 
 ## Architecture
 
